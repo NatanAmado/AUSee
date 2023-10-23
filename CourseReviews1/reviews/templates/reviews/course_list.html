@@ -1,10 +1,54 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>Courses</h2>
-  <ul>
-    {% for course in courses %}
-      <li><a href="{% url 'reviews:course_detail' course.id %}">{{ course.name }}</a></li>
+<h2>Courses</h2>
+<div class="container mt-5">
+
+  <h3>100 Level Courses</h3>
+  <div class="row">
+    {% for course in level_100_courses %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
+            <p class="card-text">{{ course.description|truncatechars:100 }}</p>
+            <a href="{% url 'reviews:course_detail' course.id %}" class="btn btn-primary">View Reviews</a>
+          </div>
+        </div>
+      </div>
     {% endfor %}
-  </ul>
+  </div>
+
+  <h3>200 Level Courses</h3>
+  <div class="row">
+    {% for course in level_200_courses %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
+            <p class="card-text">{{ course.description|truncatechars:100 }}</p>
+            <a href="{% url 'reviews:course_detail' course.id %}" class="btn btn-primary">View Reviews</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <h3>300 Level Courses</h3>
+  <div class="row">
+    {% for course in level_300_courses %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
+            <p class="card-text">{{ course.description|truncatechars:100 }}</p>
+            <a href="{% url 'reviews:course_detail' course.id %}" class="btn btn-primary">View Reviews</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
 {% endblock %}
+

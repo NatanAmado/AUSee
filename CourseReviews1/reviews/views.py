@@ -1,14 +1,25 @@
 from .models import Course, Review
 from .forms import ReviewForm
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponseRedirect
 
 
 # Create your views here.
 
 
 def course_list(request):
-    courses = Course.objects.all()
-    return render(request, 'reviews/course_list.html', {'courses': courses})
+    level_100_courses = Course.objects.filter(level=100)
+    level_200_courses = Course.objects.filter(level=200)
+    level_300_courses = Course.objects.filter(level=300)
+
+    context = {
+        'level_100_courses': level_100_courses,
+        'level_200_courses': level_200_courses,
+        'level_300_courses': level_300_courses,
+    }
+
+    return render(request, 'reviews/course_list.html', context)
+
 
 
 
