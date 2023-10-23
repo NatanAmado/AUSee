@@ -1,50 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>{{ course.name }} ({{ course.code }})</h2>
-  <p>{{ course.description }}</p>
-  
-  <h3>Reviews:</h3>
-  <ul>
-    {% for review in reviews %}
-      <li>
-        <strong>Rating: {{ review.rating }}</strong><br>
-        {{ review.text }}<br>
-        <small>Posted on: {{ review.created_date }}</small>
-        {% if user.is_authenticated and review.user == user %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <h2 class="display-4">{{ course.name }} <span class="text-muted">({{ course.code }})</span></h2>
+      <p class="lead">{{ course.description }}</p>
+      
+      <h3 class="mt-4">Reviews:</h3>
+      <ul class="list-unstyled">
+        {% for review in reviews %}
+          <li class="border-bottom pb-3 pt-3">
+            <strong class="text-primary">Rating: {{ review.rating }}</strong><br>
+            <p>{{ review.text }}</p>
+            <small class="text-muted">Posted on: {{ review.created_date }}</small>
+            {% if user.is_authenticated and review.user == user %}
+              <form method="post" class="mt-2">
+                {% csrf_token %}
+                <input type="hidden" name="review_id" value="{{ review.id }}">
+                <button type="submit" name="delete_review" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+
+      {% if user.is_authenticated %}
+        <button id="addReviewButton" class="btn btn-primary mt-3" onclick="toggleReviewForm()">Add a Review</button>
+
+        <div id="reviewForm" style="display: none;" class="mt-3">
           <form method="post">
             {% csrf_token %}
-            <input type="hidden" name="review_id" value="{{ review.id }}">
-            <button type="submit" name="delete_review">Delete</button>
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success">Submit Review</button>
           </form>
-        {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
+        </div>
 
-  {% if user.is_authenticated %}
-    <button id="addReviewButton" onclick="toggleReviewForm()">Add a Review</button>
-
-    <div id="reviewForm" style="display: none;">
-      <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit Review</button>
-      </form>
+        <script>
+          function toggleReviewForm() {
+            var form = document.getElementById("reviewForm");
+            if (form.style.display === "none") {
+              form.style.display = "block";
+            } else {
+              form.style.display = "none";
+            }
+          }
+        </script>
+      {% else %}
+        <p class="mt-3"><a href="{% url 'login' %}" class="btn btn-outline-primary">Log in</a> to submit a review.</p>
+      {% endif %}
     </div>
-
-    <script>
-      function toggleReviewForm() {
-        var form = document.getElementById("reviewForm");
-        if (form.style.display === "none") {
-          form.style.display = "block";
-        } else {
-          form.style.display = "none";
-        }
-      }
-    </script>
-  {% else %}
-    <p><a href="{% url 'login' %}">Log in</a> to submit a review.</p>
-  {% endif %}
+  </div>
+</div>
 {% endblock %}
+
 
