@@ -12,7 +12,7 @@
       <ul class="list-unstyled">
         {% for review in reviews %}
           <li class="border-bottom pb-3 pt-3">
-            <strong class="text-primary">Rating: {{ review.rating }}</strong><br>
+            <strong class="text-primary">Rating (1.0/5.0) : {{ review.rating }}</strong><br>
             <p>{{ review.text }}</p>
             <small class="text-muted">Posted on: {{ review.created_date }}</small>
             {% if user.is_authenticated and review.user == user %}

@@ -1,4 +1,5 @@
 from django.db import models
+from profanity import profanity
 
 # Create your models here.
 
@@ -8,7 +9,7 @@ LEVEL_CHOICES = [
     (300, '300 Level'),
 ]
 
-RATING_CHOICES = [(i / 10, f"{i / 10}") for i in range(10, 101)]
+RATING_CHOICES = [(i / 10, f"{i / 10}") for i in range(10, 51)]
 
 
 class Course(models.Model):
@@ -36,13 +37,20 @@ class Course(models.Model):
 
     def __str__(self):
         return self.name
+    
+profanity.set_censor_characters('****')
 
 class Review(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     text = models.TextField()
-    rating = models.DecimalField(choices=RATING_CHOICES, max_digits=3, decimal_places=1)
+    rating = models.FloatField(choices=RATING_CHOICES)
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # Clean the review text before saving
+        self.text = profanity.censor(self.text)
+        super(Review, self).save(*args, **kwargs)
 
     def __str__(self):
         return f"Review for {self.course.name}"
