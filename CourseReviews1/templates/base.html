@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course Reviews</title>
+    <title>AUC Course Reviews</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body, html {
@@ -20,6 +20,11 @@
         .navbar, .footer {
             background-color: #001F3F;
         }
+        .nav-link {
+            display: inline-block;
+            margin-right: 9px; /* Add some spacing between the links if needed */
+        }
+    
     </style>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </head>
@@ -28,7 +33,7 @@
 <header>
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-      <a class="navbar-brand" href="{% url 'homepage' %}">Course Reviews</a>
+      <a class="navbar-brand" href="{% url 'homepage' %}">AUC Course Reviews</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -36,6 +41,7 @@
         <ul class="navbar-nav ml-auto">
           {% if user.is_authenticated %}
           <li class="nav-item">
+            <a class="nav-link" href="{% url 'reviews:course_list' %}">Home</a>
             <a class="nav-link" href="{% url 'users:login' %}">Logout</a>
           </li>
           {% else %}

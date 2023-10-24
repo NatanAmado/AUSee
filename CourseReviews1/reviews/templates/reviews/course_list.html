@@ -9,7 +9,7 @@
     <div class="input-group" id="search-bar">
         <input type="text" name="q" class="form-control" placeholder="Search courses..." value="{{ request.GET.q }}" style="width: 250px;">
         <div class="input-group-append">
-            <button type="submit" class="btn" id="search-button" style="background-color: #001F3F; color: white; margin-right: 80px">Search</button>
+            <button type="submit" class="btn" id="search-button" style="background-color: #001F3F; color: white; margin-right: 80px; border-radius: 0;">Search</button>
         </div>
     </div>
   </form>
@@ -21,8 +21,8 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
-            <p class="card-text">{{ course.description|truncatechars:100 }}</p>
-            <a href="{% url 'reviews:course_detail' course.id %}" class="btn btn-primary">View Reviews</a>
+            <p>Average Rating: {{ course.average_rating|floatformat:1 }}/5.0</p>
+            <a href="{% url 'reviews:course_detail' course.id %}" class="btn" style="background-color: #001F3F; color: white;">View Reviews</a>
           </div>
         </div>
       </div>
@@ -36,8 +36,8 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
-            <p class="card-text">{{ course.description|truncatechars:100 }}</p>
-            <a href="{% url 'reviews:course_detail' course.id %}" class="btn btn-primary">View Reviews</a>
+            <p>Average Rating: {{ course.average_rating|floatformat:1 }}/5.0</p>
+            <a href="{% url 'reviews:course_detail' course.id %}" class="btn" style="background-color: #001F3F; color: white;">View Reviews</a>
           </div>
         </div>
       </div>
@@ -51,13 +51,15 @@
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
-            <p class="card-text">{{ course.description|truncatechars:100 }}</p>
-            <a href="{% url 'reviews:course_detail' course.id %}" class="btn btn-primary">View Reviews</a>
+            <p>Average Rating: {{ course.average_rating|floatformat:1 }}/5.0</p>
+            <a href="{% url 'reviews:course_detail' course.id %}" class="btn" style="background-color: #001F3F; color: white;">View Reviews</a>
           </div>
         </div>
       </div>
     {% endfor %}
   </div>
+
+  <!-- Repeat similar blocks for 200 and 300 Level Courses -->
 
 </div>
 {% endblock %}
