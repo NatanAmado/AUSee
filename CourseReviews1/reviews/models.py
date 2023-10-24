@@ -15,7 +15,7 @@ RATING_CHOICES = [(i / 10, f"{i / 10}") for i in range(10, 51)]
 
 class Course(models.Model):
     name = models.CharField(max_length=255)
-    code = models.CharField(max_length=50, unique=True)
+    code = models.CharField(max_length=50)
     description = models.TextField(blank=True, null=True)
     level = models.PositiveSmallIntegerField(choices=LEVEL_CHOICES, default=100)
 
