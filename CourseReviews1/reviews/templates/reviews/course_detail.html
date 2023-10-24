@@ -6,49 +6,90 @@
     <div class="col-md-8 offset-md-2">
       <h2 class="display-4">{{ course.name }} <span class="text-muted">({{ course.code }})</span></h2>
       <p><strong>Average Rating:</strong> {{ course.average_rating }} / 10</p>
-      <p class="lead">{{ course.description }}</p>
       
+      <!-- Truncated course description -->
+      <p class="lead" id="courseSummaryShort">
+        {{ course.description|truncatechars:150 }}
+      </p>
+
+      <!-- Full course description (hidden by default) -->
+      <div id="courseSummaryFull" style="display: none;">
+        <p class="lead">{{ course.description }}</p>
+      </div>
+
+      <!-- Read More button -->
+      <button id="toggleSummary" onclick="toggleDescription()">Read More</button>
+
+      <!-- Dropdown for filtering reviews by year -->
+      <div class="mt-3 mb-3">
+          Filter by Year:
+          <select onchange="location = this.value;">
+              <option value="{% url 'reviews:course_detail' course.id %}">All Years</option>
+              {% for year in available_years %}
+              <option value="{% url 'reviews:course_detail' course.id %}?year={{ year }}" {% if year|stringformat:"s" == current_year %}selected{% endif %}>
+                  {{ year }}
+              </option>
+              {% endfor %}
+          </select>
+      </div>
+
       <h3 class="mt-4">Reviews:</h3>
       <ul class="list-unstyled">
         {% for review in reviews %}
-          <li class="border-bottom pb-3 pt-3">
+        <li class="border-bottom pb-3 pt-3">
             <strong class="text-primary">Rating (1.0/5.0) : {{ review.rating }}</strong><br>
             <p>{{ review.text }}</p>
-            <small class="text-muted">Posted on: {{ review.created_date }}</small>
+            <small class="text-muted">Posted on: {{ review.created_date }} | Major: {{ review.user.major }} | Track: {{ review.user.track }}</small>
             {% if user.is_authenticated and review.user == user %}
-              <form method="post" class="mt-2">
+            <form method="post" class="mt-2">
                 {% csrf_token %}
                 <input type="hidden" name="review_id" value="{{ review.id }}">
                 <button type="submit" name="delete_review" class="btn btn-danger btn-sm">Delete</button>
-              </form>
+            </form>
             {% endif %}
-          </li>
+        </li>
         {% endfor %}
       </ul>
 
       {% if user.is_authenticated %}
-        <button id="addReviewButton" class="btn btn-primary mt-3" onclick="toggleReviewForm()">Add a Review</button>
+      <button id="addReviewButton" class="btn btn-primary mt-3" onclick="toggleReviewForm()">Add a Review</button>
 
-        <div id="reviewForm" style="display: none;" class="mt-3">
+      <div id="reviewForm" style="display: none;" class="mt-3">
           <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-success">Submit Review</button>
+              {% csrf_token %}
+              {{ form.as_p }}
+              <button type="submit" class="btn btn-success">Submit Review</button>
           </form>
-        </div>
+      </div>
 
-        <script>
+      <script>
           function toggleReviewForm() {
-            var form = document.getElementById("reviewForm");
-            if (form.style.display === "none") {
-              form.style.display = "block";
-            } else {
-              form.style.display = "none";
-            }
+              var form = document.getElementById("reviewForm");
+              if (form.style.display === "none") {
+                  form.style.display = "block";
+              } else {
+                  form.style.display = "none";
+              }
           }
-        </script>
+
+          function toggleDescription() {
+              let shortSummary = document.getElementById("courseSummaryShort");
+              let fullSummary = document.getElementById("courseSummaryFull");
+              let buttonText = document.getElementById("toggleSummary");
+
+              if (fullSummary.style.display === "none") {
+                  fullSummary.style.display = "block";
+                  shortSummary.style.display = "none";
+                  buttonText.innerText = "Read Less";
+              } else {
+                  fullSummary.style.display = "none";
+                  shortSummary.style.display = "block";
+                  buttonText.innerText = "Read More";
+              }
+          }
+      </script>
       {% else %}
-        <p class="mt-3"><a href="{% url 'login' %}" class="btn btn-outline-primary">Log in</a> to submit a review.</p>
+      <p class="mt-3"><a href="{% url 'login' %}" class="btn btn-outline-primary">Log in</a> to submit a review.</p>
       {% endif %}
     </div>
   </div>

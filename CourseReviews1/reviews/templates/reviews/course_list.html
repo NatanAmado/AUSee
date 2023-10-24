@@ -4,6 +4,16 @@
 <h2>Courses</h2>
 <div class="container mt-5">
 
+  <!-- Search Form -->
+  <form method="get" action="{% url 'reviews:course_list' %}" class="mb-3">
+    <div class="input-group" id="search-bar">
+        <input type="text" name="q" class="form-control" placeholder="Search courses..." value="{{ request.GET.q }}" style="width: 250px;">
+        <div class="input-group-append">
+            <button type="submit" class="btn" id="search-button" style="background-color: #001F3F; color: white; margin-right: 80px">Search</button>
+        </div>
+    </div>
+  </form>
+
   <h3>100 Level Courses</h3>
   <div class="row">
     {% for course in level_100_courses %}
@@ -51,4 +61,3 @@
 
 </div>
 {% endblock %}
-

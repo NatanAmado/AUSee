@@ -1,5 +1,6 @@
 from django.db import models
 from profanity import profanity
+from users.models import CustomUser
 
 # Create your models here.
 
@@ -46,6 +47,7 @@ class Review(models.Model):
     rating = models.FloatField(choices=RATING_CHOICES)
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         # Clean the review text before saving
