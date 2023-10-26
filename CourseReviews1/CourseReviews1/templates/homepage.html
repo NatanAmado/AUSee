@@ -1,14 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="welcome-container">
   <h2>Welcome to Course Reviews</h2>
-  <p>
-    This is a platform where students can leave anonymous reviews about courses in the university.
-    To view or leave reviews, please login or register.
+
+  <p class="lead-text">
+    Discover insights about university courses through student reviews.
   </p>
 
-  <div>
-    <a href="{% url 'users:login' %}" class="btn">Login</a>
-    <a href="{% url 'users:register' %}" class="btn">Register</a>
+  <p>
+    Anonymously share your experiences and learn from others. Your name won't be displayed, ensuring honest feedback without reservations.
+  </p>
+
+  <div class="action-buttons">
+    <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg">Login</a>
+    <a href="{% url 'users:register' %}" class="btn btn-secondary btn-lg">Register</a>
   </div>
+</div>
 {% endblock %}
