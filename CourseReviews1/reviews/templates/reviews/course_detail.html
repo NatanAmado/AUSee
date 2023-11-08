@@ -35,10 +35,18 @@
 
       <h3 class="mt-4">Reviews:</h3>
       <ul class="list-unstyled">
+
         {% for review in reviews %}
+
         <li class="border-bottom pb-3 pt-3">
             <strong class="text-primary">Rating (1.0/5.0) : {{ review.rating }}</strong><br>
             <p>{{ review.text }}</p>
+
+            {% if review.teacher_name %}
+            <p>Teacher Name: {{ review.teacher_name }}</p>
+            <p>Teacher Quality (1.0/5.0) : {{ review.teacher_quality }}</p>
+            {% endif %}
+
             <small class="text-muted">Posted on: {{ review.created_date }} | Major: {{ review.user.major }} | Track: {{ review.user.track }}</small>
             {% if user.is_authenticated and review.user == user %}
             <form method="post" class="mt-2">
@@ -48,7 +56,9 @@
             </form>
             {% endif %}
         </li>
+
         {% endfor %}
+
       </ul>
 
       {% if user.is_authenticated %}
