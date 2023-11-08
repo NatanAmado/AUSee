@@ -45,9 +45,13 @@ class Review(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     text = models.TextField()
     rating = models.FloatField(choices=RATING_CHOICES)
+    teacher_name = models.CharField(max_length=100, blank = True, null = True)
+    teacher_quality = models.FloatField(choices=RATING_CHOICES, blank = True, null = True)
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+
+
 
     def save(self, *args, **kwargs):
         # Clean the review text before saving
