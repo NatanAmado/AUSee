@@ -8,7 +8,8 @@ class ReviewForm(forms.ModelForm):
         widgets = {
             
             'text': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Share your thoughts about this course... '}),
-            'teacher_name': forms.TextInput(attrs={'placeholder': ''}),
+            'teacher_name': forms.Textarea(attrs={'rows': 1}),
+
             
         }
         help_texts = {
