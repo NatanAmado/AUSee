@@ -1,79 +1,118 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<style>
+    /* Additional custom styles */
+    .review-container {
+        background-color: #f7f7f7;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
+    .form-control, .btn-success {
+        border-radius: 0.25rem;
+    }
+    .btn-success {
+        width: 100%;
+        padding: 10px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+    }
+    .reviews-scrollbox {
+        max-height: 500px; /* maximum height for the scrollable area */
+        overflow-y: auto; /* add scrollbar if content exceeds container height */
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
+    .review-item {
+        border-bottom: 1px solid #eaeaea;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+    /* Ensures the last item doesn't have a border-bottom */
+    .review-item:last-child {
+        border-bottom: none;
+    }
+
+    
+
+</style>
+
 <div class="container mt-4">
-  <div class="row">
-    <div class="col-md-8 offset-md-2">
-      <h2 class="display-4">{{ course.name }} <span class="text-muted">({{ course.code }})</span></h2>
-      <p><strong>Average Rating:</strong> {{ course.average_rating }} / 5.0</p>
-      
-      <!-- Truncated course description -->
-      <p class="lead" id="courseSummaryShort">
-        {{ course.description|truncatechars:150 }}
-      </p>
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2 class="display-4">{{ course.name }} <span class="text-muted">({{ course.code }})</span></h2>
+            <p><strong>Average Rating:</strong> {{ course.average_rating }} / 5.0</p>
+            <!-- ... truncated course description and button ... -->
+            <div class="mt-3 mb-3">
+                <!-- ... filtering dropdown ... -->
+            </div>
+            <h3 class="mt-4">Reviews:</h3>
+            <div class="reviews-scrollbox">
+                <ul class="list-unstyled">
+                    {% for review in reviews %}
+                    <li class="review-item">
+                        <strong class="text-primary">Rating (1.0/5.0) : {{ review.rating }}</strong><br>
+                        <p>{{ review.text }}</p>
+                        {% if review.teacher_name %}
+                        <p>Teacher Name: {{ review.teacher_name }}</p>
+                        <p>Teacher Rating (1.0/5.0) : {{ review.teacher_quality }}</p>
+                        {% endif %}
+                        <small class="text-muted">Posted on: {{ review.created_date }} | Major: {{ review.user.major }} | Track: {{ review.user.track }}</small>
+                        {% if user.is_authenticated and review.user == user %}
+                        <form method="post" class="mt-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="review_id" value="{{ review.id }}">
+                            <button type="submit" name="delete_review" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- ... add review form and related scripts ... -->
 
-      <!-- Full course description (hidden by default) -->
-      <div id="courseSummaryFull" style="display: none;">
-        <p class="lead">{{ course.description }}</p>
-      </div>
+            
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="text-center mb-4">
+                            <button id="addReviewButton" class="btn btn-primary" onclick="toggleReviewForm()">Add a Review</button>
+                        </div>
+                        <div id="reviewForm" class="review-container" style="display: none;">
+                            <h2 class="text-center mb-4">Add a Review</h2>
+                            <form method="post">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <button type="submit" class="btn btn-success">Submit Review</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-      <!-- Read More button -->
-      <button id="toggleSummary" onclick="toggleDescription()">Read More</button>
+            
+        </div>
+    </div>
+</div>
 
-      <!-- Dropdown for filtering reviews by year -->
-      <div class="mt-3 mb-3">
-          Filter by Year:
-          <select onchange="location = this.value;">
-              <option value="{% url 'reviews:course_detail' course.id %}">All Years</option>
-              {% for year in available_years %}
-              <option value="{% url 'reviews:course_detail' course.id %}?year={{ year }}" {% if year|stringformat:"s" == current_year %}selected{% endif %}>
-                  {{ year }}
-              </option>
-              {% endfor %}
-          </select>
-      </div>
+<script>
 
-      <h3 class="mt-4">Reviews:</h3>
-      <ul class="list-unstyled">
-
-        {% for review in reviews %}
-
-        <li class="border-bottom pb-3 pt-3">
-            <strong class="text-primary">Rating (1.0/5.0) : {{ review.rating }}</strong><br>
-            <p>{{ review.text }}</p>
-
-            {% if review.teacher_name %}
-            <p>Teacher Name: {{ review.teacher_name }}</p>
-            <p>Teacher Quality (1.0/5.0) : {{ review.teacher_quality }}</p>
-            {% endif %}
-
-            <small class="text-muted">Posted on: {{ review.created_date }} | Major: {{ review.user.major }} | Track: {{ review.user.track }}</small>
-            {% if user.is_authenticated and review.user == user %}
-            <form method="post" class="mt-2">
-                {% csrf_token %}
-                <input type="hidden" name="review_id" value="{{ review.id }}">
-                <button type="submit" name="delete_review" class="btn btn-danger btn-sm">Delete</button>
-            </form>
-            {% endif %}
-        </li>
-
-        {% endfor %}
-
-      </ul>
-
-      {% if user.is_authenticated %}
-      <button id="addReviewButton" class="btn btn-primary mt-3" onclick="toggleReviewForm()">Add a Review</button>
-
-      <div id="reviewForm" style="display: none;" class="mt-3">
-          <form method="post">
-              {% csrf_token %}
-              {{ form.as_p }}
-              <button type="submit" class="btn btn-success">Submit Review</button>
-          </form>
-      </div>
-
-      <script>
-          function toggleReviewForm() {
+         function toggleReviewForm() {
               var form = document.getElementById("reviewForm");
               if (form.style.display === "none") {
                   form.style.display = "block";
@@ -97,13 +136,8 @@
                   buttonText.innerText = "Read More";
               }
           }
-      </script>
-      {% else %}
-      <p class="mt-3"><a href="{% url 'login' %}" class="btn btn-outline-primary">Log in</a> to submit a review.</p>
-      {% endif %}
-    </div>
-  </div>
-</div>
+</script>
+
 {% endblock %}
 
 

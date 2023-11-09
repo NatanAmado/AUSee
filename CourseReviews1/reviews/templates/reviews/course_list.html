@@ -1,65 +1,172 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+  .container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 15px;
+  }
+  .search-form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .search-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 5px;
+  }
+  .search-button {
+    background-color: #001F3F;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .search-button:hover {
+    background-color: #003366;
+  }
+  .course-level-header {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+  }
+  .col-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+    padding-right: 15px;
+    padding-left: 15px;
+    box-sizing: border-box;
+  }
+  .card {
+    background: #FFF;
+    border: 1px solid #e1e1e1;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  .card-body {
+    padding: 20px;
+    text-align: center;
+  }
+  .card-title {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.25rem;
+  }
+  .card a {
+    text-decoration: none;
+    color: white;
+    background-color: #001F3F;
+    padding: 10px 15px;
+    display: inline-block;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  .card a:hover {
+    background-color: #003366;
+  }
+  @media (max-width: 768px) {
+    .col-md-4 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .col-md-4 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    .search-input,
+    .search-button {
+      width: 100%;
+      margin: 5px 0;
+    }
+  }
+
+</style>
+
 <h2>Courses</h2>
 <div class="container mt-5">
 
   <!-- Search Form -->
-  <form method="get" action="{% url 'reviews:course_list' %}" class="mb-3">
-    <div class="input-group" id="search-bar">
-        <input type="text" name="q" class="form-control" placeholder="Search courses..." value="{{ request.GET.q }}" style="width: 250px;">
-        <div class="input-group-append">
-            <button type="submit" class="btn" id="search-button" style="background-color: #001F3F; color: white; margin-right: 80px; border-radius: 0;">Search</button>
-        </div>
-    </div>
+  <form method="get" action="{% url 'reviews:course_list' %}" class="search-form">
+    <input type="text" name="q" class="search-input" placeholder="Search courses..." value="{{ request.GET.q }}">
+    <button type="submit" class="search-button">Search</button>
   </form>
 
-  <h3>100 Level Courses</h3>
+  <!-- Course Levels -->
+  {% for course in level_100_courses %}
+  <h3 class="course-level-header">100 Level Courses</h3>
   <div class="row">
     {% for course in level_100_courses %}
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
-            <p>Average Rating: {{ course.average_rating|floatformat:1 }}/5.0</p>
-            <a href="{% url 'reviews:course_detail' course.id %}" class="btn" style="background-color: #001F3F; color: white;">View Reviews</a>
-          </div>
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
+          <p>Average Rating: {{ course.average_rating|floatformat:1 }}/5.0</p>
+          <a href="{% url 'reviews:course_detail' course.id %}">View Reviews</a>
         </div>
       </div>
+    </div>
     {% endfor %}
   </div>
+  {% empty %}
+  <p>No courses found at this level.</p>
+  {% endfor %}
 
-  <h3>200 Level Courses</h3>
+  {% for course in level_200_courses %}
+  <h3 class="course-level-header">200 Level Courses</h3>
   <div class="row">
     {% for course in level_200_courses %}
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
-            <p>Average Rating: {{ course.average_rating|floatformat:1 }}/5.0</p>
-            <a href="{% url 'reviews:course_detail' course.id %}" class="btn" style="background-color: #001F3F; color: white;">View Reviews</a>
-          </div>
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
+          <p>Average Rating: {{ course.average_rating|floatformat:1 }}/5.0</p>
+          <a href="{% url 'reviews:course_detail' course.id %}">View Reviews</a>
         </div>
       </div>
+    </div>
     {% endfor %}
   </div>
+  {% empty %}
+  <p>No courses found at this level.</p>
+  {% endfor %}
 
-  <h3>300 Level Courses</h3>
+  {% for course in level_300_courses %}
+  <h3 class="course-level-header">300 Level Courses</h3>
   <div class="row">
     {% for course in level_300_courses %}
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
-            <p>Average Rating: {{ course.average_rating|floatformat:1 }}/5.0</p>
-            <a href="{% url 'reviews:course_detail' course.id %}" class="btn" style="background-color: #001F3F; color: white;">View Reviews</a>
-          </div>
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ course.name }} ({{ course.code }})</h5>
+          <p>Average Rating: {{ course.average_rating|floatformat:1 }}/5.0</p>
+          <a href="{% url 'reviews:course_detail' course.id %}">View Reviews</a>
         </div>
       </div>
+    </div>
     {% endfor %}
   </div>
+  {% empty %}
+  <p>No courses found at this level.</p>
+  {% endfor %}
 
-  <!-- Repeat similar blocks for 200 and 300 Level Courses -->
+  <!-- Repeat for other course levels if necessary -->
 
 </div>
 {% endblock %}
+
