@@ -9,5 +9,5 @@ class Feedback(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Feedback from {self.user.username}"
+        return f"Feedback from {self.name.username}"
     

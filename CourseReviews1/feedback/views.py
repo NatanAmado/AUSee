@@ -9,9 +9,9 @@ def feedback(request):
         form = FeedbackForm(request.POST)
         if form.is_valid():
             feedback = form.save(commit=False)
-            feedback.user = request.user
+            feedback.name = request.user
             feedback.save()
-            return redirect('success_url')  # Redirect to a 'success' page after submitting.
+            return render(request, 'feedback/feedbackform_success.html')  # Redirect to a 'success' page after submitting.
     else:
         form = FeedbackForm()
     return render(request, 'feedback/feedbackform.html', {'form': form})
