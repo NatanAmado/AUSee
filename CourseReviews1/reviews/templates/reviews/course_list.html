@@ -108,7 +108,7 @@
   </form>
 
   <!-- Course Levels -->
-  {% for course in level_100_courses %}
+  
   <h3 class="course-level-header">100 Level Courses</h3>
   <div class="row">
     {% for course in level_100_courses %}
@@ -121,13 +121,14 @@
         </div>
       </div>
     </div>
+    {% empty %}
+    <p>No courses found at this level.</p>
     {% endfor %}
   </div>
-  {% empty %}
-  <p>No courses found at this level.</p>
-  {% endfor %}
+ 
+ 
 
-  {% for course in level_200_courses %}
+  
   <h3 class="course-level-header">200 Level Courses</h3>
   <div class="row">
     {% for course in level_200_courses %}
@@ -139,14 +140,14 @@
           <a href="{% url 'reviews:course_detail' course.id %}">View Reviews</a>
         </div>
       </div>
+      {% empty %}
+      <p>No courses found at this level.</p>
     </div>
     {% endfor %}
-  </div>
-  {% empty %}
-  <p>No courses found at this level.</p>
-  {% endfor %}
+  
+  
 
-  {% for course in level_300_courses %}
+  
   <h3 class="course-level-header">300 Level Courses</h3>
   <div class="row">
     {% for course in level_300_courses %}
@@ -159,11 +160,12 @@
         </div>
       </div>
     </div>
+    {% empty %}
+    <p>No courses found at this level.</p>
     {% endfor %}
   </div>
-  {% empty %}
-  <p>No courses found at this level.</p>
-  {% endfor %}
+  
+  
 
   <!-- Repeat for other course levels if necessary -->
 
