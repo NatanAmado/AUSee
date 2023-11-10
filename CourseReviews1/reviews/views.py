@@ -8,7 +8,7 @@ from django.db.models import Q
 
 # Create your views here.
 
-@login_required
+
 def course_list(request):
     query = request.GET.get('q')
     if query:
@@ -30,7 +30,7 @@ def course_list(request):
 
 
 
-@login_required
+
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
 

@@ -22,5 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
     path('courses/', include('reviews.urls')),
+    path('feedback/', include('feedback.urls')),
     path('', core_views.homepage, name='homepage'),
+    
 ]

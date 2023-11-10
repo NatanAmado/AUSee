@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<style>
+  
+
+
+</style>
+
 <div class="welcome-container">
   <h2>Welcome to Course Reviews</h2>
 
@@ -14,7 +21,9 @@
 
   <div class="action-buttons">
     <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg">Login</a>
+    <p class="spacer">    </p>
     <a href="{% url 'users:register' %}" class="btn btn-secondary btn-lg">Register</a>
+    <p class="view courses"><a href="{% url 'reviews:course_list' %}">View Courses</a> You will need to login or register to add reviews</p>
   </div>
 </div>
 {% endblock %}

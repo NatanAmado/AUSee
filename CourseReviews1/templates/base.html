@@ -17,12 +17,41 @@
         main {
             flex: 1;
         }
-        .navbar, .footer {
+        .footer {
             background-color: #001F3F;
         }
+        .navbar {
+            background-color: #001F3F; /* Deep blue background */
+            border-bottom: 2px solid #022642; /* Slightly lighter blue for a subtle contrast */
+        }
+        .navbar-brand {
+            font-size: 1.5em; /* Larger font size for brand */
+            color: #fff !important; /* Ensuring the brand color is white */
+        }
+        .navbar-brand:hover {
+            color: #ddd !important; /* Slightly dim color on hover */
+        }
         .nav-link {
-            display: inline-block;
-            margin-right: 9px; /* Add some spacing between the links if needed */
+            color: #fff !important; /* White color links */
+            margin-right: 15px; /* Space between links */
+            transition: color 0.3s ease-in-out; /* Smooth transition for hover effect */
+        }
+        .nav-link:hover {
+            color: rgb(82, 83, 97) !important; /* Bright blue color on hover */
+        }
+        .navbar-toggler {
+            border-color: #b1c0d6; /* Color for the toggler icon */
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
+        @media (max-width: 991.98px) { 
+            .navbar-collapse {
+                background-color: #001F3F; /* Keeping the background consistent on collapse */
+            }
+            .nav-link {
+                padding: 0.5rem 1rem; /* Add padding for better touch targets on mobile */
+            }
         }
         .welcome-container {
             max-width: 600px;
@@ -41,39 +70,20 @@
         }
 
         .action-buttons .btn {
-            margin: 0 10px;
+            
             transition: transform 0.3s;
             border-radius: 0px;
+            justify-content: center;
         }
 
         .action-buttons .btn:hover {
             transform: scale(1.05);
         }
 
-        .btn-primary {
-            background-color: #001F3F; /* Navy blue color */
-        }
+        
+        
 
-        .login-container {
-            max-width: 400px;
-            margin: 5% auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .login-form .form-group {
-            margin-bottom: 15px;
-        }
-
-        .login-form input[type="text"],
-        .login-form input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
+        
 
         .btn-primary {
             width: 100%;
@@ -151,34 +161,41 @@
 </head>
 <body class="wrapper">
 
-<header>
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-      <a class="navbar-brand" href="{% url 'reviews:course_list' %}">AUC Course Reviews</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-          {% if user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'reviews:course_list' %}">Courses</a>
-
-            <a class="nav-link" href="{% url 'users:login' %}">Logout</a>
-          </li>
-          {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'users:login' %}">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'users:register' %}">Register</a>
-          </li>
-          {% endif %}
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+          <div class="container">
+            <a class="navbar-brand" href="{% url 'reviews:course_list' %}">AUC Course Reviews</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav ms-auto"> <!-- Changed from 'ml-auto' to 'ms-auto' for bootstrap 5 -->
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'reviews:course_list' %}">Courses</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'feedback:about' %}">About</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'feedback:feedback' %}">Feedback</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'users:logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'users:login' %}">Login</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'users:register' %}">Register</a>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </header>
 
 <main class="container mt-5">
     {% block content %}{% endblock %}

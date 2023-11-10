@@ -1,6 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<style>
+
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .login-form .form-group {
+            margin-bottom: 15px;
+    }
+
+    .login-form input[type="text"],
+    .login-form input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+    }
+
+        
+
+</style>
+
 <div class="login-container">
     <h2>Login</h2>
     <form method="post" class="login-form">

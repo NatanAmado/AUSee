@@ -48,7 +48,26 @@
         border-bottom: none;
     }
 
-    
+    .review-container textarea {
+        width: 100%; 
+        height: 150px; 
+        padding: 10px; 
+        border: 1px solid #ccc; 
+        border-radius: 4px; 
+        box-sizing: border-box; 
+        resize: vertical; 
+    }
+
+    .helptext-container {      
+        text-align: center; 
+    }
+
+    .helptext-container p {
+        display: inline-block;
+        margin: 0;
+    }
+
+   
 
 </style>
 
@@ -86,7 +105,7 @@
             </div>
             <!-- ... add review form and related scripts ... -->
 
-            
+            {% if user.is_authenticated %}
             <div class="container mt-5">
                 <div class="row">
                     <div class="col-md-8 offset-md-2">
@@ -104,8 +123,14 @@
                     </div>
                 </div>
             </div>
-
-            
+            {% else %}
+            <div class="helptext-container">
+                <p>
+                  <a href="{% url 'users:login' %}?next={{ request.path }}">Login</a> or 
+                  <a href="{% url 'users:register' %}?next={{ request.path }}">Register</a> to add a review.
+                </p>
+            </div>              
+            {% endif %}
         </div>
     </div>
 </div>
