@@ -77,6 +77,9 @@
             <h2 class="display-4">{{ course.name }} <span class="text-muted">({{ course.code }})</span></h2>
             <p><strong>Average Rating:</strong> {{ course.average_rating }} / 5.0</p>
             <!-- ... truncated course description and button ... -->
+            <div id="courseSummaryShort">
+                <p>{{ course.description }}</p>
+                
             <div class="mt-3 mb-3">
                 <!-- ... filtering dropdown ... -->
             </div>
