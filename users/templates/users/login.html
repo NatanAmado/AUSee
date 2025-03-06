@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        color: rgb(255, 255, 255);
+    }
+
+    .login-form .form-group {
+            margin-bottom: 15px;
+    }
+
+    .login-form input[type="text"],
+    .login-form input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+    }
+
+    .makeyellow {
+        color: #dba309;
+    }
+
+        
+
+</style>
+
+<div class="login-container">
+    <h2 class="makeyellow">Login</h2>
+    <form method="post" class="login-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Login</button>
+        </div>
+    </form>
+    <p class="register-link">
+        Haven't registered yet? <a href="{% url 'users:register' %}">Register Here!</a>
+    </p>
+</div>
+{% endblock %}
+
+

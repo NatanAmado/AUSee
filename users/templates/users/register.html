@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+
+
+{% block content %}
+<div class="register-container">
+    <h2>Register</h2>
+    <form method="post" class="register-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-group">
+            <p>
+                By registering, you agree to the 
+                <a href="{% static 'tou.pdf' %}" target="_blank">Terms of Use</a>.
+            </p>
+            <button type="submit" class="btn btn-primary">Register</button>
+        </div>
+    </form>
+    <p class="login-link">
+        Already have an account? <a href="{% url 'users:login' %}">Login here</a>
+    </p>
+</div>
+{% endblock %}

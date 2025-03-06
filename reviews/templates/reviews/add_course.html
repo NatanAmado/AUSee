@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .container {
+    max-width: 800px;
+    margin: auto;
+    color: #dba309;
+    padding: 0 15px;
+  }
+
+  .title {
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    color: #dba309;
+  }
+
+  .form-container {
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 50px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+  }
+
+  label {
+    color: #dba309;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  input[type="text"], textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #333;
+    border-radius: 5px;
+    background-color: #000000;
+    color: #ffffff;
+  }
+
+  .submit-button {
+    background-color: #000000;
+    color: #dba309;
+    padding: 10px 20px;
+    border: 1px solid #dba309;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: PF Fuel Grime;
+    font-size: 1.10rem;
+    min-width: 190px;
+  }
+
+  .submit-button:hover {
+    background-color: #dba309;
+    color: #000000;
+  }
+</style>
+
+<h2 class="title">Add a New Course</h2>
+<div class="container">
+  <div class="form-container">
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+        {{ form.name }}
+      </div>
+      
+      <div class="form-group">
+        <label for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>
+        {{ form.code }}
+      </div>
+      
+      <div class="form-group">
+        <label for="{{ form.level.id_for_label }}">{{ form.level.label }}</label>
+        {{ form.level }}
+      </div>
+      
+      <div class="form-group">
+        <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+        {{ form.description }}
+      </div>
+      
+      <div class="text-center">
+        <button type="submit" class="submit-button">Add Course</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %} 

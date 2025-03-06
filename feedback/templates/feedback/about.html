@@ -1,0 +1,87 @@
+<!-- about.html -->
+{% extends 'base.html' %}
+
+{% load static %}
+
+
+{% block content %}
+<style>
+  body {
+    
+    line-height: 1.6;
+    color: #333;
+    background-color: #000000;
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    width: 70%;
+    margin: auto;
+    overflow-y: auto;
+    color: #5f5e5e;
+  
+  }
+  .about-section {
+    background: #000000;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  }
+  @media only screen and (max-width: 600px) {
+    .container {
+      width: 100%;
+      padding: 20px;
+    }
+    .about-section {
+      margin: 0;
+      width: 130%;
+      padding: 0px;
+    }
+  }
+  h1, h2 {
+    color: #dba309;
+  }
+  p {
+    font-size: 18px;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  ul li {
+    
+    padding-left: 30px;
+    margin-bottom: 10px;
+  }
+
+  
+
+</style>
+
+<div class="container">
+  <div class="about-section">
+    <h2>About AUSee</h2>
+    <p>This platform was designed as an anonymous course review website dedicated to the students of the Amsterdam University College (AUC). It was developed by a dedicated group of students aiming to provide a comprehensive repository of student opinions on university courses.</p>
+    
+    <h2>Our Mission</h2>
+    <p>We believe in the power of shared knowledge and experiences to help our student community make informed decisions about their courses. Usernames are not displayed to maintain anonymity and encourage openness.</p>
+    
+    <h2>Review Guidelines</h2>
+    <p>While we encourage freedom of speech and honest feedback, we also stress the importance of respect and constructiveness in your reviews. Please adhere to the following guidelines:</p>
+    <ul>
+      <li>Do not post hateful or discriminatory comments.</li>
+      <li>Be honest but also considerate; your review should aim to guide and help other students, not to harm.</li>
+      <li>Remember that your review could have a significant impact on someone's decisions, so be as factual and clear as possible.</li>
+      <li>For detailed information on the rules of this platform, please refer to our <a href="{% static 'tou.pdf' %}" target="_blank">Terms of Use</a>.</li> 
+        
+    </ul>
+    
+    <h2>Profanity Filter</h2>
+    <p>To maintain the professionalism and courtesy of our platform, we use the Profanity Python library to filter out any offensive language from the reviews.</p>
+    
+    <h2>Disclaimer</h2>
+    <p>The views and opinions expressed in the reviews are those of individual users and do not necessarily reflect the official policy or position of the developers of this platform or AUC.</p>
+  </div>
+</div>
+{% endblock %}

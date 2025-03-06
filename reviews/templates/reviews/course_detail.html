@@ -1,0 +1,548 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+    /* Additional custom styles */
+    /* General Layout and Container Styles */
+    .review-container {
+        background-color: #1a1a1a;
+        border-radius: 8px;
+        padding: 20px;
+        color: #f1f1f1;
+    }
+
+    .review-item {
+        background-color: #1a1a1a;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+
+    .reviews-scrollbox {
+        max-height: 700px;
+        overflow-y: auto;
+        background-color: #000000;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+    }
+
+    .container-main {
+        background-color: #000000;
+        color: #ffffff;
+        font-weight: 100;
+    }
+
+    /* Typography and Text Styles */
+    .review-major,
+    .topicx {
+        font-family: PF Fuel Grime;
+        font-size: 1.3em;
+        font-weight: 10;
+        color: #ffffff;
+    }
+
+    .review-date {
+        font-size: 0.8em;
+        color: #cccccc;
+    }
+
+    .review-body {
+        border-top: 1px solid #444;
+        padding-top: 10px;
+    }
+
+    .review-text {
+        font-size: 0.9em;
+        color: #f1f1f1;
+        font-weight: 100;
+    }
+
+    .mt-6,
+    .list-unstyled .text-primary {
+        color: #dba309;
+        font-size: 1.2em;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    /* Buttons and Form Elements */
+    .btn-delete,
+    .btn-primary,
+    .btn-third {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 0.8em;
+    }
+
+    .btn-primary {
+        background-color: #dba309;
+        color: #000000;
+        margin-bottom: 5%;
+    }
+
+    .btn-primary:hover {
+        background-color: #000000;
+        color: #dba309;
+    }
+
+    .form-control {
+        border-radius: 0.25rem;
+    }
+
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .review-container textarea {
+        width: 100%;
+        height: 150px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        resize: vertical;
+    }
+
+    textarea[name="teacher_name"] {
+        height: 20px;
+    }
+
+    /* Star Rating and Other Specific Elements */
+    .star-rating {
+        font-size: 1.2em;
+        color: #dba309;
+        font-weight: 100;
+        display: flex;
+        justify-content: right;
+    }
+
+    .rating-holder {
+        display: flex;
+        justify-content: right;
+    }
+
+    .helptext-container {
+        text-align: center;
+    }
+
+    .helptext-container p {
+        display: inline-block;
+        margin: 0;
+    }
+
+    /* Responsive Adjustments and Miscellaneous */
+    .topicx {
+        font-size: 1.5em;
+        margin-left: 2.25%;
+        margin-top: 40px;
+    }
+
+    .review-item:last-child {
+        border-bottom: none;
+    }
+
+    .review-item {
+        display: flex;
+        /* Use flexbox to lay out children */
+        align-items: flex-start;
+        /* Align children at the top */
+        background-color: #1a1a1a;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        padding-right: 15px;
+        padding-left: 60px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+        position: relative;
+        /* Establish a positioning context */
+    }
+
+    .review-voting {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        /* Center buttons vertically */
+    }
+
+    .review-actions {
+        position: absolute;
+        /* Position the buttons absolutely */
+        top: 50%;
+        /* Position halfway down the container */
+        left: 10px;
+        /* Space from the left edge of the review-item */
+        transform: translateY(-50%);
+        /* Center align vertically */
+        display: flex;
+        flex-direction: column;
+        /* Stack buttons vertically */
+        gap: 10px;
+    }
+
+    /* Upvote and Downvote Button Styles */
+    .btn-upvote,
+    .btn-downvote {
+        background-color: transparent; /* Transparent background */
+        color: white;
+        border: none;
+        padding: 0; /* Remove padding */
+        margin-bottom: 5px; /* Space between buttons */
+        cursor: pointer;
+        text-align: center;
+        display: flex; /* Use flexbox for alignment */
+        align-items: center; /* Center items vertically */
+    }
+
+    /* Arrow styles */
+    .vote-arrow {
+        display: block;
+        width: 0; 
+        height: 0; 
+        border-style: solid;
+    }
+
+    .up-arrow {
+        border-width: 0 5px 8px 5px;
+        border-color: transparent transparent #4CAF50 transparent; /* Green arrow pointing up */
+        margin-left: 5px;
+    }
+
+    .down-arrow {
+        border-width: 8px 5px 0 5px;
+        border-color: #f44336 transparent transparent transparent; /* Red arrow pointing down */
+        margin-left: 5px;
+    }
+
+    .vote-count {
+        font-size: 1em;
+        margin: 7px; /* Space between number and arrow */
+    }
+
+    /* Hover effect for the buttons */
+    .btn-upvote:hover .up-arrow,
+    .btn-downvote:hover .down-arrow {
+        opacity: 0.8;
+    }
+
+</style>
+
+
+
+<div class="container-main">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2 class="display-4">{{ course.name }} <span class="text-muted">({{ course.code }})</span></h2>
+            <p><strong>Average Rating:</strong> {{ course.average_rating }} / 5.0</p>
+            <!-- ... truncated course description and button ... -->
+            <div id="courseSummaryShort">
+                <p>{{ course.description|truncatechars:800 }}.</p>
+                <div class="d-flex align-items-center">
+                    <button id="toggleSummary" class="btn btn-primary" onclick="toggleDescription()">Read More</button>
+                </div>
+            </div>
+
+            <div id="courseSummaryFull" style="display: none;">
+                <p>{{ course.description }}</p>
+                <div class="d-flex align-items-center">
+                    <button id="toggleSummary" class="btn btn-primary" onclick="toggleDescription()">Read Less</button>
+                </div>
+            </div>
+
+            <!-- Add the report button after both summary sections -->
+            {% if not user_reported %}
+            <div class="mt-2">
+                <button type="button" class="btn btn-link text-danger p-0" id="reportCourseBtn" style="text-decoration: none;">
+                    Not a real course?
+                </button>
+            </div>
+            {% endif %}
+
+            <h3 class="topicx">Reviews:</h3>
+            <div class="year-filter">
+                <form method="get" action=".">
+                    <label for="year">Filter by Year:</label>
+                    <select name="year" onchange="this.form.submit()">
+                        <option value="">All Years</option>
+                        {% for year in available_years %}
+                        <option value="{{ year }}" {% if year|stringformat:"s" == current_year %}selected{% endif %}>
+                            {{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+
+            <div class="reviews-scrollbox">
+                <ul class="list-unstyled">
+                    <!-- Assuming each review is within a div with class 'review-item' inside the 'review-container' -->
+                    <div class="review-container">
+                        {% for review in reviews %}
+                        <div class="review-item">
+                            <div class="review-content">
+                                <div class="review-header">
+                                    <span class="review-major">{{ review.user.major }} - {{ review.user.track }}</span>
+                                    <span class="review-date">Posted on: {{ review.created_date }}</span>
+                                </div>
+                                <div class="review-body">
+                                    <p class="review-text">{{ review.text }}</p>
+                                    <!-- {% if review.teacher_name %}
+                                    <div class="review-teacher">
+                                        <span>Teacher Name: {{ review.teacher_name }} ~~</span>
+                                        <span>Teacher Rating: {{ review.teacher_quality }}</span>
+                                    </div>
+                                    {% endif %} -->
+                                    <p>
+                                        {% if user.is_authenticated and review.user == user %}
+                                        <span>
+                                            <form method="post" class="review-actions-delete">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="review_id" value="{{ review.id }}">
+                                                <button type="submit" name="delete_review"
+                                                    class="btn-delete">Delete</button>
+                                            </form>
+                                        </span>
+                                        {% endif %}
+                                        <span class="star-rating"
+                                            data-rating="{{ review.rating|floatformat:1 }}"></span>
+                                        <span class="rating-holder"> {{ review.rating|floatformat:1 }}/5.0 </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- ... Inside the review item ... -->
+                            <!-- ... Inside the review item ... -->
+                            <!-- ... Inside the review item ... -->
+                            <div class="review-voting">
+                                <form method="post" class="review-actions">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="review_id" value="{{ review.id }}">
+                                    <button type="submit" name="vote" value="upvote" class="btn btn-upvote" title="Was this review constructive?">
+                                        <span class="vote-arrow up-arrow"></span>
+                                    </button>
+                                    <span class="vote-count">{{ review.net_votes }}</span>
+                                    <button type="submit" name="vote" value="downvote" class="btn btn-downvote" title="Was this review unhelpful?">
+                                        <span class="vote-arrow down-arrow"></span>
+                                    </button>
+                                </form>
+                            </div>
+
+
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                </ul>
+            </div>
+            <!-- ... add review form and related scripts ... -->
+
+            {% if user.is_authenticated %}
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="text-center mb-4">
+                            <button id="addReviewButton" class="btn btn-third" onclick="toggleReviewForm()">Add a
+                                Review</button>
+                        </div>
+                        <div id="reviewForm" class="review-container" style="display: none;">
+                            <h2 class="text-center mb-4">Add a Review</h2>
+                            <form method="post">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <button type="submit" class="btn btn-success">Submit Review</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="helptext-container">
+                <p>
+                    <a href="{% url 'users:login' %}?next={{ request.path }}">Login</a> or
+                    <a href="{% url 'users:register' %}?next={{ request.path }}">Register</a> to add a review.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleReviewForm() {
+        var form = document.getElementById("reviewForm");
+        if (form.style.display === "none") {
+            form.style.display = "block";
+        } else {
+            form.style.display = "none";
+        }
+    }
+
+    function toggleDescription() {
+        let shortSummary = document.getElementById("courseSummaryShort");
+        let fullSummary = document.getElementById("courseSummaryFull");
+        let toggleButton = document.getElementById("toggleSummary");
+
+        if (shortSummary.style.display === "none") {
+            shortSummary.style.display = "block";
+            fullSummary.style.display = "none";
+            toggleButton.innerText = "Read More";
+        } else {
+            shortSummary.style.display = "none";
+            fullSummary.style.display = "block";
+            toggleButton.innerText = "Read Less";
+        }
+    }
+
+
+    function updateStarRatings() {
+        // Select all elements with the class 'starRating'
+        const ratingElements = document.querySelectorAll('.star-rating');
+        ratingElements.forEach(el => {
+            let rating = parseFloat(el.getAttribute('data-rating'));
+            rating = Math.round(rating); // Round to the nearest whole number
+            el.innerHTML = ''; // Clear any existing stars
+            for (let i = 1; i <= rating; i++) {
+                if (i <= rating) {
+                    el.innerHTML += '<span class="star">&#9733;</span>'; // Full star
+                } else {
+                    el.innerHTML += '<span class="star gray">&#9733;</span>'; // Empty star
+                }
+            }
+            // If there is no rating (e.g., rating is NaN), clear the stars
+            if (isNaN(rating)) {
+                el.innerHTML = 'No ratings yet';
+                el.nextElementSibling.innerHTML = ''; // Clear the '/5.0'
+            }
+        });
+    }
+
+
+    document.addEventListener('DOMContentLoaded', updateStarRatings);
+</script>
+
+<!-- Toast for confirmation -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="reportToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+        <div class="toast-header">
+            <strong class="me-auto">Course Report</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            Thank you for your report. We'll review this course.
+        </div>
+    </div>
+</div>
+
+<!-- Add this JavaScript to handle the button clicks -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const voteRealBtn = document.getElementById('voteRealBtn');
+  const voteNotRealBtn = document.getElementById('voteNotRealBtn');
+  const reportToast = new bootstrap.Toast(document.getElementById('reportToast'));
+  const toastMessage = document.getElementById('toastMessage');
+  const modalElement = document.getElementById('courseRealityModal');
+  
+  // Make sure the modal is properly initialized
+  const courseRealityModal = new bootstrap.Modal(modalElement);
+  
+  function submitVote(voteType) {
+    // Send the vote via AJAX
+    fetch("{% url 'reviews:report_course' course.id %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ vote: voteType })
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Close the modal immediately
+      courseRealityModal.hide();
+      
+      // Show the toast with the response message
+      toastMessage.textContent = data.message;
+      reportToast.show();
+      
+      // If the vote was successful, remove the button
+      if (data.success) {
+        const reportBtn = document.getElementById('reportCourseBtn');
+        if (reportBtn) {
+          reportBtn.remove();
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      
+      // Close the modal
+      courseRealityModal.hide();
+      
+      // Show error toast
+      toastMessage.textContent = 'An error occurred. Please try again.';
+      reportToast.show();
+    });
+  }
+  
+  voteRealBtn.addEventListener('click', function() {
+    submitVote('real');
+  });
+  
+  voteNotRealBtn.addEventListener('click', function() {
+    submitVote('not_real');
+  });
+  
+  // Make sure the button correctly opens the modal
+  const reportBtn = document.getElementById('reportCourseBtn');
+  if (reportBtn) {
+    reportBtn.addEventListener('click', function() {
+      courseRealityModal.show();
+    });
+  }
+});
+</script>
+
+<!-- Add this after the report button but before the toast -->
+<!-- Modal for asking if the course is real -->
+<div class="modal fade" id="courseRealityModal" tabindex="-1" aria-labelledby="courseRealityModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="courseRealityModalLabel">Course Verification</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Is "{{ course.name }}" a real course at your institution?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="voteRealBtn">Yes, it's real</button>
+        <button type="button" class="btn btn-danger" id="voteNotRealBtn">No, it's not real</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
