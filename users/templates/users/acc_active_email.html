@@ -1,5 +1,115 @@
 {% autoescape off %}
-Hi {{ user.username }},
-Please click on the link to confirm your registration,
-http://{{ domain }}{% url 'users:activate' uidb64=uid token=token %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate Your AUSee Account</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #000000;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: #ffffff;
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #dba309;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 15px;
+        }
+        h1 {
+            color: #dba309;
+            font-size: 24px;
+            margin: 0;
+            padding: 0;
+        }
+        .content {
+            padding: 30px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #dba309;
+            color: #000000;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #c79000;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #dba309;
+            font-size: 12px;
+            color: #888;
+        }
+        .highlight {
+            color: #dba309;
+            font-weight: bold;
+        }
+        .note {
+            font-size: 14px;
+            color: #aaa;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AUSee Courses</h1>
+            <p>Anonymous Course Reviews for AUC</p>
+        </div>
+        
+        <div class="content">
+            <h2>Hey {{ user.username }}! 🎉</h2>
+            
+            <p>Welcome to <span class="highlight">AUSee</span> – your go-to platform for honest course reviews at Amsterdam University College!</p>
+            
+            <p>You're just one click away from joining our community of students sharing their experiences to help others make informed decisions about their courses.</p>
+            
+            <p style="text-align: center;">
+                <a href="http://{{ domain }}/users/activate/{{ uid }}/{{ token }}/" class="button">ACTIVATE MY ACCOUNT</a>
+            </p>
+            
+            <p class="note">This link will expire in 24 hours for security reasons.</p>
+            
+            <p>By activating your account, you'll be able to:</p>
+            <ul>
+                <li>Read <span class="highlight">anonymous reviews</span> from fellow students</li>
+                <li>Share your own <span class="highlight">honest feedback</span> about courses</li>
+                <li>Help create a <span class="highlight">transparent</span> course selection process</li>
+            </ul>
+            
+            <p>If you didn't register for an AUSee account, you can safely ignore this email.</p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 AUSee. All rights reserved.</p>
+            <p>This email was sent to you as part of the registration process for AUSee.</p>
+            <p>If the button doesn't work, copy and paste this URL into your browser:</p>
+            <p style="word-break: break-all;">http://{{ domain }}/users/activate/{{ uid }}/{{ token }}/</p>
+        </div>
+    </div>
+</body>
+</html>
 {% endautoescape %}

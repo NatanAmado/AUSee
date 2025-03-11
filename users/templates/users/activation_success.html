@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .activation-container {
+        text-align: center;
+        padding: 40px 20px;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: rgba(0, 0, 0, 0.7);
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .success-icon {
+        font-size: 80px;
+        color: #28a745;
+        margin-bottom: 20px;
+    }
+    
+    .activation-title {
+        color: #dba309;
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+    
+    .activation-message {
+        color: #ffffff;
+        font-size: 18px;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+    
+    .action-button {
+        display: inline-block;
+        background-color: #dba309;
+        color: #000000;
+        text-decoration: none;
+        padding: 12px 30px;
+        border-radius: 4px;
+        font-weight: bold;
+        margin: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .action-button:hover {
+        background-color: #c79000;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<div class="activation-container">
+    <div class="success-icon">✓</div>
+    <h1 class="activation-title">Account Activated!</h1>
+    <p class="activation-message">
+        Congratulations! Your AUSee account has been successfully activated. 
+        You can now log in and start exploring course reviews or share your own experiences.
+    </p>
+    <div>
+        <a href="{% url 'users:login' %}" class="action-button">Log In Now</a>
+        <a href="{% url 'reviews:course_list' %}" class="action-button">Browse Courses</a>
+    </div>
+</div>
+{% endblock %} 

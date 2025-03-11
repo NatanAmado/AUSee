@@ -179,12 +179,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Email settings
+# For production:
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'auseecourses@gmail.com'  # Replace with your Gmail address
-EMAIL_HOST_PASSWORD = 'innm uqcw yean ejti'  # Replace with the generated app password
+EMAIL_HOST_USER = 'auseecourses@gmail.com'
+EMAIL_HOST_PASSWORD = 'innm uqcw yean ejti'
+
+# For development - prints emails to console instead of sending them
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 # JAZZMIN_SETTINGS = {
