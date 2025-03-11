@@ -16,15 +16,15 @@ def course_list(request):
     query = request.GET.get('q')
     
     # Start with an optimized queryset that prefetches reviews
-    courses = Course.objects.prefetch_related('review_set')
+    courses = Course.objects.prefetch_related('review')  # Changed from review_set
     
     if query:
         courses = courses.filter(Q(name__icontains=query) | Q(code__icontains=query))
     
     # Add annotations for average rating and review count
     courses = courses.annotate(
-        avg_rating=Avg('review_set__rating'),
-        review_count=Count('review_set')
+        avg_rating=Avg('review__rating'),  # Changed from review_set to review
+        review_count=Count('review')       # Changed from review_set to review
     )
     
     # Split into levels with ordering
