@@ -45,6 +45,35 @@
         Haven't registered yet? <a href="{% url 'users:register' %}">Register Here!</a>
     </p>
 </div>
+
+<!-- Email Verification Modal -->
+{% if messages %}
+<div class="modal fade" id="emailVerificationModal" tabindex="-1" aria-labelledby="emailVerificationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="emailVerificationModalLabel" style="color: black;">Email Verification Required</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="color: black;">
+        <p>We've sent a verification email to your address. Please check your inbox (and spam folder) to activate your account.</p>
+        <p>You need to verify your email before you can log in.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var myModal = new bootstrap.Modal(document.getElementById('emailVerificationModal'));
+    myModal.show();
+  });
+</script>
+{% endif %}
+
 {% endblock %}
 
 
