@@ -37,6 +37,14 @@ def register(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.is_active=False
+            
+            # Fix for the sequence issue - get the max ID and increment it
+            User = get_user_model()
+            max_id = User.objects.all().order_by('-id').first()
+            if max_id:
+                # Set the ID to be one more than the current maximum
+                user.id = max_id.id + 1
+            
             user.save()
             
             current_site = get_current_site(request)
@@ -52,7 +60,7 @@ def register(request):
                         mail_subject, email_message, to=[to_email]
             )
             email.send()
-            messages.success(request, 'Please confirm your email address to complete the registration')
+            messages.success(request, f'Account created successfully! Please check your email ({to_email}) to activate your account. Check your spam folder if you don\'t see it.')
             login(request, user)
             return redirect('users:login')
     else:
