@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block content %}
+
+<style>
+
+.btn-primary {
+  background-color: #dba309;
+  margin-bottom: 10px;
+  width: 95%;
+  color: #000000;
+}
+
+.btn-primary:hover {
+  background-color: #313030;
+  color: #dba309; /* A darker shade of the navy blue for hover effect */
+}
+  
+.btn-secondary {
+  margin-bottom: 10px;
+  background-color: black;
+  color: #dba309;
+}
+
+.btn-secondary:hover {
+  background-color: #dba309;
+  color: #000000;
+  font-size: smaller;
+}
+
+.welcome-container {
+  
+  margin: 5% auto;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  text-align: center;
+  padding: 20px;
+  background-color: #000000;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  color: rgb(133, 133, 133);
+  max-width: 70%;
+}
+
+.ausee-text {
+  font-size: 3em;
+  margin-bottom: 20px;
+  color: #dba309;
+  font-weight: bolder;
+}
+
+.lead-text {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.lead2-text {
+  font-size: 1.0em;
+  margin-bottom: 20px;
+  color: #7b7b7b;
+}
+
+.image1 {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Centers the content vertically */
+  overflow: hidden; /* Ensures no overflow if the image is too large */
+  padding: 0%;
+  margin-top: -230px;
+  margin-bottom: 0px;
+  pointer-events: none;
+}
+
+.image1 img {
+  max-width: 100%; /* Sets the maximum width to 100% of the container */
+  max-height: 200%; /* Sets the maximum height to 100% of the container */
+  object-fit: contain; /* Ensures the image maintains its aspect ratio */
+  padding: 0px;
+}
+
+@media screen and (max-width: 768px) {
+    .image1 {
+        display: none;
+    }
+}
+
+
+</style>
+
+<div class="welcome-container">
+  <h2 class="ausee-text">AUSee the Unseen<span></span>...</h2>
+
+  <p class="lead-text">
+    Discover insights about university courses through student reviews.
+  </p>
+
+  <p class="lead2-text">
+    Anonymously share your experiences and learn from others. Your name won't be displayed, ensuring honest feedback without reservations.
+  </p>
+
+  <div class="action-buttons">
+    <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg">Log In</a>
+    <p class="spacer">    </p>
+    <a href="{% url 'users:register' %}" class="btn btn-secondary btn-lg">Register</a>
+    <p class="view courses"><a href="{% url 'reviews:course_list' %}">View Courses</a> You will need to login or register to add reviews</p>
+  </div>
+</div>
+
+<a class="image1">
+  <img class="hands" src="{% static 'landing_page_image.png' %}">
+</a>
+{% endblock %}

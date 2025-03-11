@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'nitti-tywriter';
+    src: url('../fonts/Nitti_Typewriter_Normal.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'PF Fuel Grime';
+    src: url('../fonts/PF_Fuel_Grime.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}

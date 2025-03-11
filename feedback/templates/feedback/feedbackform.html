@@ -1,0 +1,76 @@
+<!-- feedback/templates/feedback/feedbackform.html -->
+
+
+{% extends "base.html" %} 
+
+{% block content %}
+<style>
+  .feedback-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .feedback-container h2 {
+    text-align: center;
+    color: #333;
+  }
+  
+  .feedback-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .feedback-form button {
+    background-color: #dba309;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .feedback-form label {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    
+  }
+  
+  .feedback-form button:hover {
+    background-color: #001F3F;
+  }
+  
+  .feedback-form p {
+    margin-bottom: 15px;
+  }
+
+  .feedback-form textarea {
+    width: 100%; /* Makes the textarea stretch to the full width of its container */
+    height: 150px; /* Sets the height of the textarea */
+    padding: 10px; /* Adds some space inside the textarea around the text */
+    border: 1px solid #ccc; /* Standard border */
+    border-radius: 4px; /* Slightly rounded corners for the textarea */
+    box-sizing: border-box; /* Includes padding and border in the width and height */
+    resize: vertical; /* Allows the user to resize the textarea vertically */
+  }
+  
+
+</style>
+
+<div class="feedback-container">
+  <h2>Feedback Form</h2>
+  <form method="post" class="feedback-form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Send Feedback</button>
+  </form>
+</div>
+{% endblock %}
+
+
