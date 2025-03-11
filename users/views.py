@@ -55,16 +55,21 @@ def register(request):
             # Generate activation link with the correct URL format
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = account_activation_token.make_token(user)
-            activation_link = f"http://{current_site.domain}/users/activate/{uid}/{token}/"
             
-            # Store activation link in session for display on login page
-            request.session['activation_link'] = activation_link
+            # Use HTTPS for production domains
+            protocol = 'https' if not current_site.domain.startswith('127.0.0.1') else 'http'
+            activation_link = f"{protocol}://{current_site.domain}/users/activate/{uid}/{token}/"
+            
+            # Don't store activation link in session for production
+            if current_site.domain.startswith('127.0.0.1'):
+                request.session['activation_link'] = activation_link
             
             email_message = render_to_string('users/acc_active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
                 'uid': uid,
-                'token': token, 
+                'token': token,
+                'protocol': protocol,
             })
             to_email = form.cleaned_data.get('email')
             email = EmailMessage(

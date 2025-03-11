@@ -97,12 +97,6 @@
       <div class="modal-body" style="color: black;">
         <p>We've sent a verification email to your address. Please check your inbox (and spam folder) to activate your account.</p>
         <p>You need to verify your email before you can log in.</p>
-        {% if request.session.activation_link %}
-        <div style="margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-left: 4px solid #dba309;">
-            <p style="color: #333; margin-bottom: 5px;"><strong>Development Mode:</strong> You can use the direct activation link below:</p>
-            <a href="{{ request.session.activation_link }}" style="color: #dba309; word-break: break-all;">{{ request.session.activation_link }}</a>
-        </div>
-        {% endif %}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>

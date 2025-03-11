@@ -88,7 +88,7 @@
             <p>You're just one click away from joining our community of students sharing their experiences to help others make informed decisions about their courses.</p>
             
             <p style="text-align: center; color: #ffffff;">
-                <a href="http://{{ domain }}/users/activate/{{ uid }}/{{ token }}/" class="button">ACTIVATE MY ACCOUNT</a>
+                <a href="{{ protocol }}://{{ domain }}/users/activate/{{ uid }}/{{ token }}/" class="button">ACTIVATE MY ACCOUNT</a>
             </p>
             
             <p class="note">This link will expire in 24 hours for security reasons.</p>
@@ -107,7 +107,7 @@
             <p>© 2025 AUSee. All rights reserved.</p>
             <p>This email was sent to you as part of the registration process for AUSee.</p>
             <p>If the button doesn't work, copy and paste this URL into your browser:</p>
-            <p style="word-break: break-all;">http://{{ domain }}/users/activate/{{ uid }}/{{ token }}/</p>
+            <p style="word-break: break-all;">{{ protocol }}://{{ domain }}/users/activate/{{ uid }}/{{ token }}/</p>
         </div>
     </div>
 </body>
