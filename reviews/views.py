@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.db.models import Max, Min
+from django.db.models import Max, Min, Avg, Count
 import json
 
 # Create your views here.
@@ -14,11 +14,20 @@ import json
 
 def course_list(request):
     query = request.GET.get('q')
+    
+    # Start with an optimized queryset that prefetches reviews
+    courses = Course.objects.all()
+    
     if query:
-        courses = Course.objects.filter(Q(name__icontains=query) | Q(code__icontains=query))
-    else:
-        courses = Course.objects.all()
-
+        courses = courses.filter(Q(name__icontains=query) | Q(code__icontains=query))
+    
+    # Add annotations for average rating and review count using the correct relationship
+    courses = courses.annotate(
+        avg_rating=Avg('review__rating'),  # Using the model name 'review'
+        review_count=Count('review')       # Using the model name 'review'
+    ).prefetch_related('review_set')
+    
+    # Split into levels with ordering
     level_100_courses = courses.filter(level=100).order_by('name')
     level_200_courses = courses.filter(level=200).order_by('name')
     level_300_courses = courses.filter(level=300).order_by('name')
@@ -30,8 +39,6 @@ def course_list(request):
     }
 
     return render(request, 'reviews/course_list.html', context)
-
-
 
 @login_required
 def course_detail(request, course_id):
