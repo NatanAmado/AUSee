@@ -16,16 +16,16 @@ def course_list(request):
     query = request.GET.get('q')
     
     # Start with an optimized queryset that prefetches reviews
-    courses = Course.objects.prefetch_related('review')  # Changed from review_set
+    courses = Course.objects.all()
     
     if query:
         courses = courses.filter(Q(name__icontains=query) | Q(code__icontains=query))
     
-    # Add annotations for average rating and review count
+    # Add annotations for average rating and review count using the correct relationship
     courses = courses.annotate(
-        avg_rating=Avg('review__rating'),  # Changed from review_set to review
-        review_count=Count('review')       # Changed from review_set to review
-    )
+        avg_rating=Avg('review__rating'),  # Using the model name 'review'
+        review_count=Count('review')       # Using the model name 'review'
+    ).prefetch_related('review_set')
     
     # Split into levels with ordering
     level_100_courses = courses.filter(level=100).order_by('name')
@@ -39,7 +39,6 @@ def course_list(request):
     }
 
     return render(request, 'reviews/course_list.html', context)
-
 
 @login_required
 def course_detail(request, course_id):
