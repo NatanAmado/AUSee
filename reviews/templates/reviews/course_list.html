@@ -287,8 +287,8 @@
           <h5 class="card-title">{{ course.name }} </h5>
           <h5 class="card-code">{{ course.code }}</h5>
           <p>Average Rating:
-            <span class="starRating" data-rating="{{ course.average_rating|floatformat:1 }}"></span>
-            <span>{{ course.average_rating|floatformat:1 }}/5.0</span>
+            <span class="starRating" data-rating="{{ course.avg_rating|floatformat:1|default:"No ratings" }}"></span>
+            <span>{{ course.avg_rating|floatformat:1|default:"No ratings" }}/5.0</span>
           </p>
 
           <p class="descrip">{{ course.description|truncatechars:100 }}</p>
@@ -313,8 +313,8 @@
           <h5 class="card-title">{{ course.name }} </h5>
           <h5 class="card-code">{{ course.code }}</h5>
           <p>Average Rating:
-            <span class="starRating" data-rating="{{ course.average_rating|floatformat:1 }}"></span>
-            <span>{{ course.average_rating|floatformat:1 }}/5.0</span>
+            <span class="starRating" data-rating="{{ course.avg_rating|floatformat:1|default:"No ratings" }}"></span>
+            <span>{{ course.avg_rating|floatformat:1|default:"No ratings" }}/5.0</span>
           </p>
 
           <p class="descrip">{{ course.description|truncatechars:100 }}</p>
@@ -339,8 +339,8 @@
             <h5 class="card-title">{{ course.name }} </h5>
             <h5 class="card-code">{{ course.code }}</h5>
             <p>Average Rating:
-              <span class="starRating" data-rating="{{ course.average_rating|floatformat:1 }}"></span>
-              <span>{{ course.average_rating|floatformat:1 }}/5.0</span>
+              <span class="starRating" data-rating="{{ course.avg_rating|floatformat:1|default:"No ratings" }}"></span>
+              <span>{{ course.avg_rating|floatformat:1|default:"No ratings" }}/5.0</span>
             </p>
 
             <p class="descrip">{{ course.description|truncatechars:100 }}</p>
