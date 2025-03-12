@@ -41,14 +41,14 @@
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   color: rgb(133, 133, 133);
-  max-width: 70%;
+  max-width: 80%;
 }
 
 .ausee-text {
-  font-size: 3em;
+  font-size: 4em;
   margin-bottom: 20px;
   color: #dba309;
-  font-weight: bolder;
+  font-weight: open;
 }
 
 .lead-text {
@@ -58,9 +58,10 @@
 }
 
 .lead2-text {
-  font-size: 1.0em;
-  margin-bottom: 20px;
+  font-size: 1.5em;
+  margin-bottom: 30px;
   color: #7b7b7b;
+
 }
 
 .image1 {
@@ -102,10 +103,9 @@
   </p>
 
   <div class="action-buttons">
-    <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg">Log In</a>
+    <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg w-50">Log In</a>
     <p class="spacer">    </p>
-    <a href="{% url 'users:register' %}" class="btn btn-secondary btn-lg">Register</a>
-    <p class="view courses"><a href="{% url 'reviews:course_list' %}">View Courses</a> You will need to login or register to add reviews</p>
+    <a href="{% url 'users:register' %}" class="btn btn-secondary btn-lg w-50">Register</a>
   </div>
 </div>
 
