@@ -22,7 +22,7 @@
                 {% endif %}
             </div>
             {% endfor %}
-            <button type="submit" class="btn btn-primary">{% if post %}Update Post{% else %}Create Post{% endif %}</button>
+            <button type="submit" class="btn btn-warning">{% if post %}Update Post{% else %}Create Post{% endif %}</button>
             {% if post %}
             <a href="{% url 'forum:post_detail' post.id %}" class="btn btn-secondary">Cancel</a>
             {% else %}
