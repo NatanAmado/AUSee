@@ -26,7 +26,11 @@
             {% if post %}
             <a href="{% url 'forum:post_detail' post.id %}" class="btn btn-secondary">Cancel</a>
             {% else %}
-            <a href="{% url 'forum:topic_detail' topic.id %}" class="btn btn-secondary">Cancel</a>
+                {% if topic %}
+                <a href="{% url 'forum:topic_detail' topic.id %}" class="btn btn-secondary">Cancel</a>
+                {% else %}
+                <a href="{% url 'forum:home' %}" class="btn btn-secondary">Cancel</a>
+                {% endif %}
             {% endif %}
         </form>
     </div>

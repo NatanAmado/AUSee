@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block content %}
+<form id="csrf-form">
+    {% csrf_token %}
+</form>
 <div class="container mt-4">
     <div class="row">
         <!-- Sidebar -->
@@ -41,7 +44,6 @@
         
         <!-- Main Content -->
         <div class="col-md-9">
-            {% csrf_token %}
             {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -57,42 +59,64 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- Forum JavaScript -->
 <script>
     // Function to handle voting
-    function vote(postId, voteType) {
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        if (!csrfToken) {
-            console.error('CSRF token not found');
-            return;
-        }
-
-        fetch(`/forum/posts/${postId}/vote/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': csrfToken
-            },
-            body: `vote_type=${voteType}`
-        })
-        .then(response => response.json())
-        .then(data => {
+    async function vote(postId, voteType) {
+        try {
+            console.log('Attempting to vote:', { postId, voteType });
+            
+            const csrfToken = document.querySelector('#csrf-form [name=csrfmiddlewaretoken]').value;
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                return;
+            }
+            
+            console.log('CSRF token found');
+            
+            const formData = new FormData();
+            formData.append('vote_type', voteType);
+            
+            const response = await fetch(`/forum/posts/${postId}/vote/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response headers:', Object.fromEntries(response.headers));
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Vote response data:', data);
+            
             if (data.status === 'success') {
-                document.getElementById(`upvotes-${postId}`).textContent = data.upvotes;
-                document.getElementById(`downvotes-${postId}`).textContent = data.downvotes;
+                const upvotesElement = document.getElementById(`upvotes-${postId}`);
+                const downvotesElement = document.getElementById(`downvotes-${postId}`);
+                const postElement = document.getElementById(`post-${postId}`);
                 
-                if (data.is_archived) {
-                    document.getElementById(`post-${postId}`).classList.add('archived');
+                if (upvotesElement) upvotesElement.textContent = data.upvotes;
+                if (downvotesElement) downvotesElement.textContent = data.downvotes;
+                
+                if (data.is_archived && postElement) {
+                    postElement.classList.add('archived');
                 }
+                
+                console.log('Vote successfully recorded');
             } else {
                 console.error('Vote failed:', data.message);
+                alert('Failed to record vote. Please try again.');
             }
-        })
-        .catch(error => {
+        } catch (error) {
             console.error('Error voting:', error);
-        });
+            alert('Error recording vote. Please try again.');
+        }
     }
     
     // Function to toggle reply form
@@ -101,4 +125,7 @@
         replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
     }
 </script>
+{% endblock %}
+
+{% block extra_js %}
 {% endblock %} 
