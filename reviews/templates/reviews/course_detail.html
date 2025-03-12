@@ -177,6 +177,15 @@
         position: relative;
         /* Establish a positioning context */
     }
+    
+    .review-content {
+        flex: 1;
+        /* Make the content take up all available space */
+        min-width: 0;
+        /* Prevent flex items from overflowing */
+        width: 100%;
+        /* Ensure full width */
+    }
 
     .review-voting {
         display: flex;
