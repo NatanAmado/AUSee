@@ -1,0 +1,30 @@
+{% extends 'forum/base_forum.html' %}
+
+{% block forum_content %}
+<div class="card bg-dark text-light mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Edit Topic Description</h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="{{ form.description.id_for_label }}" class="form-label">{{ form.description.label }}</label>
+                {{ form.description }}
+                {% if form.description.help_text %}
+                <div class="form-text text-muted">{{ form.description.help_text }}</div>
+                {% endif %}
+                {% if form.description.errors %}
+                <div class="alert alert-danger mt-2">
+                    {{ form.description.errors }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="d-flex">
+                <button type="submit" class="btn btn-warning me-2">Save Changes</button>
+                <a href="{% url 'forum:topic_detail' topic.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

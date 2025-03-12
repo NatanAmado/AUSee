@@ -6,15 +6,15 @@
 /* PF Fuel Fonts */
 @font-face {
     font-family: 'PF Fuel';
-    src: url('../fonts/PF_Fuel_Decay.otf') format('opentype');
+    src: url('../fonts/PF_Fuel_Grime.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
 }
 
 @font-face {
-    font-family: 'PF Fuel Grime';
-    src: url('../fonts/PF_Fuel_Grime.otf') format('opentype');
+    font-family: 'PF Fuel Decay';
+    src: url('../fonts/PF_Fuel_Decay.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
     font-display: swap;

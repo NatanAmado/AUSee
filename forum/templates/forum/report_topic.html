@@ -1,0 +1,42 @@
+{% extends 'forum/base_forum.html' %}
+
+{% block forum_content %}
+<div class="card bg-dark text-light mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Report Topic: {{ topic.name }}</h3>
+    </div>
+    <div class="card-body">
+        <p class="text-muted mb-4">Please provide a reason for reporting this topic. This helps our moderators decide what action to take.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <!-- Reason selection -->
+            <div class="mb-3">
+                <label for="{{ form.reason.id_for_label }}" class="form-label">Reason for Reporting</label>
+                {{ form.reason }}
+                {% if form.reason.errors %}
+                <div class="alert alert-danger mt-2">
+                    {{ form.reason.errors }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Additional info -->
+            <div class="mb-3">
+                <label for="{{ form.additional_info.id_for_label }}" class="form-label">{{ form.additional_info.label }}</label>
+                {{ form.additional_info }}
+                {% if form.additional_info.errors %}
+                <div class="alert alert-danger mt-2">
+                    {{ form.additional_info.errors }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="d-flex">
+                <button type="submit" class="btn btn-warning me-2">Submit Report</button>
+                <a href="{% url 'forum:topic_detail' topic.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

@@ -2,12 +2,16 @@
 {% load static %}
 
 {% block forum_content %}
-<div class="card bg-dark text-light mb-4">
+<div class="card bg-dark text-light mb-4 {% if topic.is_archived %}border-danger{% endif %}">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="mb-0">{{ topic.name }}</h3>
-        {% if user.is_authenticated %}
-        <a href="{% url 'forum:create_post_in_topic' topic.id %}" class="btn btn-warning">New Post</a>
-        {% endif %}
+        <h3 class="mb-0">{{ topic.name }}{% if topic.is_archived %} <span class="badge bg-danger ms-2">Archived</span>{% endif %}</h3>
+        <div class="btn-group">
+            {% if user.is_authenticated and not topic.is_archived %}
+            <a href="{% url 'forum:create_post_in_topic' topic.id %}" class="btn btn-warning">New Post</a>
+            <a href="{% url 'forum:edit_topic_description' topic.id %}" class="btn btn-outline-warning">Edit Description</a>
+            <a href="{% url 'forum:report_topic' topic.id %}" class="btn btn-outline-danger">Report Topic</a>
+            {% endif %}
+        </div>
     </div>
     <div class="card-body">
         <p class="text-muted">{{ topic.description }}</p>
@@ -15,6 +19,10 @@
             Created by: {{ topic.created_by.username|default:"Anonymous" }}
             <br>
             {{ topic.created_at|timesince }} ago
+            {% if topic.is_archived %}
+            <br>
+            <span class="text-danger">This topic has been archived due to multiple reports. No new posts can be created.</span>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -36,6 +44,9 @@
                 <a href="{% url 'forum:post_detail' post.id %}" class="text-light text-decoration-none">
                     {{ post.title }}
                 </a>
+                {% if post.is_archived %}
+                <span class="badge bg-danger ms-2">Archived</span>
+                {% endif %}
             </h4>
             <p class="card-text">{{ post.content|linebreaks|truncatewords:100 }}</p>
             
@@ -50,18 +61,23 @@
                     {{ post.created_at|timesince }} ago
                     {% if post.is_archived %}
                     <br>
-                    <span class="text-danger">This post has been archived</span>
+                    <span class="text-danger">This post has been archived due to negative feedback</span>
                     {% endif %}
                 </div>
                 
-                {% if user.is_authenticated %}
+                {% if user.is_authenticated and not post.is_archived and not topic.is_archived %}
                 <div class="d-flex align-items-center">
-                    <button onclick="vote({{ post.id }}, 'upvote')" class="btn btn-sm btn-outline-success me-2">
-                        👍 <span id="upvotes-{{ post.id }}">{{ post.upvotes }}</span>
+                    <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
+                        👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
                     </button>
-                    <button onclick="vote({{ post.id }}, 'downvote')" class="btn btn-sm btn-outline-danger">
-                        👎 <span id="downvotes-{{ post.id }}">{{ post.downvotes }}</span>
+                    <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
+                        👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
                     </button>
+                </div>
+                {% else %}
+                <div class="d-flex align-items-center text-muted">
+                    <span class="me-3">👍 <span class="vote-count">{{ post.upvotes }}</span></span>
+                    <span>👎 <span class="vote-count">{{ post.downvotes }}</span></span>
                 </div>
                 {% endif %}
             </div>
@@ -70,7 +86,7 @@
     {% empty %}
     <div class="alert alert-info">
         No posts in this topic yet.
-        {% if user.is_authenticated %}
+        {% if user.is_authenticated and not topic.is_archived %}
         <a href="{% url 'forum:create_post_in_topic' topic.id %}" class="alert-link">Create the first post!</a>
         {% endif %}
     </div>
@@ -102,7 +118,7 @@
 </nav>
 {% endif %}
 
-{% if user.is_authenticated %}
+{% if user.is_authenticated and not topic.is_archived %}
 <!-- Create Post Form -->
 <div class="card bg-dark text-light mt-4">
     <div class="card-header">
@@ -112,7 +128,7 @@
         <form method="post" action="{% url 'forum:create_post_in_topic' topic.id %}">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Post</button>
+            <button type="submit" class="btn btn-warning">Post</button>
         </form>
     </div>
 </div>

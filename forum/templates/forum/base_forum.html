@@ -3,6 +3,100 @@
 
 {% block extra_head %}
 <link rel="preload" href="{% static 'fonts/PF_Fuel_Grime.otf' %}" as="font" type="font/otf" crossorigin>
+<style>
+    /* Vote button styles */
+    .vote-btn {
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .vote-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .vote-btn.active {
+        font-weight: bold;
+        transform: scale(1.05);
+    }
+    
+    .vote-btn:active {
+        transform: translateY(1px);
+    }
+    
+    .vote-btn.btn-outline-success.active {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .vote-btn.btn-outline-danger.active {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    /* Pulse animation for buttons */
+    .pulse {
+        animation: pulse-animation 0.5s;
+    }
+    
+    @keyframes pulse-animation {
+        0% { transform: scale(1); }
+        25% { transform: scale(1.1); }
+        50% { transform: scale(1); }
+        75% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    /* Vote count styles */
+    .vote-count {
+        display: inline-block;
+        min-width: 24px;
+        text-align: center;
+    }
+    
+    /* Text animation for vote counts */
+    .text-primary {
+        animation: count-change 1s ease;
+        font-weight: bold;
+    }
+    
+    @keyframes count-change {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.5); }
+        100% { transform: scale(1); }
+    }
+    
+    /* Archived post styles */
+    .archived-badge {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 0.7; }
+        50% { opacity: 1; }
+        100% { opacity: 0.7; }
+    }
+    
+    .archived-message {
+        border-left: 4px solid #dc3545;
+        padding-left: 10px;
+    }
+    
+    /* Vote animation */
+    .vote-animation {
+        position: absolute;
+        font-size: 1.5rem;
+        opacity: 0;
+        pointer-events: none;
+        animation: floatUp 1s ease-out forwards;
+    }
+    
+    @keyframes floatUp {
+        0% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-20px); }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -48,58 +142,274 @@
 <script>
     // Function to handle voting
     async function vote(postId, voteType) {
+        console.log(`Attempting to vote ${voteType} on post ${postId}`);
+        
         try {
-            console.log('Attempting to vote:', { postId, voteType });
+            // Add visual feedback immediately
+            const clickedBtn = document.getElementById(`${voteType}-btn-${postId}`);
+            const otherBtn = document.getElementById(`${voteType === 'upvote' ? 'downvote' : 'upvote'}-btn-${postId}`);
             
+            // Show animation
+            const animation = document.createElement('span');
+            animation.className = 'vote-animation';
+            animation.innerHTML = voteType === 'upvote' ? '👍' : '👎';
+            clickedBtn.appendChild(animation);
+            
+            // Remove animation after it completes
+            setTimeout(() => {
+                if (animation.parentNode === clickedBtn) {
+                    clickedBtn.removeChild(animation);
+                }
+            }, 1000);
+            
+            // Get CSRF token from the form
             const csrfToken = document.querySelector('#csrf-form [name=csrfmiddlewaretoken]').value;
-            if (!csrfToken) {
-                console.error('CSRF token not found');
-                return;
-            }
+            console.log(`CSRF token available: ${csrfToken ? 'Yes' : 'No'}`);
             
-            console.log('CSRF token found');
-            
+            // Create form data
             const formData = new FormData();
             formData.append('vote_type', voteType);
             
+            // Send the vote request
             const response = await fetch(`/forum/posts/${postId}/vote/`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': csrfToken
+                    'X-CSRFToken': csrfToken,
                 },
-                body: formData
+                body: formData,
+                credentials: 'same-origin'
             });
             
-            console.log('Response status:', response.status);
-            console.log('Response headers:', Object.fromEntries(response.headers));
+            console.log(`Response status: ${response.status}`);
+            console.log('Response headers:', response.headers);
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json();
+                console.error('Vote failed:', errorData.error);
+                
+                // Check if the error is due to archived status
+                if (errorData.error && errorData.error.includes('archived')) {
+                    // Add a nicer notification instead of alert
+                    const postElement = document.querySelector(`#post-${postId}`);
+                    if (postElement) {
+                        // Create notification if it doesn't exist
+                        if (!document.getElementById(`archive-notification-${postId}`)) {
+                            const notification = document.createElement('div');
+                            notification.id = `archive-notification-${postId}`;
+                            notification.className = 'alert alert-danger mt-2 archived-message';
+                            notification.textContent = errorData.error;
+                            
+                            // Add a close button
+                            const closeBtn = document.createElement('button');
+                            closeBtn.type = 'button';
+                            closeBtn.className = 'btn-close';
+                            closeBtn.setAttribute('data-bs-dismiss', 'alert');
+                            closeBtn.setAttribute('aria-label', 'Close');
+                            notification.appendChild(closeBtn);
+                            
+                            // Insert after the post content
+                            const bodyElement = postElement.querySelector('.card-body');
+                            if (bodyElement) {
+                                bodyElement.appendChild(notification);
+                            }
+                        }
+                        
+                        // Update UI to show archived status if not already shown
+                        if (!postElement.querySelector('.archived-badge')) {
+                            const titleElement = postElement.querySelector('.card-title');
+                            if (titleElement) {
+                                const archivedBadge = document.createElement('span');
+                                archivedBadge.className = 'badge bg-danger ms-2 archived-badge';
+                                archivedBadge.textContent = 'Archived';
+                                titleElement.appendChild(archivedBadge);
+                            }
+                        }
+                        
+                        // Apply visual style to post
+                        postElement.classList.add('border-danger');
+                        
+                        // Disable vote buttons
+                        const voteButtons = postElement.querySelectorAll('.vote-btn');
+                        voteButtons.forEach(button => {
+                            button.disabled = true;
+                            button.classList.add('disabled');
+                        });
+                    }
+                } else {
+                    // Show toast notification
+                    const errorToast = document.createElement('div');
+                    errorToast.className = 'toast align-items-center text-white bg-danger position-fixed top-0 end-0 m-3';
+                    errorToast.setAttribute('role', 'alert');
+                    errorToast.setAttribute('aria-live', 'assertive');
+                    errorToast.setAttribute('aria-atomic', 'true');
+                    errorToast.innerHTML = `
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                Error: Unable to process your vote. Please try again.
+                            </div>
+                            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    `;
+                    document.body.appendChild(errorToast);
+                    
+                    // Initialize and show the toast
+                    const bsToast = new bootstrap.Toast(errorToast);
+                    bsToast.show();
+                    
+                    // Remove toast after it's hidden
+                    errorToast.addEventListener('hidden.bs.toast', () => {
+                        document.body.removeChild(errorToast);
+                    });
+                }
+                return;
             }
             
             const data = await response.json();
             console.log('Vote response data:', data);
             
-            if (data.status === 'success') {
-                const upvotesElement = document.getElementById(`upvotes-${postId}`);
-                const downvotesElement = document.getElementById(`downvotes-${postId}`);
-                const postElement = document.getElementById(`post-${postId}`);
-                
-                if (upvotesElement) upvotesElement.textContent = data.upvotes;
-                if (downvotesElement) downvotesElement.textContent = data.downvotes;
-                
-                if (data.is_archived && postElement) {
-                    postElement.classList.add('archived');
+            // Update the vote counts with animation
+            const upvoteCount = document.querySelector(`#upvote-count-${postId}`);
+            const downvoteCount = document.querySelector(`#downvote-count-${postId}`);
+            
+            if (upvoteCount) {
+                // Add animation class if the count has changed
+                if (parseInt(upvoteCount.textContent) !== data.upvotes) {
+                    upvoteCount.classList.add('text-primary');
+                    setTimeout(() => {
+                        upvoteCount.classList.remove('text-primary');
+                    }, 1000);
                 }
-                
-                console.log('Vote successfully recorded');
-            } else {
-                console.error('Vote failed:', data.message);
-                alert('Failed to record vote. Please try again.');
+                upvoteCount.textContent = data.upvotes;
             }
+            
+            if (downvoteCount) {
+                // Add animation class if the count has changed
+                if (parseInt(downvoteCount.textContent) !== data.downvotes) {
+                    downvoteCount.classList.add('text-primary');
+                    setTimeout(() => {
+                        downvoteCount.classList.remove('text-primary');
+                    }, 1000);
+                }
+                downvoteCount.textContent = data.downvotes;
+            }
+            
+            // Visual feedback for the user's vote
+            const upvoteBtn = document.querySelector(`#upvote-btn-${postId}`);
+            const downvoteBtn = document.querySelector(`#downvote-btn-${postId}`);
+            
+            if (upvoteBtn && downvoteBtn) {
+                upvoteBtn.classList.remove('active');
+                downvoteBtn.classList.remove('active');
+                
+                if (data.user_vote === 'upvote') {
+                    upvoteBtn.classList.add('active');
+                } else if (data.user_vote === 'downvote') {
+                    downvoteBtn.classList.add('active');
+                }
+            }
+            
+            // Check if post has been archived
+            if (data.is_archived) {
+                console.log(`Post ${postId} has been archived.`);
+                
+                // Update UI to show archived status
+                const postElement = document.querySelector(`#post-${postId}`);
+                if (postElement) {
+                    postElement.classList.add('border-danger');
+                    
+                    // Add archived badge if not present
+                    if (!postElement.querySelector('.archived-badge')) {
+                        const titleElement = postElement.querySelector('.card-title');
+                        if (titleElement) {
+                            const archivedBadge = document.createElement('span');
+                            archivedBadge.className = 'badge bg-danger ms-2 archived-badge';
+                            archivedBadge.textContent = 'Archived';
+                            titleElement.appendChild(archivedBadge);
+                        }
+                    }
+                    
+                    // Add archived message if not present
+                    if (!postElement.querySelector('.archived-message')) {
+                        const bodyElement = postElement.querySelector('.card-body');
+                        if (bodyElement) {
+                            const archiveMsg = document.createElement('div');
+                            archiveMsg.className = 'alert alert-danger mt-2 archived-message';
+                            archiveMsg.textContent = 'This post has been archived due to negative feedback.';
+                            bodyElement.appendChild(archiveMsg);
+                        }
+                    }
+                    
+                    // Disable vote buttons
+                    const voteButtons = postElement.querySelectorAll('.vote-btn');
+                    voteButtons.forEach(button => {
+                        button.disabled = true;
+                        button.classList.add('disabled');
+                    });
+                    
+                    // Show a success notification
+                    const successToast = document.createElement('div');
+                    successToast.className = 'toast align-items-center text-white bg-danger position-fixed top-0 end-0 m-3';
+                    successToast.setAttribute('role', 'alert');
+                    successToast.setAttribute('aria-live', 'assertive');
+                    successToast.setAttribute('aria-atomic', 'true');
+                    successToast.innerHTML = `
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                This post has been archived due to negative feedback.
+                            </div>
+                            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    `;
+                    document.body.appendChild(successToast);
+                    
+                    // Initialize and show the toast
+                    const bsToast = new bootstrap.Toast(successToast);
+                    bsToast.show();
+                    
+                    // Remove toast after it's hidden
+                    successToast.addEventListener('hidden.bs.toast', () => {
+                        document.body.removeChild(successToast);
+                    });
+                }
+            } else {
+                // Show success feedback
+                const clickedBtn = voteType === 'upvote' ? upvoteBtn : downvoteBtn;
+                if (clickedBtn) {
+                    clickedBtn.classList.add('pulse');
+                    setTimeout(() => {
+                        clickedBtn.classList.remove('pulse');
+                    }, 500);
+                }
+            }
+            
+            console.log(`Vote ${voteType} on post ${postId} successful`);
         } catch (error) {
-            console.error('Error voting:', error);
-            alert('Error recording vote. Please try again.');
+            console.error('Error during vote processing:', error);
+            
+            // Show error notification
+            const errorToast = document.createElement('div');
+            errorToast.className = 'toast align-items-center text-white bg-danger position-fixed top-0 end-0 m-3';
+            errorToast.setAttribute('role', 'alert');
+            errorToast.setAttribute('aria-live', 'assertive');
+            errorToast.setAttribute('aria-atomic', 'true');
+            errorToast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        An error occurred while processing your vote. Please try again.
+                    </div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            document.body.appendChild(errorToast);
+            
+            // Initialize and show the toast
+            const bsToast = new bootstrap.Toast(errorToast);
+            bsToast.show();
+            
+            // Remove toast after it's hidden
+            errorToast.addEventListener('hidden.bs.toast', () => {
+                document.body.removeChild(errorToast);
+            });
         }
     }
     
@@ -109,7 +419,18 @@
         replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
     }
 </script>
-{% endblock %}
 
 {% block extra_js %}
-{% endblock %} 
+<script>
+    // Initialize Bootstrap components
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize any existing toasts
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+        toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl);
+        });
+    });
+</script>
+{% endblock extra_js %}
+
+{% endblock content %} 

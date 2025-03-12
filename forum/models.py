@@ -3,12 +3,14 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 import math
+from datetime import timedelta
 
 class Topic(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_topics')
+    is_archived = models.BooleanField(default=False)
     
     def __str__(self):
         return self.name
@@ -16,9 +18,25 @@ class Topic(models.Model):
     def report_count(self):
         return self.reports.count()
     
+    def daily_report_count(self):
+        """Count reports from the last 24 hours"""
+        one_day_ago = timezone.now() - timedelta(days=1)
+        return self.reports.filter(created_at__gte=one_day_ago).count()
+    
     def should_be_archived(self):
-        # Archive topic if it has more than 5 reports
-        return self.report_count() >= 5
+        """Archive topic if it has 10+ reports in a single day"""
+        return self.daily_report_count() >= 10
+    
+    def check_archive_status(self):
+        """Check if topic should be archived and archive it along with all its posts if needed"""
+        if self.should_be_archived() and not self.is_archived:
+            self.is_archived = True
+            self.save()
+            
+            # Archive all posts in this topic
+            self.posts.update(is_archived=True)
+            return True
+        return False
     
     class Meta:
         ordering = ['name']
@@ -76,12 +94,17 @@ class Post(models.Model):
         
         return numerator / denominator
     
+    def should_be_archived(self):
+        """Archive post if downvotes exceed upvotes by 10 or more"""
+        return (self.downvotes - self.upvotes) >= 10
+    
     def check_archive_status(self):
-        # Archive posts with a significant number of downvotes
-        # This is a simple implementation - can be adjusted based on requirements
-        if self.downvotes > 10 and self.downvotes > self.upvotes * 2:
+        """Check and update the archive status based on votes"""
+        if self.should_be_archived() and not self.is_archived:
             self.is_archived = True
             self.save()
+            return True
+        return False
     
     class Meta:
         ordering = ['-created_at']
