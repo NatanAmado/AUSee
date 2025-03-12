@@ -85,6 +85,7 @@ def topic_detail(request, topic_id):
 def create_post(request, topic_id=None):
     """Create a new post"""
     initial = {}
+    topic = None
     if topic_id:
         topic = get_object_or_404(Topic, id=topic_id)
         initial['topic'] = topic
@@ -103,6 +104,7 @@ def create_post(request, topic_id=None):
     context = {
         'form': form,
         'title': 'Create New Post',
+        'topic': topic,
     }
     return render(request, 'forum/post_form.html', context)
 
@@ -179,60 +181,77 @@ def vote_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     vote_type = request.POST.get('vote_type')
     
+    print(f"Vote request received - Post: {post_id}, Type: {vote_type}, User: {request.user.username}")
+    
     if vote_type not in ['upvote', 'downvote']:
         return JsonResponse({'status': 'error', 'message': 'Invalid vote type'})
     
-    # Check if user has already voted
-    existing_vote = Vote.objects.filter(user=request.user, post=post).first()
-    
-    if existing_vote:
-        # User is changing their vote
-        if existing_vote.vote_type != vote_type:
-            # Update vote counters
+    try:
+        # Check if user has already voted
+        existing_vote = Vote.objects.filter(user=request.user, post=post).first()
+        
+        if existing_vote:
+            print(f"Existing vote found - Type: {existing_vote.vote_type}")
+            # User is changing their vote
+            if existing_vote.vote_type != vote_type:
+                # Update vote counters
+                if vote_type == 'upvote':
+                    post.upvotes = F('upvotes') + 1
+                    post.downvotes = F('downvotes') - 1
+                else:
+                    post.upvotes = F('upvotes') - 1
+                    post.downvotes = F('downvotes') + 1
+                
+                # Update vote record
+                existing_vote.vote_type = vote_type
+                existing_vote.save()
+                print(f"Vote changed from {existing_vote.vote_type} to {vote_type}")
+            else:
+                # User is removing their vote
+                if vote_type == 'upvote':
+                    post.upvotes = F('upvotes') - 1
+                else:
+                    post.downvotes = F('downvotes') - 1
+                
+                existing_vote.delete()
+                print("Vote removed")
+        else:
+            # New vote
             if vote_type == 'upvote':
                 post.upvotes = F('upvotes') + 1
-                post.downvotes = F('downvotes') - 1
             else:
-                post.upvotes = F('upvotes') - 1
                 post.downvotes = F('downvotes') + 1
             
-            # Update vote record
-            existing_vote.vote_type = vote_type
-            existing_vote.save()
-        else:
-            # User is removing their vote
-            if vote_type == 'upvote':
-                post.upvotes = F('upvotes') - 1
-            else:
-                post.downvotes = F('downvotes') - 1
-            
-            existing_vote.delete()
-    else:
-        # New vote
-        if vote_type == 'upvote':
-            post.upvotes = F('upvotes') + 1
-        else:
-            post.downvotes = F('downvotes') + 1
+            # Create vote record
+            Vote.objects.create(
+                user=request.user,
+                post=post,
+                vote_type=vote_type
+            )
+            print(f"New vote recorded - Type: {vote_type}")
         
-        # Create vote record
-        Vote.objects.create(
-            user=request.user,
-            post=post,
-            vote_type=vote_type
-        )
-    
-    post.save()
-    post.refresh_from_db()
-    
-    # Check if post should be archived
-    post.check_archive_status()
-    
-    return JsonResponse({
-        'status': 'success',
-        'upvotes': post.upvotes,
-        'downvotes': post.downvotes,
-        'is_archived': post.is_archived
-    })
+        # Save and refresh to get updated counts
+        post.save()
+        post.refresh_from_db()
+        
+        # Check if post should be archived
+        post.check_archive_status()
+        
+        print(f"Final vote counts - Upvotes: {post.upvotes}, Downvotes: {post.downvotes}")
+        
+        return JsonResponse({
+            'status': 'success',
+            'upvotes': post.upvotes,
+            'downvotes': post.downvotes,
+            'is_archived': post.is_archived
+        })
+        
+    except Exception as e:
+        print(f"Error processing vote: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Error processing vote'
+        })
 
 def search_forum(request):
     """Search for posts and topics"""
