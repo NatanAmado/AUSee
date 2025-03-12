@@ -78,49 +78,7 @@
                             {% endif %}
                             <br>
                             {{ comment.created_at|timesince }} ago
-                            {% if user.is_authenticated and not post.is_archived %}
-                            <br>
-                            <button onclick="toggleReplyForm({{ comment.id }})" class="btn btn-link btn-sm text-muted p-0">Reply</button>
-                            {% endif %}
                         </div>
-                        
-                        <!-- Reply Form (hidden by default) -->
-                        {% if user.is_authenticated and not post.is_archived %}
-                        <div id="reply-form-{{ comment.id }}" style="display: none;" class="mt-3">
-                            <form method="post" action="{% url 'forum:add_comment' post.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                                {{ form.as_p }}
-                                <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
-                            </form>
-                        </div>
-                        {% endif %}
-                        
-                        <!-- Replies -->
-                        {% if comment.replies.all %}
-                        <div class="replies mt-3 ms-4">
-                            {% for reply in comment.replies.all %}
-                            <div class="reply mb-3">
-                                <div class="card bg-dark text-light border-secondary">
-                                    <div class="card-body">
-                                        <div class="reply-content">
-                                            {{ reply.content|linebreaks }}
-                                        </div>
-                                        <div class="text-muted small">
-                                            {% if not reply.is_anonymous %}
-                                            By: {{ reply.author.username }}
-                                            {% else %}
-                                            By: Anonymous
-                                            {% endif %}
-                                            <br>
-                                            {{ reply.created_at|timesince }} ago
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>

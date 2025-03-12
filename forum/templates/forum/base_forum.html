@@ -41,6 +41,7 @@
         
         <!-- Main Content -->
         <div class="col-md-9">
+            {% csrf_token %}
             {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -62,11 +63,17 @@
 <script>
     // Function to handle voting
     function vote(postId, voteType) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        if (!csrfToken) {
+            console.error('CSRF token not found');
+            return;
+        }
+
         fetch(`/forum/posts/${postId}/vote/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                'X-CSRFToken': csrfToken
             },
             body: `vote_type=${voteType}`
         })
@@ -79,7 +86,12 @@
                 if (data.is_archived) {
                     document.getElementById(`post-${postId}`).classList.add('archived');
                 }
+            } else {
+                console.error('Vote failed:', data.message);
             }
+        })
+        .catch(error => {
+            console.error('Error voting:', error);
         });
     }
     
