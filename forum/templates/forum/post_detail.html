@@ -34,11 +34,11 @@
             
             {% if user.is_authenticated and not post.is_archived %}
             <div class="d-flex align-items-center">
-                <button onclick="vote({{ post.id }}, 'upvote')" class="btn btn-sm btn-outline-success me-2">
-                    👍 <span id="upvotes-{{ post.id }}">{{ post.upvotes }}</span>
+                <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
+                    👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
                 </button>
-                <button onclick="vote({{ post.id }}, 'downvote')" class="btn btn-sm btn-outline-danger">
-                    👎 <span id="downvotes-{{ post.id }}">{{ post.downvotes }}</span>
+                <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
+                    👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
                 </button>
             </div>
             {% endif %}

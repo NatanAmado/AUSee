@@ -6,8 +6,9 @@ from django.urls import reverse
 from django.db.models import F, Q
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
-from .models import Topic, Post, Comment, Vote
-from .forms import TopicForm, PostForm, CommentForm
+from .models import Topic, Post, Comment, Vote, TopicReport
+from .forms import TopicForm, PostForm, CommentForm, TopicDescriptionForm, TopicReportForm
+from django import forms
 
 def forum_home(request):
     """Display the forum homepage with a list of topics"""
@@ -22,7 +23,7 @@ def forum_home(request):
 
 def topic_list(request):
     """Display a list of all topics"""
-    topics = Topic.objects.all()
+    topics = Topic.objects.all().order_by('name')
     
     context = {
         'topics': topics,
@@ -53,25 +54,21 @@ def topic_detail(request, topic_id):
     """Display a topic and its posts"""
     topic = get_object_or_404(Topic, id=topic_id)
     
-    # Filter posts
+    # Sort posts based on query parameter
     sort_by = request.GET.get('sort', 'recent')
     if sort_by == 'top':
-        # Sort by score (using the property)
-        posts_list = sorted(
-            Post.objects.filter(topic=topic, is_archived=False),
-            key=lambda p: p.score,
-            reverse=True
-        )
-    else:  # Default to recent
-        posts_list = Post.objects.filter(topic=topic, is_archived=False).order_by('-created_at')
+        posts_list = Post.objects.filter(topic=topic).order_by('-upvotes', '-created_at')
+    else:  # Default is 'recent'
+        posts_list = Post.objects.filter(topic=topic).order_by('-created_at')
     
-    # Pagination
-    paginator = Paginator(posts_list, 10)  # 10 posts per page
-    page_number = request.GET.get('page')
-    posts = paginator.get_page(page_number)
+    # Paginate posts
+    paginator = Paginator(posts_list, 10)  # Show 10 posts per page
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
     
-    # Create post form
+    # Create post form for the topic page
     form = PostForm(initial={'topic': topic})
+    form.fields['topic'].widget = forms.HiddenInput()
     
     context = {
         'topic': topic,
@@ -80,6 +77,72 @@ def topic_detail(request, topic_id):
         'sort_by': sort_by,
     }
     return render(request, 'forum/topic_detail.html', context)
+
+@login_required
+def edit_topic_description(request, topic_id):
+    """Allow any user to edit a topic's description"""
+    topic = get_object_or_404(Topic, id=topic_id)
+    
+    if request.method == 'POST':
+        form = TopicDescriptionForm(request.POST, instance=topic)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Topic description updated successfully!')
+            return redirect('forum:topic_detail', topic_id=topic.id)
+    else:
+        form = TopicDescriptionForm(instance=topic)
+    
+    context = {
+        'form': form,
+        'topic': topic,
+        'title': 'Edit Topic Description',
+    }
+    return render(request, 'forum/edit_topic_description.html', context)
+
+@login_required
+def report_topic(request, topic_id):
+    """Allow users to report a topic"""
+    topic = get_object_or_404(Topic, id=topic_id)
+    
+    # Don't allow reporting already archived topics
+    if topic.is_archived:
+        messages.warning(request, 'This topic has already been archived.')
+        return redirect('forum:topic_detail', topic_id=topic.id)
+    
+    # Check if user already reported this topic
+    if TopicReport.objects.filter(topic=topic, user=request.user).exists():
+        messages.warning(request, 'You have already reported this topic.')
+        return redirect('forum:topic_detail', topic_id=topic.id)
+    
+    if request.method == 'POST':
+        form = TopicReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.topic = topic
+            report.user = request.user
+            report.save()
+            
+            # Check if topic should be archived
+            if topic.check_archive_status():
+                messages.warning(request, 'This topic has received multiple reports and has been archived.')
+                return redirect('forum:home')
+            
+            daily_report_count = topic.daily_report_count()
+            if daily_report_count >= 5:
+                messages.info(request, f'This topic has {daily_report_count} reports in the last 24 hours and is being monitored.')
+            
+            messages.success(request, 'Thank you for your report. We will review this topic.')
+            return redirect('forum:topic_detail', topic_id=topic.id)
+    else:
+        form = TopicReportForm()
+    
+    context = {
+        'form': form,
+        'topic': topic,
+        'title': 'Report Topic',
+        'daily_report_count': topic.daily_report_count(),
+    }
+    return render(request, 'forum/report_topic.html', context)
 
 @login_required
 def create_post(request, topic_id=None):
@@ -179,6 +242,14 @@ def add_comment(request, post_id):
 def vote_post(request, post_id):
     """Vote on a post (upvote or downvote)"""
     post = get_object_or_404(Post, id=post_id)
+    
+    # Don't allow voting on archived posts or posts in archived topics
+    if post.is_archived or post.topic.is_archived:
+        return JsonResponse({
+            'status': 'error',
+            'error': 'This post has been archived and cannot be voted on.'
+        }, status=400)
+        
     vote_type = request.POST.get('vote_type')
     
     print(f"Vote request received - Post: {post_id}, Type: {vote_type}, User: {request.user.username}")
@@ -234,17 +305,36 @@ def vote_post(request, post_id):
         post.save()
         post.refresh_from_db()
         
-        # Check if post should be archived
-        post.check_archive_status()
+        # Check if post should be archived based on new vote counts
+        was_archived = post.check_archive_status()
+        post_archived_message = None
+        
+        if was_archived:
+            post_archived_message = "This post has been archived due to negative feedback."
+            print(f"Post {post.id} archived due to vote ratio: {post.downvotes} downvotes vs {post.upvotes} upvotes")
         
         print(f"Final vote counts - Upvotes: {post.upvotes}, Downvotes: {post.downvotes}")
         
-        return JsonResponse({
+        # Get the user's current vote for the post
+        user_vote = None
+        try:
+            user_vote_obj = Vote.objects.get(post=post, user=request.user)
+            user_vote = user_vote_obj.vote_type
+        except Vote.DoesNotExist:
+            pass
+        
+        response_data = {
             'status': 'success',
             'upvotes': post.upvotes,
             'downvotes': post.downvotes,
-            'is_archived': post.is_archived
-        })
+            'is_archived': post.is_archived,
+            'user_vote': user_vote
+        }
+        
+        if post_archived_message:
+            response_data['message'] = post_archived_message
+            
+        return JsonResponse(response_data)
         
     except Exception as e:
         print(f"Error processing vote: {str(e)}")
