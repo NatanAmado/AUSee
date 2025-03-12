@@ -179,6 +179,15 @@
     
     </style>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize all tooltips on the page when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    </script>
 </head>
 <body class="wrapper">
 
@@ -198,8 +207,9 @@
                   <a class="nav-link" href="{% url 'reviews:course_list' %}">Courses</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'feedback:about' %}">About</a>
-                </li>
+                    <a class="nav-link" href="https://limonata.app" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom" title="By the creators of AUSee...">Study Together</a>
+                  </li>
+
                 <!--
 
                 <li class="nav-item">
@@ -216,6 +226,7 @@
                 <li class="nav-item">
                   <a class="nav-link" href="https://donate.stripe.com/dR6g1o86T1UObXqcMM">Donate</a>
                 </li>
+
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'users:logout' %}">Logout</a>
                 </li>
@@ -229,6 +240,9 @@
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'feedback:form' %}">Survey</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'feedback:about' %}">About</a>
+                  </li>
                 <li class="nav-item">
                   <a class="nav-link" href="https://github.com/NatanAmado/AUSee/issues/new" target="_blank">Suggest a Feature</a>
                 </li>
