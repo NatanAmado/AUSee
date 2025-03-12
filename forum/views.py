@@ -159,10 +159,11 @@ def add_comment(request, post_id):
         comment.post = post
         comment.author = request.user
         
-        # Check if this is a reply
+        # Prevent nested replies
         parent_id = request.POST.get('parent_id')
         if parent_id:
-            comment.parent = get_object_or_404(Comment, id=parent_id)
+            messages.error(request, 'Nested replies are not allowed.')
+            return redirect('forum:post_detail', post_id=post.id)
         
         comment.save()
         messages.success(request, 'Comment added successfully!')
