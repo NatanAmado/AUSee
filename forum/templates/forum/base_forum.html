@@ -1,11 +1,24 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_head %}
+<link rel="preload" href="{% static 'fonts/PF_Fuel_Grime.otf' %}" as="font" type="font/otf" crossorigin>
+{% endblock %}
+
 {% block content %}
 <form id="csrf-form">
     {% csrf_token %}
 </form>
 <div class="container mt-4">
+    <!-- Forum Title -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <h1 class="forum-title">
+                <a href="{% url 'forum:home' %}">The Forum</a>
+            </h1>
+        </div>
+    </div>
+    
     <!-- Search Box at the top -->
     <div class="row mb-4">
         <div class="col-md-12">
