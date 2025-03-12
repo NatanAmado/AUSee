@@ -1,0 +1,121 @@
+/* Forum Styles */
+
+/* Post and Comment Cards */
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card.border-danger {
+    opacity: 0.8;
+}
+
+/* Vote Buttons */
+.btn-outline-success:hover,
+.btn-outline-danger:hover {
+    transform: scale(1.1);
+}
+
+/* Comments */
+.comments-list .comment {
+    margin-left: 0;
+    transition: margin-left 0.3s;
+}
+
+.comments-list .comment:hover {
+    margin-left: 10px;
+}
+
+.replies {
+    border-left: 2px solid #2c3034;
+    padding-left: 1rem;
+}
+
+/* Forms */
+.form-control {
+    background-color: #2c3034;
+    border-color: #495057;
+    color: #fff;
+}
+
+.form-control:focus {
+    background-color: #2c3034;
+    border-color: #0d6efd;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-control::placeholder {
+    color: #6c757d;
+}
+
+/* Pagination */
+.page-link {
+    background-color: #2c3034;
+    border-color: #495057;
+    color: #fff;
+}
+
+.page-link:hover {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+
+.page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Search Box */
+.search-box {
+    background-color: #2c3034;
+    border-radius: 0.375rem;
+    padding: 1rem;
+}
+
+/* Archived Post Styling */
+.archived {
+    position: relative;
+}
+
+.archived::before {
+    content: "Archived";
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #dc3545;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0 0.375rem 0 0.375rem;
+    font-size: 0.875rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.comment, .post {
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card-columns {
+        column-count: 1;
+    }
+    
+    .comments-list .comment:hover {
+        margin-left: 5px;
+    }
+    
+    .replies {
+        margin-left: 0.5rem;
+        padding-left: 0.5rem;
+    }
+} 

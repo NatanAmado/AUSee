@@ -1,0 +1,120 @@
+{% extends 'forum/base_forum.html' %}
+{% load static %}
+
+{% block forum_content %}
+<div class="card bg-dark text-light mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">{{ topic.name }}</h3>
+        {% if user.is_authenticated %}
+        <a href="{% url 'forum:create_post_in_topic' topic.id %}" class="btn btn-primary">New Post</a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <p class="text-muted">{{ topic.description }}</p>
+        <div class="text-muted small">
+            Created by: {{ topic.created_by.username|default:"Anonymous" }}
+            <br>
+            {{ topic.created_at|timesince }} ago
+        </div>
+    </div>
+</div>
+
+<!-- Sorting Options -->
+<div class="mb-4">
+    <div class="btn-group">
+        <a href="?sort=recent" class="btn btn-outline-primary {% if sort_by == 'recent' %}active{% endif %}">Recent</a>
+        <a href="?sort=top" class="btn btn-outline-primary {% if sort_by == 'top' %}active{% endif %}">Top</a>
+    </div>
+</div>
+
+<!-- Posts List -->
+<div class="posts-list">
+    {% for post in posts %}
+    <div class="card mb-4 bg-dark text-light {% if post.is_archived %}border-danger{% else %}border-secondary{% endif %}" id="post-{{ post.id }}">
+        <div class="card-body">
+            <h4 class="card-title">
+                <a href="{% url 'forum:post_detail' post.id %}" class="text-light text-decoration-none">
+                    {{ post.title }}
+                </a>
+            </h4>
+            <p class="card-text">{{ post.content|linebreaks|truncatewords:100 }}</p>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                    {% if not post.is_anonymous %}
+                    By: {{ post.author.username }}
+                    {% else %}
+                    By: Anonymous
+                    {% endif %}
+                    <br>
+                    {{ post.created_at|timesince }} ago
+                    {% if post.is_archived %}
+                    <br>
+                    <span class="text-danger">This post has been archived</span>
+                    {% endif %}
+                </div>
+                
+                {% if user.is_authenticated %}
+                <div class="d-flex align-items-center">
+                    <button onclick="vote({{ post.id }}, 'upvote')" class="btn btn-sm btn-outline-success me-2">
+                        👍 <span id="upvotes-{{ post.id }}">{{ post.upvotes }}</span>
+                    </button>
+                    <button onclick="vote({{ post.id }}, 'downvote')" class="btn btn-sm btn-outline-danger">
+                        👎 <span id="downvotes-{{ post.id }}">{{ post.downvotes }}</span>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info">
+        No posts in this topic yet.
+        {% if user.is_authenticated %}
+        <a href="{% url 'forum:create_post_in_topic' topic.id %}" class="alert-link">Create the first post!</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if posts.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if posts.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ posts.previous_page_number }}&sort={{ sort_by }}">&laquo; Previous</a>
+        </li>
+        {% endif %}
+
+        {% for num in posts.paginator.page_range %}
+        <li class="page-item {% if posts.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}&sort={{ sort_by }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+
+        {% if posts.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ posts.next_page_number }}&sort={{ sort_by }}">Next &raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% if user.is_authenticated %}
+<!-- Create Post Form -->
+<div class="card bg-dark text-light mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">Create New Post</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% url 'forum:create_post_in_topic' topic.id %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Post</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

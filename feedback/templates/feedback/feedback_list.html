@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card bg-dark text-light mb-4">
+        <div class="card-header">
+            <h3 class="mb-0">Feedback List</h3>
+        </div>
+        <div class="card-body">
+            {% if feedbacks %}
+                {% for feedback in feedbacks %}
+                    <div class="card bg-dark text-light border-secondary mb-3">
+                        <div class="card-body">
+                            <p class="card-text">{{ feedback.feedback }}</p>
+                            <div class="text-muted small">
+                                By: {{ feedback.name.username }}
+                                <br>
+                                {{ feedback.created_at|timesince }} ago
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No feedback entries yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
