@@ -1,6 +1,29 @@
 {% extends 'forum/base_forum.html' %}
 
 {% block forum_content %}
+<style>
+    /* Make labels display as blocks so inputs appear below them */
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Make inputs take full width */
+    input[type="text"], 
+    textarea {
+        width: 100%;
+        background-color: #212529;
+        color: white;
+        border: 1px solid #495057;
+        border-radius: 0.25rem;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    textarea {
+        min-height: 150px;
+    }
+</style>
+
 <div class="card bg-dark text-light">
     <div class="card-header">
         <h4 class="mb-0">{{ title }}</h4>
