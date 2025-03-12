@@ -1,5 +1,48 @@
 /* Forum Styles */
 
+/* Font Face Declaration - Using Google Fonts as a fallback */
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+/* PF Fuel Fonts */
+@font-face {
+    font-family: 'PF Fuel';
+    src: url('../fonts/PF_Fuel_Decay.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'PF Fuel Grime';
+    src: url('../fonts/PF_Fuel_Grime.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Forum Title */
+.forum-title {
+    font-family: 'PF Fuel Grime', 'PF Fuel', 'Archivo Black', 'Impact', sans-serif;
+    font-size: 3.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+    color: #dba309;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.forum-title a {
+    color: #dba309;
+    text-decoration: none;
+}
+
+.forum-title a:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
 /* Post and Comment Cards */
 .card {
     transition: transform 0.2s;

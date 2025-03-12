@@ -13,8 +13,36 @@ class Topic(models.Model):
     def __str__(self):
         return self.name
     
+    def report_count(self):
+        return self.reports.count()
+    
+    def should_be_archived(self):
+        # Archive topic if it has more than 5 reports
+        return self.report_count() >= 5
+    
     class Meta:
         ordering = ['name']
+
+class TopicReport(models.Model):
+    REPORT_REASONS = [
+        ('inappropriate', 'Inappropriate Content'),
+        ('spam', 'Spam'),
+        ('duplicate', 'Duplicate Topic'),
+        ('offensive', 'Offensive Content'),
+        ('other', 'Other'),
+    ]
+    
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='reports')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    reason = models.CharField(max_length=20, choices=REPORT_REASONS, default='other')
+    additional_info = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('topic', 'user')  # Prevent multiple reports from same user
+    
+    def __str__(self):
+        return f"Report on {self.topic.name} by {self.user.username}"
 
 class Post(models.Model):
     title = models.CharField(max_length=200)
