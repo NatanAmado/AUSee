@@ -22,24 +22,6 @@
         </div>
     </div>
     
-    <!-- Filter-style Topic Navigation -->
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card bg-dark text-light">
-                <div class="card-body">
-                    <h5 class="card-title">Browse by Topic</h5>
-                    <div class="d-flex flex-wrap">
-                        <a href="{% url 'forum:home' %}" class="btn btn-outline-warning m-1">All Posts</a>
-                        <a href="{% url 'forum:topic_list' %}" class="btn btn-outline-warning m-1">All Topics</a>
-                        {% if user.is_authenticated %}
-                        <a href="{% url 'forum:create_topic' %}" class="btn btn-warning m-1">Create Topic</a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <div class="row">
         <!-- Main Content -->
         <div class="col-md-12">
