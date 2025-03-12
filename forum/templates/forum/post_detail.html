@@ -7,7 +7,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h3 class="mb-0">{{ post.title }}</h3>
         {% if user == post.author %}
-        <a href="{% url 'forum:edit_post' post.id %}" class="btn btn-outline-primary btn-sm">Edit Post</a>
+        <a href="{% url 'forum:edit_post' post.id %}" class="btn btn-outline-warning btn-sm">Edit Post</a>
         {% endif %}
     </div>
     <div class="card-body">
