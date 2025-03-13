@@ -1,0 +1,78 @@
+{% extends 'forum/base_forum.html' %}
+
+{% block forum_content %}
+<div class="card bg-dark text-light mb-4">
+    <div class="card-header">
+        <h4 class="mb-0">Search Results for "{{ query }}"</h4>
+    </div>
+    <div class="card-body">
+        {% if not query %}
+        <p class="text-muted">Please enter a search term.</p>
+        {% else %}
+            {% if topics or posts %}
+                {% if topics %}
+                <h5 class="mb-3">Topics</h5>
+                <div class="row mb-4">
+                    {% for topic in topics %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 bg-dark text-light border-secondary">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a href="{% url 'forum:topic_detail' topic.id %}" class="text-light text-decoration-none">
+                                        {{ topic.name }}
+                                    </a>
+                                </h5>
+                                <p class="card-text text-muted">{{ topic.description|truncatewords:30 }}</p>
+                                <div class="text-muted small">
+                                    Created by: {{ topic.created_by.username|default:"Anonymous" }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if posts %}
+                <h5 class="mb-3">Posts</h5>
+                {% for post in posts %}
+                <div class="card mb-3 bg-dark text-light border-secondary {% if post.is_archived %}border-danger{% endif %}" id="post-{{ post.id }}">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{% url 'forum:post_detail' post.id %}" class="text-light text-decoration-none">
+                                {{ post.title }}
+                            </a>
+                        </h5>
+                        <p class="card-text">{{ post.content|truncatewords:50 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted small">
+                                Posted in: <a href="{% url 'forum:topic_detail' post.topic.id %}" class="text-muted">{{ post.topic.name }}</a>
+                                <br>
+                                By: {{ post.author.username|default:"Anonymous" }}
+                                <br>
+                                {{ post.created_at|timesince }} ago
+                                {% if post.is_archived %}
+                                <br>
+                                <span class="text-danger">This post has been archived</span>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="me-3">
+                                    👍 {{ post.upvotes }}
+                                </span>
+                                <span>
+                                    👎 {{ post.downvotes }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+            {% else %}
+            <p class="text-muted">No results found for "{{ query }}".</p>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

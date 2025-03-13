@@ -1,0 +1,72 @@
+{% extends 'forum/base_forum.html' %}
+
+{% block forum_content %}
+<div class="card bg-dark text-light">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">All Topics</h4>
+        {% if user.is_authenticated %}
+        <a href="{% url 'forum:create_topic' %}" class="btn btn-primary">Create New Topic</a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for topic in topics %}
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 bg-dark text-light border-secondary">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{% url 'forum:topic_detail' topic.id %}" class="text-light text-decoration-none">
+                                {{ topic.name }}
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted">{{ topic.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted small">
+                                Created by: {{ topic.created_by.username|default:"Anonymous" }}
+                                <br>
+                                {{ topic.created_at|timesince }} ago
+                            </div>
+                            <div class="text-muted small">
+                                Posts: {{ topic.post_set.count }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-muted">No topics have been created yet.
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'forum:create_topic' %}" class="text-primary">Create the first topic!</a>
+                    {% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% if topics.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if topics.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ topics.previous_page_number }}">&laquo; Previous</a>
+        </li>
+        {% endif %}
+
+        {% for num in topics.paginator.page_range %}
+        <li class="page-item {% if topics.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+
+        {% if topics.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ topics.next_page_number }}">Next &raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %} 

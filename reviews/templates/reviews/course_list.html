@@ -325,41 +325,39 @@
 
     </div>
     {% endfor %}
-
-
-
-
-
-    <div class="row">
-      {% for course in level_300_courses %}
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-body">
-            <a class="level-holder">&nbsp;{{course.level}}&nbsp;</a>
-            <h5 class="card-title">{{ course.name }} </h5>
-            <h5 class="card-code">{{ course.code }}</h5>
-            <p>Average Rating:
-              <span class="starRating" data-rating="{{ course.avg_rating|floatformat:1|default:"No ratings" }}"></span>
-              <span>{{ course.avg_rating|floatformat:1|default:"No ratings" }}/5.0</span>
-            </p>
-
-            <p class="descrip">{{ course.description|truncatechars:100 }}</p>
-            <a href="{% url 'reviews:course_detail' course.id %}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;View
-              Reviews&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
-        </div>
-      </div>
-
-      {% endfor %}
-    </div>
-
-
-
-    <!-- Repeat for other course levels if necessary -->
-
   </div>
 
-  <!-- Inside your course loop -->
 
+
+
+
+  <div class="row">
+    {% for course in level_300_courses %}
+    <div class="col-md-4 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <a class="level-holder">&nbsp;{{course.level}}&nbsp;</a>
+          <h5 class="card-title">{{ course.name }} </h5>
+          <h5 class="card-code">{{ course.code }}</h5>
+          <p>Average Rating:
+            <span class="starRating" data-rating="{{ course.avg_rating|floatformat:1|default:"No ratings" }}"></span>
+            <span>{{ course.avg_rating|floatformat:1|default:"No ratings" }}/5.0</span>
+          </p>
+
+          <p class="descrip">{{ course.description|truncatechars:100 }}</p>
+          <a href="{% url 'reviews:course_detail' course.id %}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;View
+            Reviews&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+
+
+  <!-- Repeat for other course levels if necessary -->
+
+</div>
 
   <script>
     function updateStarRatings() {

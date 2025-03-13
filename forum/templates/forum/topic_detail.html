@@ -1,0 +1,192 @@
+{% extends 'forum/base_forum.html' %}
+{% load static %}
+
+{% block forum_content %}
+<style>
+    /* Make labels display as blocks so inputs appear below them */
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Make inputs take full width */
+    input[type="text"], 
+    textarea {
+        width: 100%;
+        background-color: #212529;
+        color: white;
+        border: 1px solid #495057;
+        border-radius: 0.25rem;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    textarea {
+        min-height: 150px;
+    }
+</style>
+
+<div class="card bg-dark text-light mb-4 {% if topic.is_archived %}border-danger{% endif %}">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">{{ topic.name }}{% if topic.is_archived %} <span class="badge bg-danger ms-2">Archived</span>{% endif %}</h3>
+        <div class="btn-group">
+            {% if user.is_authenticated and not topic.is_archived %}
+            <a href="{% url 'forum:edit_topic_description' topic.id %}" class="btn ms-2" style="color: white; transition: color 0.3s;" onmouseover="this.style.color='#ffc107'" onmouseout="this.style.color='white'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                </svg>
+                <span class="visually-hidden">Edit Description</span>
+            </a>
+            <a href="{% url 'forum:report_topic' topic.id %}" class="btn ms-2" style="color: white; transition: color 0.3s;" onmouseover="this.style.color='#dc3545'" onmouseout="this.style.color='white'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
+                </svg>
+                <span class="visually-hidden">Report Topic</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">{{ topic.description }}</p>
+        <div class="text-muted small">
+            Created by: {{ topic.created_by.username|default:"Anonymous" }}
+            <br>
+            {{ topic.created_at|timesince }} ago
+            {% if topic.is_archived %}
+            <br>
+            <span class="text-danger">This topic has been archived due to multiple reports. No new posts can be created.</span>
+            {% endif %}
+        </div>
+        
+        {% if user.is_authenticated and not topic.is_archived %}
+        <div class="d-flex justify-content-end mt-3">
+            <a href="{% url 'forum:create_post_in_topic' topic.id %}" class="btn btn-warning">New Post</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Sorting Options -->
+<div class="mb-4">
+    <div class="btn-group">
+        <a href="?sort=recent" class="btn btn-outline-warning {% if sort_by == 'recent' %}active{% endif %}">Recent</a>
+        <a href="?sort=top" class="btn btn-outline-warning {% if sort_by == 'top' %}active{% endif %}">Top</a>
+    </div>
+</div>
+
+<!-- Posts List -->
+<div class="posts-list">
+    {% for post in posts %}
+    <div class="card mb-4 bg-dark text-light {% if post.is_archived %}border-danger{% else %}border-secondary{% endif %}" id="post-{{ post.id }}">
+        <div class="card-body">
+            <h4 class="card-title">
+                <a href="{% url 'forum:post_detail' post.id %}" class="text-light text-decoration-none">
+                    {{ post.title }}
+                </a>
+                {% if post.is_archived %}
+                <span class="badge bg-danger ms-2">Archived</span>
+                {% endif %}
+            </h4>
+            <p class="card-text">{{ post.content|linebreaks|truncatewords:100 }}</p>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                    {% if not post.is_anonymous %}
+                    By: {{ post.author.username }}
+                    {% else %}
+                    By: Anonymous
+                    {% endif %}
+                    <br>
+                    {{ post.created_at|timesince }} ago
+                    {% if post.is_archived %}
+                    <br>
+                    <span class="text-danger">This post has been archived due to negative feedback</span>
+                    {% endif %}
+                </div>
+                
+                {% if user.is_authenticated and not post.is_archived and not topic.is_archived %}
+                <div class="d-flex align-items-center">
+                    <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
+                        👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
+                    </button>
+                    <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
+                        👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
+                    </button>
+                </div>
+                {% else %}
+                <div class="d-flex align-items-center text-muted">
+                    <span class="me-3">👍 <span class="vote-count">{{ post.upvotes }}</span></span>
+                    <span>👎 <span class="vote-count">{{ post.downvotes }}</span></span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info">
+        No posts in this topic yet.
+        {% if user.is_authenticated and not topic.is_archived %}
+        <a href="{% url 'forum:create_post_in_topic' topic.id %}" class="alert-link">Create the first post!</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if posts.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if posts.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ posts.previous_page_number }}&sort={{ sort_by }}">&laquo; Previous</a>
+        </li>
+        {% endif %}
+
+        {% for num in posts.paginator.page_range %}
+        <li class="page-item {% if posts.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}&sort={{ sort_by }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+
+        {% if posts.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ posts.next_page_number }}&sort={{ sort_by }}">Next &raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% if user.is_authenticated and not topic.is_archived %}
+<!-- Create Post Form -->
+<div class="card bg-dark text-light mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">Create New Post</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% url 'forum:create_post_in_topic' topic.id %}">
+            {% csrf_token %}
+            
+            <!-- Title Field -->
+            <div class="mb-3">
+                <label for="id_title">Title</label>
+                <input type="text" name="title" maxlength="200" required id="id_title">
+            </div>
+            
+            <!-- Content Field -->
+            <div class="mb-3">
+                <label for="id_content">Content</label>
+                <textarea name="content" cols="40" rows="10" required id="id_content"></textarea>
+            </div>
+            
+            <!-- Anonymous Field -->
+            <div class="mb-3">
+                <label for="id_is_anonymous">Post anonymously</label>
+                <input type="checkbox" name="is_anonymous" id="id_is_anonymous">
+            </div>
+            
+            <button type="submit" class="btn btn-warning">Post</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

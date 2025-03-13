@@ -30,16 +30,12 @@
         margin-bottom: 5px;
     }
 
-    .reviews-scrollbox {
-        max-height: 700px;
-        overflow-y: auto;
+    .reviews-container {
         background-color: #000000;
         border-radius: 8px;
         padding: 15px;
         margin-bottom: 20px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
-        scroll-behavior: smooth;
-        scrollbar-width: thin;
     }
 
     .container-main {
@@ -181,6 +177,15 @@
         position: relative;
         /* Establish a positioning context */
     }
+    
+    .review-content {
+        flex: 1;
+        /* Make the content take up all available space */
+        min-width: 0;
+        /* Prevent flex items from overflowing */
+        width: 100%;
+        /* Ensure full width */
+    }
 
     .review-voting {
         display: flex;
@@ -296,7 +301,7 @@
                 </form>
             </div>
 
-            <div class="reviews-scrollbox">
+            <div class="reviews-container">
                 <ul class="list-unstyled">
                     <!-- Assuming each review is within a div with class 'review-item' inside the 'review-container' -->
                     <div class="review-container">

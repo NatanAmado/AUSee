@@ -1,0 +1,91 @@
+{% extends 'forum/base_forum.html' %}
+{% load static %}
+
+{% block forum_content %}
+<!-- Post -->
+<div class="card bg-dark text-light mb-4 {% if post.is_archived %}border-danger{% endif %}" id="post-{{ post.id }}">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">{{ post.title }}</h3>
+        {% if user == post.author %}
+        <a href="{% url 'forum:edit_post' post.id %}" class="btn btn-outline-warning btn-sm">Edit Post</a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="post-content mb-4">
+            {{ post.content|linebreaks }}
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted small">
+                Posted in: <a href="{% url 'forum:topic_detail' post.topic.id %}" class="text-muted">{{ post.topic.name }}</a>
+                <br>
+                {% if not post.is_anonymous %}
+                By: {{ post.author.username }}
+                {% else %}
+                By: Anonymous
+                {% endif %}
+                <br>
+                {{ post.created_at|timesince }} ago
+                {% if post.is_archived %}
+                <br>
+                <span class="text-danger">This post has been archived</span>
+                {% endif %}
+            </div>
+            
+            {% if user.is_authenticated and not post.is_archived %}
+            <div class="d-flex align-items-center">
+                <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
+                    👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
+                </button>
+                <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
+                    👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Comments -->
+<div class="card bg-dark text-light">
+    <div class="card-header">
+        <h4 class="mb-0">Comments</h4>
+    </div>
+    <div class="card-body">
+        {% if user.is_authenticated and not post.is_archived %}
+        <!-- Comment Form -->
+        <form method="post" action="{% url 'forum:add_comment' post.id %}" class="mb-4">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Add Comment</button>
+        </form>
+        {% endif %}
+        
+        <!-- Comments List -->
+        <div class="comments-list">
+            {% for comment in comments %}
+            <div class="comment mb-4">
+                <div class="card bg-dark text-light border-secondary">
+                    <div class="card-body">
+                        <div class="comment-content">
+                            {{ comment.content|linebreaks }}
+                        </div>
+                        <div class="text-muted small">
+                            {% if not comment.is_anonymous %}
+                            By: {{ comment.author.username }}
+                            {% else %}
+                            By: Anonymous
+                            {% endif %}
+                            <br>
+                            {{ comment.created_at|timesince }} ago
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">No comments yet. Be the first to comment!</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

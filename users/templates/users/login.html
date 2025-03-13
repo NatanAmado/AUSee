@@ -61,15 +61,7 @@
 
 <div class="login-container">
     {% if request.session.activation_link %}
-    <div class="activation-box">
-        <h3>Activate Your Account</h3>
-        <p>Your account needs to be activated before you can log in. Click the button below to activate:</p>
-        <a href="{{ request.session.activation_link }}" class="activation-link">Activate Now</a>
-        <p style="margin-top: 15px; font-size: 0.9em;">
-            Note: In a production environment, this link would be sent to your email.
-            <br>Since we're in development mode, you can use this direct link instead.
-        </p>
-    </div>
+   
     {% endif %}
 
     <h2 class="makeyellow">Login</h2>

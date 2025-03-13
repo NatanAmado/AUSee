@@ -25,6 +25,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('courses/', include('reviews.urls')),
     path('feedback/', include('feedback.urls')),
+    path('forum/', include('forum.urls')),
     path('', core_views.homepage, name='homepage'),
     
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
