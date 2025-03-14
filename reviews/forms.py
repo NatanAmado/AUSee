@@ -1,5 +1,5 @@
 from django import forms
-from .models import Review, Course
+from .models import Review, Course, ReviewReply
 
 class ReviewForm(forms.ModelForm):
     class Meta:
@@ -35,6 +35,19 @@ class CourseForm(forms.ModelForm):
             'code': 'Course Code:',
             'level': 'Course Level:',
             'description': 'Description:',
+        }
+
+class ReviewReplyForm(forms.ModelForm):
+    class Meta:
+        model = ReviewReply
+        fields = ['text', 'is_anonymous']
+        widgets = {
+            'text': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write your reply here...', 'class': 'form-control'}),
+            'is_anonymous': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+        labels = {
+            'text': 'Reply:',
+            'is_anonymous': 'Post anonymously',
         }
 
         

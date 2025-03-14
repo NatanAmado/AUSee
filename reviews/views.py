@@ -1,5 +1,5 @@
-from .models import Course, Review, ReviewVote, CourseReport
-from .forms import ReviewForm, CourseForm
+from .models import Course, Review, ReviewVote, CourseReport, ReviewReply
+from .forms import ReviewForm, CourseForm, ReviewReplyForm
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, JsonResponse
 from datetime import datetime
@@ -76,6 +76,12 @@ def course_detail(request, course_id):
     # Get all available years for filtering
     available_years = Review.objects.filter(course=course).dates('created_date', 'year').values_list('created_date__year', flat=True)
     
+    # Prefetch review replies to avoid N+1 query problem
+    reviews = reviews.prefetch_related('replies__user')
+    
+    # Initialize reply form
+    reply_form = ReviewReplyForm()
+    
     if request.method == "POST":
         form = ReviewForm(request.POST)
         if form.is_valid():
@@ -113,6 +119,7 @@ def course_detail(request, course_id):
         'course': course,
         'reviews': reviews,
         'form': form,
+        'reply_form': reply_form,
         'current_year': current_year,
         'available_years': available_years,
         'user_reported': user_reported,
@@ -120,6 +127,45 @@ def course_detail(request, course_id):
 
     return render(request, 'reviews/course_detail.html', context)
 
+@login_required
+def add_reply(request, course_id, review_id):
+    """Add a reply to a review"""
+    course = get_object_or_404(Course, id=course_id)
+    review = get_object_or_404(Review, id=review_id, course=course)
+    
+    if request.method == "POST":
+        form = ReviewReplyForm(request.POST)
+        print(f"Form data: {request.POST}")
+        
+        # Check if the form is valid
+        if form.is_valid():
+            reply = form.save(commit=False)
+            reply.review = review
+            reply.user = request.user
+            
+            # Get the is_anonymous value directly from POST data
+            # Checkbox will only be in POST data if it's checked
+            reply.is_anonymous = 'is_anonymous' in request.POST
+            print(f"Is anonymous: {reply.is_anonymous}")
+            
+            reply.save()
+            print(f"Reply saved with is_anonymous={reply.is_anonymous}")
+            
+    # Redirect back to the course detail page
+    return redirect('reviews:course_detail', course_id=course_id)
+
+@login_required
+def delete_reply(request, course_id, reply_id):
+    """Delete a reply"""
+    course = get_object_or_404(Course, id=course_id)
+    reply = get_object_or_404(ReviewReply, id=reply_id, review__course=course)
+    
+    # Check if the user is the author of the reply
+    if reply.user == request.user:
+        reply.delete()
+    
+    # Redirect back to the course detail page
+    return redirect('reviews:course_detail', course_id=course_id)
 
 @login_required
 def add_course(request):

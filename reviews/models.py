@@ -105,6 +105,26 @@ class ReviewVote(models.Model):
     class Meta:
         unique_together = ['user', 'review']  # Ensures a user can only vote once per review
 
+class ReviewReply(models.Model):
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='replies')
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    text = models.TextField()
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+    is_anonymous = models.BooleanField(default=False)
+    
+    def save(self, *args, **kwargs):
+        # Clean the reply text before saving
+        self.text = profanity.censor(self.text)
+        super(ReviewReply, self).save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"Reply to review {self.review.id} by {self.user.username}"
+    
+    class Meta:
+        ordering = ['created_date']
+        verbose_name_plural = 'Review Replies'
+
 class CourseReport(models.Model):
     VOTE_CHOICES = [
         ('real', 'Course is real'),

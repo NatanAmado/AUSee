@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Course, Review, ReviewVote
+from .models import Course, Review, ReviewVote, ReviewReply
 
 class ReviewInline(admin.TabularInline):  
     model = Review
@@ -23,3 +23,9 @@ class ReviewVoteAdmin(admin.ModelAdmin):
     list_display = ('user', 'review', 'is_upvote')
     list_filter = ('is_upvote', )
     search_fields = ('user__username', 'review__text')
+
+@admin.register(ReviewReply)
+class ReviewReplyAdmin(admin.ModelAdmin):
+    list_display = ('review', 'user', 'text', 'created_date')
+    list_filter = ('created_date',)
+    search_fields = ('text', 'user__username', 'review__text')

@@ -17,17 +17,27 @@
     }
 
     .review-item {
+        display: flex;
+        /* Use flexbox to lay out children */
+        flex-wrap: wrap;
+        /* Allow wrapping for reply section */
+        align-items: flex-start;
+        /* Align children at the top */
         background-color: #1a1a1a;
         border-radius: 4px;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
         padding: 15px;
+        padding-left: 60px;  /* Space for the voting buttons */
         box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+        position: relative;
+        /* Establish a positioning context */
     }
 
     .review-header {
         display: flex;
         justify-content: space-between;
         margin-bottom: 5px;
+        width: 100%;
     }
 
     .reviews-container {
@@ -61,6 +71,7 @@
     .review-body {
         border-top: 1px solid #444;
         padding-top: 10px;
+        width: 100%;
     }
 
     .review-text {
@@ -163,21 +174,6 @@
         border-bottom: none;
     }
 
-    .review-item {
-        display: flex;
-        /* Use flexbox to lay out children */
-        align-items: flex-start;
-        /* Align children at the top */
-        background-color: #1a1a1a;
-        border-radius: 4px;
-        margin-bottom: 10px;
-        padding-right: 15px;
-        padding-left: 60px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
-        position: relative;
-        /* Establish a positioning context */
-    }
-    
     .review-content {
         flex: 1;
         /* Make the content take up all available space */
@@ -185,27 +181,25 @@
         /* Prevent flex items from overflowing */
         width: 100%;
         /* Ensure full width */
+        margin-bottom: 10px;
+        padding-right: 15px; /* Add some space on the right */
     }
 
     .review-voting {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        /* Center buttons vertically */
+        align-items: center;
     }
 
     .review-actions {
-        position: absolute;
-        /* Position the buttons absolutely */
-        top: 50%;
-        /* Position halfway down the container */
-        left: 10px;
-        /* Space from the left edge of the review-item */
-        transform: translateY(-50%);
-        /* Center align vertically */
+        position: static; /* Change from absolute to static */
         display: flex;
         flex-direction: column;
-        /* Stack buttons vertically */
+        align-items: center;
         gap: 10px;
     }
 
@@ -252,6 +246,90 @@
     .btn-upvote:hover .up-arrow,
     .btn-downvote:hover .down-arrow {
         opacity: 0.8;
+    }
+
+    /* Review replies container should take full width */
+    .review-replies {
+        width: 100%;
+        margin-top: 15px;
+        margin-left: 0;
+        padding-left: 20px;
+        box-sizing: border-box;
+    }
+
+    .reply-item {
+        background-color: #222222;
+        border-left: 3px solid #dba309 !important;
+        padding: 10px !important;
+        margin-bottom: 10px !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .reply-header {
+        margin-bottom: 5px;
+    }
+
+    .reply-content {
+        color: #f1f1f1;
+        width: 100%;
+    }
+
+    .reply-form-container {
+        margin-top: 15px;
+        padding: 10px;
+        background-color: #222222;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .reply-toggle {
+        background-color: transparent;
+        color: #dba309;
+        border: 1px solid #dba309;
+        margin-top: 10px;
+    }
+
+    .reply-toggle:hover {
+        background-color: #dba309;
+        color: #000000;
+    }
+
+    /* Reply button container */
+    .text-left {
+        width: 100%;
+        margin-top: 10px;
+        padding-left: 0;
+        text-align: left;
+    }
+
+    /* Delete reply link */
+    .delete-reply-link {
+        color: #e74c3c;
+        text-decoration: none;
+        font-size: 0.8em;
+    }
+
+    .delete-reply-link:hover {
+        color: #c0392b;
+        text-decoration: underline;
+    }
+
+    /* Form check styling */
+    .form-check {
+        display: flex;
+        align-items: center;
+    }
+
+    .form-check-input {
+        margin-right: 8px;
+    }
+
+    .form-check-label {
+        margin-bottom: 0;
+        color: #f1f1f1;
+        font-size: 0.9em;
     }
 
 </style>
@@ -307,6 +385,20 @@
                     <div class="review-container">
                         {% for review in reviews %}
                         <div class="review-item">
+                            <div class="review-voting">
+                                <form method="post" class="review-actions">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="review_id" value="{{ review.id }}">
+                                    <button type="submit" name="vote" value="upvote" class="btn btn-upvote" title="Was this review constructive?">
+                                        <span class="vote-arrow up-arrow"></span>
+                                    </button>
+                                    <span class="vote-count">{{ review.net_votes }}</span>
+                                    <button type="submit" name="vote" value="downvote" class="btn btn-downvote" title="Was this review unhelpful?">
+                                        <span class="vote-arrow down-arrow"></span>
+                                    </button>
+                                </form>
+                            </div>
+                            
                             <div class="review-content">
                                 <div class="review-header">
                                     <span class="review-major">{{ review.user.major }} - {{ review.user.track }}</span>
@@ -314,12 +406,6 @@
                                 </div>
                                 <div class="review-body">
                                     <p class="review-text">{{ review.text }}</p>
-                                    <!-- {% if review.teacher_name %}
-                                    <div class="review-teacher">
-                                        <span>Teacher Name: {{ review.teacher_name }} ~~</span>
-                                        <span>Teacher Rating: {{ review.teacher_quality }}</span>
-                                    </div>
-                                    {% endif %} -->
                                     <p>
                                         {% if user.is_authenticated and review.user == user %}
                                         <span>
@@ -337,24 +423,64 @@
                                     </p>
                                 </div>
                             </div>
-                            <!-- ... Inside the review item ... -->
-                            <!-- ... Inside the review item ... -->
-                            <!-- ... Inside the review item ... -->
-                            <div class="review-voting">
-                                <form method="post" class="review-actions">
+
+                            <!-- Review Replies -->
+                            <div class="review-replies mt-3">
+                                {% for reply in review.replies.all %}
+                                <div class="reply-item p-2 mb-2 border-left border-light">
+                                    <div class="reply-header d-flex justify-content-between">
+                                        <small class="text-muted">
+                                            {% if reply.is_anonymous %}
+                                                Anonymous replied {{ reply.created_date|timesince }} ago
+                                            {% else %}
+                                                {{ reply.user.username }} replied {{ reply.created_date|timesince }} ago
+                                            {% endif %}
+                                        </small>
+                                        {% if user.is_authenticated and reply.user == user %}
+                                        <small>
+                                            <a href="{% url 'reviews:delete_reply' course.id reply.id %}" 
+                                               class="text-danger delete-reply-link"
+                                               onclick="return confirm('Are you sure you want to delete this reply?');">
+                                                Delete
+                                            </a>
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="reply-content">
+                                        {{ reply.text|linebreaks }}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Reply Button (moved to bottom left) -->
+                            {% if user.is_authenticated %}
+                            <div class="text-left mt-2">
+                                <button class="btn btn-sm btn-outline-primary reply-toggle" 
+                                        data-review-id="{{ review.id }}">
+                                    Reply
+                                </button>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Reply Form (hidden by default) -->
+                            <div class="reply-form-container mt-2" id="reply-form-{{ review.id }}" style="display: none;">
+                                <form method="post" action="{% url 'reviews:add_reply' course.id review.id %}">
                                     {% csrf_token %}
-                                    <input type="hidden" name="review_id" value="{{ review.id }}">
-                                    <button type="submit" name="vote" value="upvote" class="btn btn-upvote" title="Was this review constructive?">
-                                        <span class="vote-arrow up-arrow"></span>
-                                    </button>
-                                    <span class="vote-count">{{ review.net_votes }}</span>
-                                    <button type="submit" name="vote" value="downvote" class="btn btn-downvote" title="Was this review unhelpful?">
-                                        <span class="vote-arrow down-arrow"></span>
-                                    </button>
+                                    <div class="form-group">
+                                        {{ reply_form.text }}
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input type="checkbox" name="is_anonymous" id="is_anonymous_{{ review.id }}" class="form-check-input">
+                                        <label class="form-check-label" for="is_anonymous_{{ review.id }}">
+                                            Post anonymously
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-primary">Submit Reply</button>
+                                    <button type="button" class="btn btn-sm btn-secondary cancel-reply" 
+                                            data-review-id="{{ review.id }}">Cancel</button>
                                 </form>
                             </div>
-
-
                         </div>
                         {% endfor %}
                     </div>
@@ -445,6 +571,56 @@
 
 
     document.addEventListener('DOMContentLoaded', updateStarRatings);
+
+    // Reply form toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, setting up reply functionality');
+        
+        // Show reply form when Reply button is clicked
+        const replyButtons = document.querySelectorAll('.reply-toggle');
+        console.log('Found ' + replyButtons.length + ' reply buttons');
+        
+        replyButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const reviewId = this.getAttribute('data-review-id');
+                console.log('Reply button clicked for review ID: ' + reviewId);
+                
+                const replyForm = document.getElementById(`reply-form-${reviewId}`);
+                if (replyForm) {
+                    replyForm.style.display = 'block';
+                    this.style.display = 'none';
+                    console.log('Reply form displayed');
+                } else {
+                    console.error('Reply form not found for review ID: ' + reviewId);
+                }
+            });
+        });
+        
+        // Hide reply form when Cancel button is clicked
+        const cancelButtons = document.querySelectorAll('.cancel-reply');
+        console.log('Found ' + cancelButtons.length + ' cancel buttons');
+        
+        cancelButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const reviewId = this.getAttribute('data-review-id');
+                console.log('Cancel button clicked for review ID: ' + reviewId);
+                
+                const replyForm = document.getElementById(`reply-form-${reviewId}`);
+                const replyButton = document.querySelector(`.reply-toggle[data-review-id="${reviewId}"]`);
+                
+                if (replyForm) {
+                    replyForm.style.display = 'none';
+                    console.log('Reply form hidden');
+                }
+                
+                if (replyButton) {
+                    replyButton.style.display = 'inline-block';
+                    console.log('Reply button shown');
+                }
+            });
+        });
+    });
 </script>
 
 <!-- Toast for confirmation -->
