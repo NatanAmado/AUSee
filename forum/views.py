@@ -56,10 +56,17 @@ def topic_detail(request, topic_id):
     
     # Sort posts based on query parameter
     sort_by = request.GET.get('sort', 'recent')
+    
+    # Base queryset with topic filter
+    posts_query = Post.objects.filter(topic=topic)
+    
     if sort_by == 'top':
-        posts_list = Post.objects.filter(topic=topic).order_by('-upvotes', '-created_at')
+        # Calculate net votes at the database level
+        posts_list = posts_query.annotate(
+            net_votes=F('upvotes') - F('downvotes')
+        ).order_by('-net_votes', '-created_at')
     else:  # Default is 'recent'
-        posts_list = Post.objects.filter(topic=topic).order_by('-created_at')
+        posts_list = posts_query.order_by('-created_at')
     
     # Paginate posts
     paginator = Paginator(posts_list, 10)  # Show 10 posts per page
