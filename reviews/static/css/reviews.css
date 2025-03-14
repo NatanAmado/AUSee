@@ -1,0 +1,155 @@
+/* Reviews CSS - Production-ready styles */
+
+/* General Layout and Container Styles */
+.review-container {
+    background-color: #1a1a1a !important;
+    border-radius: 8px;
+    padding: 20px;
+    color: #f1f1f1;
+}
+
+.review-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    background-color: #1a1a1a !important;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    padding: 15px;
+    padding-left: 60px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+    position: relative;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.reviews-container {
+    background-color: #000000 !important;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+}
+
+.container-main {
+    background-color: #000000 !important;
+    color: #ffffff;
+    font-weight: 100;
+}
+
+/* Typography and Text Styles */
+.review-major,
+.topicx {
+    font-family: PF Fuel Grime, sans-serif;
+    font-size: 1.3em;
+    font-weight: 10;
+    color: #ffffff;
+}
+
+.review-date {
+    font-size: 0.8em;
+    color: #cccccc;
+}
+
+.review-body {
+    border-top: 1px solid #444;
+    padding-top: 10px;
+    width: 100%;
+}
+
+.review-text {
+    font-size: 0.9em;
+    color: #f1f1f1 !important;
+    font-weight: 100;
+}
+
+/* Reply styles */
+.review-replies {
+    width: 100%;
+    margin-top: 15px;
+    margin-left: 0;
+    padding-left: 20px;
+    box-sizing: border-box;
+}
+
+.reply-item {
+    background-color: #222222 !important;
+    border-left: 3px solid #dba309 !important;
+    padding: 10px !important;
+    margin-bottom: 10px !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.reply-header {
+    margin-bottom: 5px;
+}
+
+.reply-content {
+    color: #f1f1f1 !important;
+    width: 100%;
+}
+
+.reply-form-container {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #222222 !important;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.reply-toggle {
+    background-color: transparent;
+    color: #dba309;
+    border: 1px solid #dba309;
+    margin-top: 10px;
+}
+
+.reply-toggle:hover {
+    background-color: #dba309;
+    color: #000000;
+}
+
+/* Text colors for better contrast */
+.text-muted {
+    color: #a0a0a0 !important;
+}
+
+.anonymous-reply {
+    color: #dba309 !important;
+    font-weight: bold;
+}
+
+/* Voting styles */
+.review-voting {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.vote-count {
+    font-size: 1em;
+    margin: 7px;
+}
+
+/* Delete reply link */
+.delete-reply-link {
+    color: #e74c3c !important;
+    text-decoration: none;
+    font-size: 0.8em;
+}
+
+.delete-reply-link:hover {
+    color: #c0392b !important;
+    text-decoration: underline;
+} 

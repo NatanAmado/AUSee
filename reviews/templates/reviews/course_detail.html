@@ -10,7 +10,7 @@
     /* Additional custom styles */
     /* General Layout and Container Styles */
     .review-container {
-        background-color: #1a1a1a;
+        background-color: #1a1a1a !important;
         border-radius: 8px;
         padding: 20px;
         color: #f1f1f1;
@@ -23,7 +23,7 @@
         /* Allow wrapping for reply section */
         align-items: flex-start;
         /* Align children at the top */
-        background-color: #1a1a1a;
+        background-color: #1a1a1a !important;
         border-radius: 4px;
         margin-bottom: 20px;
         padding: 15px;
@@ -41,7 +41,7 @@
     }
 
     .reviews-container {
-        background-color: #000000;
+        background-color: #000000 !important;
         border-radius: 8px;
         padding: 15px;
         margin-bottom: 20px;
@@ -49,7 +49,7 @@
     }
 
     .container-main {
-        background-color: #000000;
+        background-color: #000000 !important;
         color: #ffffff;
         font-weight: 100;
     }
@@ -76,7 +76,7 @@
 
     .review-text {
         font-size: 0.9em;
-        color: #f1f1f1;
+        color: #f1f1f1 !important;
         font-weight: 100;
     }
 
@@ -258,7 +258,7 @@
     }
 
     .reply-item {
-        background-color: #222222;
+        background-color: #222222 !important;
         border-left: 3px solid #dba309 !important;
         padding: 10px !important;
         margin-bottom: 10px !important;
@@ -271,14 +271,14 @@
     }
 
     .reply-content {
-        color: #f1f1f1;
+        color: #f1f1f1 !important;
         width: 100%;
     }
 
     .reply-form-container {
         margin-top: 15px;
         padding: 10px;
-        background-color: #222222;
+        background-color: #222222 !important;
         border-radius: 4px;
         width: 100%;
         box-sizing: border-box;
@@ -330,6 +330,16 @@
         margin-bottom: 0;
         color: #f1f1f1;
         font-size: 0.9em;
+    }
+
+    /* Text colors for better contrast */
+    .text-muted {
+        color: #a0a0a0 !important;
+    }
+
+    .anonymous-reply {
+        color: #dba309 !important;
+        font-weight: bold;
     }
 
 </style>
@@ -431,7 +441,7 @@
                                     <div class="reply-header d-flex justify-content-between">
                                         <small class="text-muted">
                                             {% if reply.is_anonymous %}
-                                                Anonymous replied {{ reply.created_date|timesince }} ago
+                                                <span class="anonymous-reply">Anonymous</span> replied {{ reply.created_date|timesince }} ago
                                             {% else %}
                                                 {{ reply.user.username }} replied {{ reply.created_date|timesince }} ago
                                             {% endif %}

@@ -1,0 +1,197 @@
+/* Forum Styles */
+
+/* Font Face Declaration - Using Google Fonts as a fallback */
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+/* PF Fuel Fonts */
+@font-face {
+    font-family: 'PF Fuel';
+    src: url('../fonts/PF_Fuel_Grime.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'PF Fuel Decay';
+    src: url('../fonts/PF_Fuel_Decay.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Forum Title */
+.forum-title {
+    font-family: 'PF Fuel Grime', 'PF Fuel', 'Archivo Black', 'Impact', sans-serif;
+    font-size: 3.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+    color: #dba309;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.forum-title a {
+    color: #dba309;
+    text-decoration: none;
+}
+
+.forum-title a:hover {
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Post and Comment Cards */
+.card {
+    transition: transform 0.2s;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card.border-danger {
+    opacity: 0.8;
+}
+
+/* Vote Buttons */
+.btn-outline-success:hover,
+.btn-outline-danger:hover {
+    transform: scale(1.1);
+}
+
+/* Yellow Buttons - Replacing Blue */
+.btn-primary {
+    background-color: #dba309 !important;
+    border-color: #dba309 !important;
+}
+
+.btn-primary:hover {
+    background-color: #c99000 !important;
+    border-color: #c99000 !important;
+}
+
+.btn-outline-primary {
+    color: #dba309 !important;
+    border-color: #dba309 !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary.active {
+    background-color: #dba309 !important;
+    color: #fff !important;
+}
+
+/* Comments */
+.comments-list .comment {
+    margin-left: 0;
+    transition: margin-left 0.3s;
+}
+
+.comments-list .comment:hover {
+    margin-left: 10px;
+}
+
+.replies {
+    border-left: 2px solid #2c3034;
+    padding-left: 1rem;
+}
+
+/* Forms */
+.form-control, .custom-input {
+    background-color: #1a1a1a;
+    border-color: #333;
+    color: #fff;
+    border-radius: 6px;
+    padding: 10px 15px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .custom-input:focus {
+    background-color: #222;
+    border-color: #dba309;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(219, 163, 9, 0.25);
+}
+
+.form-control::placeholder, .custom-input::placeholder {
+    color: #6c757d;
+    opacity: 0.8;
+}
+
+textarea.form-control {
+    min-height: 120px;
+}
+
+/* Pagination */
+.page-link {
+    background-color: #2c3034;
+    border-color: #495057;
+    color: #fff;
+}
+
+.page-link:hover {
+    background-color: #dba309;
+    border-color: #dba309;
+    color: #fff;
+}
+
+.page-item.active .page-link {
+    background-color: #dba309;
+    border-color: #dba309;
+}
+
+/* Search Box */
+.search-box {
+    background-color: #2c3034;
+    border-radius: 0.375rem;
+    padding: 1rem;
+}
+
+/* Archived Post Styling */
+.archived {
+    position: relative;
+}
+
+.archived::before {
+    content: "Archived";
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #dc3545;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0 0.375rem 0 0.375rem;
+    font-size: 0.875rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.comment, .post {
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card-columns {
+        column-count: 1;
+    }
+    
+    .comments-list .comment:hover {
+        margin-left: 5px;
+    }
+    
+    .replies {
+        margin-left: 0.5rem;
+        padding-left: 0.5rem;
+    }
+} 
