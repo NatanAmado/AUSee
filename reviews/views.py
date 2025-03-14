@@ -4,8 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, JsonResponse
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
-from django.db.models import Max, Min, Avg, Count
+from django.db.models import Q, F, Count, Case, When, Value, IntegerField, Avg
 import json
 
 # Create your views here.
@@ -52,8 +51,23 @@ def course_detail(request, course_id):
     # Get the year filter from the query parameters
     current_year = request.GET.get('year', '')
     
-    # Get all reviews for this course
-    reviews = course.review_set.all().order_by('-created_date')
+    # Get all reviews for this course with vote counts
+    reviews = course.review_set.all().annotate(
+        upvotes=Count(
+            Case(
+                When(reviewvote__is_upvote=True, then=1),
+                output_field=IntegerField(),
+            )
+        ),
+        downvotes=Count(
+            Case(
+                When(reviewvote__is_upvote=False, then=1),
+                output_field=IntegerField(),
+            )
+        )
+    ).annotate(
+        net_votes=F('upvotes') - F('downvotes')
+    ).order_by('-net_votes', '-created_date')
     
     # Apply year filter if provided
     if current_year:
