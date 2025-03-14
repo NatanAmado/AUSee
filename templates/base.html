@@ -209,23 +209,23 @@
                   <a class="nav-link" href="{% url 'reviews:course_list' %}">Courses</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://limonata.app" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom" title="By the creators of AUSee...">Study Together</a>
+                    <a class="nav-link" href="{% url 'forum:home' %}">AUC Forum</a>
+                  </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://limonata.app" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom" title="By the creators of AUSee">Study Together</a>
                   </li>
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'feedback:form' %}">Survey</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="https://github.com/NatanAmado/AUSee/issues/new" target="_blank">Suggest a Feature</a>
+                  <a class="nav-link" href="https://github.com/NatanAmado/AUSee/issues/new" target="_blank">Feedback</a>
                 </li>
+                
                 <li class="nav-item">
                   <a class="nav-link" href="https://donate.stripe.com/dR6g1o86T1UObXqcMM">Donate</a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'feedback:feedback_list' %}">Feedback</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'forum:home' %}">Forum</a>
-                </li>
+
+
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'users:logout' %}">Logout</a>
                 </li>
@@ -242,9 +242,19 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'feedback:about' %}">About</a>
                   </li>
+                   <!-- So I'm going to comment out this because I don't believe there should be 
+                    a feedback form that only the superusers can see. It's more in line with the
+                    mission of the website for feature requests to be submitted in GitHub and 
+                    issues with the site to be posted and discussed openly in the Forum. 
+
+                  However, I will not get rid of the functionality for now, in case a new solution
+                  is found that allows users to submit feedback and suggestions openly. 
+
                 <li class="nav-item">
-                  <a class="nav-link" href="https://github.com/NatanAmado/AUSee/issues/new" target="_blank">Suggest a Feature</a>
+                  <a class="nav-link" href="{% url 'feedback:feedback_list' %}">Feedback</a>
                 </li>
+                -->
+                  
                 {% endif %}
               </ul>
             </div>
