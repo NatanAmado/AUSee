@@ -1,6 +1,20 @@
 {% extends 'forum/base_forum.html' %}
 
 {% block forum_content %}
+<style>
+    /* Additional vote button styles for home page */
+    .vote-btn {
+        padding: 0.15rem 0.3rem !important;
+        font-size: 0.65rem !important;
+    }
+    
+    .vote-count {
+        font-size: 0.65rem !important;
+        font-size: 0.75rem !important;
+        min-width: 18px !important;
+    }
+</style>
+
 <div class="row">
     <!-- Topics Section -->
     <div class="col-12 mb-4">

@@ -23,6 +23,37 @@
     textarea {
         min-height: 150px;
     }
+    
+    /* Vote button styles */
+    .vote-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .vote-count {
+        font-size: 0.75rem;
+    }
+    
+    /* Responsive styles */
+    @media (max-width: 576px) {
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .card-header .btn-group {
+            margin-top: 0.5rem;
+            align-self: flex-end;
+        }
+        
+        .sort-btn-group {
+            width: 100%;
+        }
+        
+        .sort-btn-group .btn {
+            flex: 1;
+        }
+    }
 </style>
 
 <div class="card bg-dark text-light mb-4 {% if topic.is_archived %}border-danger{% endif %}">
@@ -67,7 +98,7 @@
 
 <!-- Sorting Options -->
 <div class="mb-4">
-    <div class="btn-group">
+    <div class="btn-group sort-btn-group w-100">
         <a href="?sort=recent" class="btn btn-outline-warning {% if sort_by == 'recent' %}active{% endif %}">Recent</a>
         <a href="?sort=top" class="btn btn-outline-warning {% if sort_by == 'top' %}active{% endif %}">Top</a>
     </div>
@@ -99,11 +130,11 @@
                     {{ post.created_at|timesince }} ago
                     {% if post.is_archived %}
                     <br>
-                    <span class="text-danger">This post has been archived due to negative feedback</span>
+                    <span class="text-danger">This post has been archived</span>
                     {% endif %}
                 </div>
                 
-                {% if user.is_authenticated and not post.is_archived and not topic.is_archived %}
+                {% if user.is_authenticated and not post.is_archived %}
                 <div class="d-flex align-items-center">
                     <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
                         👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
@@ -112,21 +143,13 @@
                         👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
                     </button>
                 </div>
-                {% else %}
-                <div class="d-flex align-items-center text-muted">
-                    <span class="me-3">👍 <span class="vote-count">{{ post.upvotes }}</span></span>
-                    <span>👎 <span class="vote-count">{{ post.downvotes }}</span></span>
-                </div>
                 {% endif %}
             </div>
         </div>
     </div>
     {% empty %}
     <div class="alert alert-info">
-        No posts in this topic yet.
-        {% if user.is_authenticated and not topic.is_archived %}
-        <a href="{% url 'forum:create_post_in_topic' topic.id %}" class="alert-link">Create the first post!</a>
-        {% endif %}
+        No posts in this topic yet. Be the first to create a post!
     </div>
     {% endfor %}
 </div>

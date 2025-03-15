@@ -163,6 +163,8 @@
     display: flex;
     justify-content: center;
     margin-bottom: 50px;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
 
@@ -171,7 +173,7 @@
     padding: 10px 20px;
     font-size: 16px;
     font-weight: bold;
-    margin: 0 10px;
+    margin: 0 5px;
     cursor: pointer;
     transition: all 0.3s ease;
     border: 2px solid transparent;
@@ -214,9 +216,32 @@
     box-shadow: 0 0 5px #dba309;
   }
 
+  @media (max-width: 768px) {
+    .course-filters {
+      flex-direction: row;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    
+    .filter-btn {
+      font-size: 14px;
+      padding: 8px 15px;
+      margin: 5px 3px;
+      width: calc(50% - 10px);
+    }
+  }
 
-
-
+  @media (max-width: 480px) {
+    .course-filters {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .filter-btn {
+      width: 100%;
+      margin: 5px 0;
+    }
+  }
 
   @media (max-width: 600px) {
     .col-md-4 {
@@ -237,6 +262,10 @@
     .search-button {
       width: 100%;
       margin: 5px 0;
+    }
+    
+    .search-form {
+      flex-direction: column;
     }
   }
 </style>

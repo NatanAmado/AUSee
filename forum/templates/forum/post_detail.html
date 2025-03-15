@@ -2,6 +2,39 @@
 {% load static %}
 
 {% block forum_content %}
+<style>
+    /* Vote button styles */
+    .vote-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .vote-count {
+        font-size: 0.75rem;
+    }
+    
+    /* Responsive styles for post detail */
+    @media (max-width: 768px) {
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .card-header .btn {
+            margin-top: 10px;
+            align-self: flex-end;
+        }
+        
+        .d-flex.justify-content-between {
+            flex-direction: column;
+        }
+        
+        .d-flex.justify-content-between .text-muted {
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
 <!-- Post -->
 <div class="card bg-dark text-light mb-4 {% if post.is_archived %}border-danger{% endif %}" id="post-{{ post.id }}">
     <div class="card-header d-flex justify-content-between align-items-center">
