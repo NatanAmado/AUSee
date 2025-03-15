@@ -23,7 +23,6 @@
   }
 
   .search-input {
-
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -37,20 +36,17 @@
     border: 1px solid #dba309;
     border-radius: 5px;
     cursor: pointer;
-
   }
 
   .search-button:hover {
     background-color: #dba309;
     color: #000000;
-    ;
   }
 
   .course-level-header {
     margin-top: 30px;
     margin-bottom: 15px;
     text-align: center;
-
   }
 
   .row {
@@ -118,8 +114,6 @@
     padding-left: 10%;
     padding-right: 10%;
     min-width: 190px;
-
-
   }
 
   .card a:hover {
@@ -167,7 +161,6 @@
     gap: 10px;
   }
 
-
   .filter-btn {
     border-radius: 20px;
     padding: 10px 20px;
@@ -177,40 +170,31 @@
     cursor: pointer;
     transition: all 0.3s ease;
     border: 2px solid transparent;
-
   }
 
   .all-courses-btn {
     background-color: #1A1A1A;
     color: #FFFFFF;
-
   }
-
 
   .level-100-btn {
     background-color: #1A1A1A;
     color: #F0E68C;
   }
 
-
   .level-200-btn {
     background-color: #1A1A1A;
     color: #ADD8E6;
   }
 
-
   .level-300-btn {
     background-color: #1A1A1A;
     color: #90EE90;
-
   }
-
 
   .filter-btn:hover {
     box-shadow: 0 0 10px #dba309;
-
   }
-
 
   .filter-btn.active {
     box-shadow: 0 0 5px #dba309;
@@ -268,6 +252,17 @@
       flex-direction: column;
     }
   }
+
+  .archived-badge {
+    display: inline-block;
+    background-color: #dc3545;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
 </style>
 
 <h2 class="title">Courses</h2>
@@ -313,7 +308,12 @@
       <div class="card">
         <div class="card-body">
           <a class="level-holder">&nbsp;{{course.level}}&nbsp;</a>
-          <h5 class="card-title">{{ course.name }} </h5>
+          <h5 class="card-title">
+            {{ course.name }}
+            {% if is_staff_or_superuser and course.archived %}
+            <span class="archived-badge">Archived</span>
+            {% endif %}
+          </h5>
           <h5 class="card-code">{{ course.code }}</h5>
           <p>Average Rating:
             <span class="starRating" data-rating="{{ course.avg_rating|floatformat:1|default:"No ratings" }}"></span>
@@ -328,10 +328,6 @@
     </div>
     {% endfor %}
   </div>
-
-
-
-
 
   <div class="row">
     {% for course in level_200_courses %}
@@ -339,7 +335,12 @@
       <div class="card">
         <div class="card-body">
           <a class="level-holder">&nbsp;{{course.level}}&nbsp;</a>
-          <h5 class="card-title">{{ course.name }} </h5>
+          <h5 class="card-title">
+            {{ course.name }}
+            {% if is_staff_or_superuser and course.archived %}
+            <span class="archived-badge">Archived</span>
+            {% endif %}
+          </h5>
           <h5 class="card-code">{{ course.code }}</h5>
           <p>Average Rating:
             <span class="starRating" data-rating="{{ course.avg_rating|floatformat:1|default:"No ratings" }}"></span>
@@ -351,14 +352,9 @@
             Reviews&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
         </div>
       </div>
-
     </div>
     {% endfor %}
   </div>
-
-
-
-
 
   <div class="row">
     {% for course in level_300_courses %}
@@ -366,7 +362,12 @@
       <div class="card">
         <div class="card-body">
           <a class="level-holder">&nbsp;{{course.level}}&nbsp;</a>
-          <h5 class="card-title">{{ course.name }} </h5>
+          <h5 class="card-title">
+            {{ course.name }}
+            {% if is_staff_or_superuser and course.archived %}
+            <span class="archived-badge">Archived</span>
+            {% endif %}
+          </h5>
           <h5 class="card-code">{{ course.code }}</h5>
           <p>Average Rating:
             <span class="starRating" data-rating="{{ course.avg_rating|floatformat:1|default:"No ratings" }}"></span>
@@ -381,145 +382,140 @@
     </div>
     {% endfor %}
   </div>
-
-
-
-  <!-- Repeat for other course levels if necessary -->
-
 </div>
 
-  <script>
-    function updateStarRatings() {
-      // Select all elements with the class 'starRating'
-      const ratingElements = document.querySelectorAll('.starRating');
-      ratingElements.forEach(el => {
-        let rating = parseFloat(el.getAttribute('data-rating'));
-        rating = Math.round(rating); // Round to the nearest whole number
-        el.innerHTML = ''; // Clear any existing stars
-        for (let i = 1; i <= rating; i++) {
-          if (i <= rating) {
-            el.innerHTML += '<span class="star">&#9733;</span>'; // Full star
-          } else {
-            el.innerHTML += '<span class="star gray">&#9733;</span>'; // Empty star
-          }
-        }
-        // If there is no rating (e.g., rating is NaN), clear the stars
-        if (isNaN(rating)) {
-          el.innerHTML = 'No ratings yet';
-          el.nextElementSibling.innerHTML = ''; // Clear the '/5.0'
-        }
-      });
-    }
-
-    function filterCourses(level) {
-      // Get all course cards
-      const cards = document.querySelectorAll('.card');
-      const levelButtons = document.querySelectorAll('.filter-btn:not(.major-btn)');
-      const majorButtons = document.querySelectorAll('.major-btn');
-      let visibleCount = 0;
-
-      // Remove active class from all level buttons
-      levelButtons.forEach(button => {
-        button.classList.remove('active');
-      });
-      
-      // Reset major buttons (they're a separate filter)
-      majorButtons.forEach(button => {
-        button.classList.remove('active');
-      });
-
-      // Loop through all cards
-      cards.forEach(card => {
-        // Check if we are showing all courses or filtering by level
-        if (level === 'all') {
-          card.parentElement.style.display = ''; // Show all courses
-          visibleCount++;
+<script>
+  function updateStarRatings() {
+    // Select all elements with the class 'starRating'
+    const ratingElements = document.querySelectorAll('.starRating');
+    ratingElements.forEach(el => {
+      let rating = parseFloat(el.getAttribute('data-rating'));
+      rating = Math.round(rating); // Round to the nearest whole number
+      el.innerHTML = ''; // Clear any existing stars
+      for (let i = 1; i <= rating; i++) {
+        if (i <= rating) {
+          el.innerHTML += '<span class="star">&#9733;</span>'; // Full star
         } else {
-          // Show the card if it matches the level, hide it otherwise
-          const cardLevel = card.querySelector('.level-holder').textContent.trim();
-          if (cardLevel === level) {
-            card.parentElement.style.display = '';
-            visibleCount++;
-          } else {
-            card.parentElement.style.display = 'none';
-          }
+          el.innerHTML += '<span class="star gray">&#9733;</span>'; // Empty star
         }
-      });
-      
-      // Show or hide the "no results" message
-      const noResultsMessage = document.getElementById('no-results-message');
-      if (visibleCount === 0) {
-        noResultsMessage.style.display = 'block';
-      } else {
-        noResultsMessage.style.display = 'none';
       }
-      
-      document.querySelector(`.filter-btn[onclick*="'${level}'"]`).classList.add('active');
-    }
+      // If there is no rating (e.g., rating is NaN), clear the stars
+      if (isNaN(rating)) {
+        el.innerHTML = 'No ratings yet';
+        el.nextElementSibling.innerHTML = ''; // Clear the '/5.0'
+      }
+    });
+  }
+
+  function filterCourses(level) {
+    // Get all course cards
+    const cards = document.querySelectorAll('.card');
+    const levelButtons = document.querySelectorAll('.filter-btn:not(.major-btn)');
+    const majorButtons = document.querySelectorAll('.major-btn');
+    let visibleCount = 0;
+
+    // Remove active class from all level buttons
+    levelButtons.forEach(button => {
+      button.classList.remove('active');
+    });
     
-    function filterByMajor(major) {
-      // Get all course cards
-      const cards = document.querySelectorAll('.card');
-      const levelButtons = document.querySelectorAll('.filter-btn:not(.major-btn)');
-      const majorButtons = document.querySelectorAll('.major-btn');
-      let visibleCount = 0;
+    // Reset major buttons (they're a separate filter)
+    majorButtons.forEach(button => {
+      button.classList.remove('active');
+    });
 
-      // Remove active class from all buttons
-      levelButtons.forEach(button => {
-        button.classList.remove('active');
-      });
-      
-      majorButtons.forEach(button => {
-        button.classList.remove('active');
-      });
-
-      // Loop through all cards
-      cards.forEach(card => {
-        // Get the course code
-        const courseCode = card.querySelector('.card-code').textContent.trim();
-        
-        // Extract the major code from the course code
-        let courseMajor = '';
-        if (courseCode.includes('HUM')) courseMajor = 'HUM';
-        else if (courseCode.includes('ACC')) courseMajor = 'ACC';
-        else if (courseCode.includes('SSC')) courseMajor = 'SSC';
-        else if (courseCode.includes('SCI')) courseMajor = 'SCI';
-        
-        // Show the card if it matches the major, hide it otherwise
-        if (courseMajor === major) {
+    // Loop through all cards
+    cards.forEach(card => {
+      // Check if we are showing all courses or filtering by level
+      if (level === 'all') {
+        card.parentElement.style.display = ''; // Show all courses
+        visibleCount++;
+      } else {
+        // Show the card if it matches the level, hide it otherwise
+        const cardLevel = card.querySelector('.level-holder').textContent.trim();
+        if (cardLevel === level) {
           card.parentElement.style.display = '';
           visibleCount++;
         } else {
           card.parentElement.style.display = 'none';
         }
-      });
-      
-      // Show or hide the "no results" message
-      const noResultsMessage = document.getElementById('no-results-message');
-      if (visibleCount === 0) {
-        noResultsMessage.style.display = 'block';
-      } else {
-        noResultsMessage.style.display = 'none';
-      }
-      
-      document.querySelector(`.major-btn[onclick*="'${major}'"]`).classList.add('active');
-    }
-
-    // Initially show all courses
-    filterCourses('all');
-
-    // Update all the ratings on DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', updateStarRatings);
-    
-    // Also check for empty search results when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-      const searchQuery = "{{ request.GET.q }}";
-      const allCards = document.querySelectorAll('.card');
-      
-      if (searchQuery && allCards.length === 0) {
-        document.getElementById('no-results-message').style.display = 'block';
       }
     });
-  </script>
+    
+    // Show or hide the "no results" message
+    const noResultsMessage = document.getElementById('no-results-message');
+    if (visibleCount === 0) {
+      noResultsMessage.style.display = 'block';
+    } else {
+      noResultsMessage.style.display = 'none';
+    }
+    
+    document.querySelector(`.filter-btn[onclick*="'${level}'"]`).classList.add('active');
+  }
+  
+  function filterByMajor(major) {
+    // Get all course cards
+    const cards = document.querySelectorAll('.card');
+    const levelButtons = document.querySelectorAll('.filter-btn:not(.major-btn)');
+    const majorButtons = document.querySelectorAll('.major-btn');
+    let visibleCount = 0;
 
-  {% endblock %}
+    // Remove active class from all buttons
+    levelButtons.forEach(button => {
+      button.classList.remove('active');
+    });
+    
+    majorButtons.forEach(button => {
+      button.classList.remove('active');
+    });
+
+    // Loop through all cards
+    cards.forEach(card => {
+      // Get the course code
+      const courseCode = card.querySelector('.card-code').textContent.trim();
+      
+      // Extract the major code from the course code
+      let courseMajor = '';
+      if (courseCode.includes('HUM')) courseMajor = 'HUM';
+      else if (courseCode.includes('ACC')) courseMajor = 'ACC';
+      else if (courseCode.includes('SSC')) courseMajor = 'SSC';
+      else if (courseCode.includes('SCI')) courseMajor = 'SCI';
+      
+      // Show the card if it matches the major, hide it otherwise
+      if (courseMajor === major) {
+        card.parentElement.style.display = '';
+        visibleCount++;
+      } else {
+        card.parentElement.style.display = 'none';
+      }
+    });
+    
+    // Show or hide the "no results" message
+    const noResultsMessage = document.getElementById('no-results-message');
+    if (visibleCount === 0) {
+      noResultsMessage.style.display = 'block';
+    } else {
+      noResultsMessage.style.display = 'none';
+    }
+    
+    document.querySelector(`.major-btn[onclick*="'${major}'"]`).classList.add('active');
+  }
+
+  // Initially show all courses
+  filterCourses('all');
+
+  // Update all the ratings on DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', updateStarRatings);
+  
+  // Also check for empty search results when the page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchQuery = "{{ request.GET.q }}";
+    const allCards = document.querySelectorAll('.card');
+    
+    if (searchQuery && allCards.length === 0) {
+      document.getElementById('no-results-message').style.display = 'block';
+    }
+  });
+</script>
+
+{% endblock %}

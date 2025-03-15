@@ -13,20 +13,34 @@ from django import forms
 def forum_home(request):
     """Display the forum homepage with a list of topics"""
     topics = Topic.objects.all()
-    recent_posts = Post.objects.filter(is_archived=False).order_by('-created_at')[:5]
+    
+    # Only show non-archived topics to regular users
+    if not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
+        topics = topics.filter(is_archived=False)
+        recent_posts = Post.objects.filter(is_archived=False).order_by('-created_at')[:5]
+    else:
+        recent_posts = Post.objects.order_by('-created_at')[:5]
     
     context = {
         'topics': topics,
         'recent_posts': recent_posts,
+        'is_staff_or_superuser': request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)
     }
     return render(request, 'forum/home.html', context)
 
 def topic_list(request):
     """Display a list of all topics"""
-    topics = Topic.objects.all().order_by('name')
+    topics = Topic.objects.all()
+    
+    # Only show non-archived topics to regular users
+    if not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
+        topics = topics.filter(is_archived=False)
+    
+    topics = topics.order_by('name')
     
     context = {
         'topics': topics,
+        'is_staff_or_superuser': request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)
     }
     return render(request, 'forum/topic_list.html', context)
 
@@ -54,11 +68,20 @@ def topic_detail(request, topic_id):
     """Display a topic and its posts"""
     topic = get_object_or_404(Topic, id=topic_id)
     
+    # Redirect regular users if the topic is archived
+    if topic.is_archived and not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
+        messages.warning(request, "This topic has been archived and is not available for viewing.")
+        return redirect('forum:home')
+    
     # Sort posts based on query parameter
     sort_by = request.GET.get('sort', 'recent')
     
     # Base queryset with topic filter
     posts_query = Post.objects.filter(topic=topic)
+    
+    # Only show non-archived posts to regular users
+    if not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
+        posts_query = posts_query.filter(is_archived=False)
     
     if sort_by == 'top':
         # Calculate net votes at the database level
@@ -82,6 +105,7 @@ def topic_detail(request, topic_id):
         'posts': posts,
         'form': form,
         'sort_by': sort_by,
+        'is_staff_or_superuser': request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)
     }
     return render(request, 'forum/topic_detail.html', context)
 
@@ -207,6 +231,12 @@ def edit_post(request, post_id):
 def post_detail(request, post_id):
     """Display a post and its comments"""
     post = get_object_or_404(Post, id=post_id)
+    
+    # Redirect regular users if the post or its topic is archived
+    if (post.is_archived or post.topic.is_archived) and not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
+        messages.warning(request, "This post has been archived and is not available for viewing.")
+        return redirect('forum:topic_detail', topic_id=post.topic.id)
+    
     comments = Comment.objects.filter(post=post, parent=None).order_by('created_at')
     
     # Check if the user has already reported this post
@@ -222,6 +252,7 @@ def post_detail(request, post_id):
         'comments': comments,
         'form': form,
         'user_reported_post': user_reported_post,
+        'is_staff_or_superuser': request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)
     }
     return render(request, 'forum/post_detail.html', context)
 
@@ -359,17 +390,28 @@ def vote_post(request, post_id):
 def search_forum(request):
     """Search for posts and topics"""
     query = request.GET.get('q', '')
+    is_staff_or_superuser = request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)
     
     if query:
         topics = Topic.objects.filter(
             Q(name__icontains=query) | Q(description__icontains=query)
         )
         
-        posts = Post.objects.filter(
+        # Filter out archived topics for regular users
+        if not is_staff_or_superuser:
+            topics = topics.filter(is_archived=False)
+        
+        posts_query = Post.objects.filter(
             Q(title__icontains=query) | 
             Q(content__icontains=query) |
             Q(topic__name__icontains=query)
-        ).filter(is_archived=False)
+        )
+        
+        # Filter out archived posts and posts in archived topics for regular users
+        if not is_staff_or_superuser:
+            posts = posts_query.filter(is_archived=False, topic__is_archived=False)
+        else:
+            posts = posts_query
     else:
         topics = Topic.objects.none()
         posts = Post.objects.none()
@@ -378,6 +420,7 @@ def search_forum(request):
         'query': query,
         'topics': topics,
         'posts': posts,
+        'is_staff_or_superuser': is_staff_or_superuser
     }
     return render(request, 'forum/search_results.html', context)
 

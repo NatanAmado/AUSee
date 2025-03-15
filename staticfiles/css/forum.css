@@ -170,6 +170,15 @@ textarea.form-control {
     font-size: 0.875rem;
 }
 
+/* Enhanced archived styling */
+.card.border-danger {
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.3);
+}
+
+.bg-danger.bg-opacity-25 {
+    background-color: rgba(220, 53, 69, 0.25) !important;
+}
+
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; }

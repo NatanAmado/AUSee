@@ -18,6 +18,10 @@ def course_list(request):
     # Start with an optimized queryset that prefetches reviews
     courses = Course.objects.all()
     
+    # Only show non-archived courses to regular users
+    if not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
+        courses = courses.filter(archived=False)
+    
     if query:
         courses = courses.filter(Q(name__icontains=query) | Q(code__icontains=query))
     
@@ -36,6 +40,7 @@ def course_list(request):
         'level_100_courses': level_100_courses,
         'level_200_courses': level_200_courses,
         'level_300_courses': level_300_courses,
+        'is_staff_or_superuser': request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)
     }
 
     return render(request, 'reviews/course_list.html', context)
@@ -43,6 +48,11 @@ def course_list(request):
 @login_required
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
+    
+    # Redirect regular users if the course is archived
+    if course.archived and not (request.user.is_superuser or request.user.is_staff):
+        messages.warning(request, "This course has been archived and is not available for viewing.")
+        return redirect('reviews:course_list')
     
     # Check if the user has already reported this course
     user_reported = False
@@ -53,7 +63,13 @@ def course_detail(request, course_id):
     current_year = request.GET.get('year', '')
     
     # Get all reviews for this course with vote counts
-    reviews = course.review_set.all().annotate(
+    reviews = course.review_set.all()
+    
+    # Only show non-archived reviews to regular users
+    if not (request.user.is_superuser or request.user.is_staff):
+        reviews = reviews.filter(archived=False)
+        
+    reviews = reviews.annotate(
         upvotes=Count(
             Case(
                 When(reviewvote__is_upvote=True, then=1),
@@ -133,6 +149,7 @@ def course_detail(request, course_id):
         'available_years': available_years,
         'user_reported': user_reported,
         'reported_reviews': reported_reviews,
+        'is_staff_or_superuser': request.user.is_superuser or request.user.is_staff
     }
 
     return render(request, 'reviews/course_detail.html', context)

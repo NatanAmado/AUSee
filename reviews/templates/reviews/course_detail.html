@@ -577,6 +577,18 @@
         padding-right: 0 !important;
     }
 
+    /* Archived badge styling */
+    .archived-badge {
+        display: inline-block;
+        background-color: #dc3545;
+        color: white;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        margin-left: 0.5rem;
+        vertical-align: middle;
+    }
+
 </style>
 
 
@@ -584,7 +596,12 @@
 <div class="container-main">
     <div class="row">
         <div class="col-md-8 offset-md-2">
-            <h2 class="display-4">{{ course.name }} <span class="text-muted">({{ course.code }})</span></h2>
+            <h2 class="display-4">
+                {{ course.name }} <span class="text-muted">({{ course.code }})</span>
+                {% if is_staff_or_superuser and course.archived %}
+                <span class="archived-badge">Archived</span>
+                {% endif %}
+            </h2>
             <p><strong>Average Rating:</strong> {{ course.average_rating }} / 5.0</p>
             <!-- ... truncated course description and button ... -->
             <div id="courseSummaryShort">
@@ -646,7 +663,12 @@
                             
                             <div class="review-content">
                                 <div class="review-header">
-                                    <span class="review-major">{{ review.user.major }} - {{ review.user.track }}</span>
+                                    <span class="review-major">
+                                        {{ review.user.major }} - {{ review.user.track }}
+                                        {% if is_staff_or_superuser and review.archived %}
+                                        <span class="archived-badge">Archived</span>
+                                        {% endif %}
+                                    </span>
                                     <div class="review-actions-container">
                                         <span class="review-date">Posted on: {{ review.created_date }}</span>
                                     </div>

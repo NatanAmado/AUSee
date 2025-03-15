@@ -1,6 +1,19 @@
 {% extends 'forum/base_forum.html' %}
 
 {% block forum_content %}
+<style>
+    .archived-badge {
+        display: inline-block;
+        background-color: #dc3545;
+        color: white;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        margin-left: 0.5rem;
+        vertical-align: middle;
+    }
+</style>
+
 <div class="card bg-dark text-light">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4 class="mb-0">All Topics</h4>
@@ -17,6 +30,9 @@
                         <h5 class="card-title">
                             <a href="{% url 'forum:topic_detail' topic.id %}" class="text-light text-decoration-none">
                                 {{ topic.name }}
+                                {% if is_staff_or_superuser and topic.is_archived %}
+                                <span class="archived-badge">Archived</span>
+                                {% endif %}
                             </a>
                         </h5>
                         <p class="card-text text-muted">{{ topic.description }}</p>
