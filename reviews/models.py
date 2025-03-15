@@ -40,7 +40,9 @@ class Course(models.Model):
         
         return round(avg_rating, 1)  # round to 1 decimal place
 
-
+    def is_verified(self):
+        """Check if this is a verified course that cannot be reported"""
+        return self.id <= 328
 
     def __str__(self):
         return self.name

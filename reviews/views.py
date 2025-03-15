@@ -215,6 +215,13 @@ def add_course(request):
 def report_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     
+    # Prevent reporting of existing courses in the database
+    if course.is_verified():
+        return JsonResponse({
+            'success': False, 
+            'message': 'This is a verified course and cannot be reported.'
+        })
+    
     if request.method == "POST":
         try:
             data = json.loads(request.body)
