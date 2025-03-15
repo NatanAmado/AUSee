@@ -96,10 +96,14 @@ class Post(models.Model):
     
     def should_be_archived(self):
         """Archive post if downvotes exceed upvotes by 10 or more"""
-        return (self.downvotes - self.upvotes) >= 10
+        return (self.downvotes - self.upvotes) >= 10 or self.report_count() >= 5
+    
+    def report_count(self):
+        """Count the number of reports for this post"""
+        return self.reports.count()
     
     def check_archive_status(self):
-        """Check and update the archive status based on votes"""
+        """Check and update the archive status based on votes or reports"""
         if self.should_be_archived() and not self.is_archived:
             self.is_archived = True
             self.save()
@@ -108,6 +112,27 @@ class Post(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+
+class PostReport(models.Model):
+    REPORT_REASONS = [
+        ('inappropriate', 'Inappropriate Content'),
+        ('spam', 'Spam'),
+        ('offensive', 'Offensive Content'),
+        ('false', 'False Information'),
+        ('other', 'Other'),
+    ]
+    
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='reports')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    reason = models.CharField(max_length=20, choices=REPORT_REASONS, default='other')
+    additional_info = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('post', 'user')  # Prevent multiple reports from same user
+    
+    def __str__(self):
+        return f"Report on post '{self.post.title}' by {self.user.username}"
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')

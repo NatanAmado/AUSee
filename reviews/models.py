@@ -71,6 +71,7 @@ class Review(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    archived = models.BooleanField(default=False)
     # upvotes and downvotes
 
     
@@ -93,6 +94,20 @@ class Review(models.Model):
             return math.ceil(x)
         else:
             return 0
+            
+    def report_count(self):
+        return self.reports.count()
+        
+    def should_be_archived(self):
+        return self.report_count() >= 5 and not self.archived
+        
+    def check_archive_status(self):
+        """Check if review should be archived and update its status if needed"""
+        if self.should_be_archived():
+            self.archived = True
+            self.save(update_fields=['archived'])
+            return True
+        return False
 
     def __str__(self):
         return f"Review for {self.course.name}"
@@ -124,6 +139,27 @@ class ReviewReply(models.Model):
     class Meta:
         ordering = ['created_date']
         verbose_name_plural = 'Review Replies'
+
+class ReviewReport(models.Model):
+    REPORT_REASONS = [
+        ('inappropriate', 'Inappropriate Content'),
+        ('spam', 'Spam'),
+        ('offensive', 'Offensive Content'),
+        ('false', 'False Information'),
+        ('other', 'Other'),
+    ]
+    
+    review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='reports')
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    reason = models.CharField(max_length=20, choices=REPORT_REASONS, default='other')
+    additional_info = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('review', 'user')  # Prevent multiple reports from same user
+    
+    def __str__(self):
+        return f"Report on review {self.review.id} by {self.user.username}"
 
 class CourseReport(models.Model):
     VOTE_CHOICES = [

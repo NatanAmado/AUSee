@@ -1,5 +1,5 @@
 from django import forms
-from .models import Topic, Post, Comment, TopicReport
+from .models import Topic, Post, Comment, TopicReport, PostReport
 
 class TopicForm(forms.ModelForm):
     class Meta:
@@ -70,4 +70,17 @@ class CommentForm(forms.ModelForm):
         fields = ['content', 'is_anonymous']
         widgets = {
             'content': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Add a comment...'}),
+        }
+
+class PostReportForm(forms.ModelForm):
+    class Meta:
+        model = PostReport
+        fields = ['reason', 'additional_info']
+        widgets = {
+            'additional_info': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Provide additional details about your report...', 'class': 'form-control'}),
+            'reason': forms.Select(attrs={'class': 'form-select'}),
+        }
+        labels = {
+            'reason': 'Reason for reporting:',
+            'additional_info': 'Additional information (optional):',
         } 

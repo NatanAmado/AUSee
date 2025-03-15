@@ -40,6 +40,40 @@
         width: 100%;
     }
 
+    .review-actions-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .report-btn {
+        font-size: 0.8rem;
+        padding: 2px 5px;
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .report-btn:hover {
+        color: #fff;
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .report-icon {
+        color: #dc3545;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        transition: color 0.2s;
+    }
+
+    .report-icon:hover {
+        color: #b02a37;
+    }
+
     .reviews-container {
         background-color: #000000 !important;
         border-radius: 8px;
@@ -422,6 +456,28 @@
         }
     }
 
+    /* Flag button styles */
+    .btn-outline-secondary.report-btn {
+        color: #6c757d;
+        border-color: #6c757d;
+    }
+    
+    .btn-outline-secondary.report-btn:hover {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    /* Flag icon styles for reviews (no stroke) */
+    .btn-outline-none.report-btn {
+        color: #6c757d;
+        background: transparent;
+    }
+    
+    .btn-outline-none.report-btn:hover {
+        color: #dc3545;
+        background: transparent;
+    }
+
 </style>
 
 
@@ -492,7 +548,9 @@
                             <div class="review-content">
                                 <div class="review-header">
                                     <span class="review-major">{{ review.user.major }} - {{ review.user.track }}</span>
-                                    <span class="review-date">Posted on: {{ review.created_date }}</span>
+                                    <div class="review-actions-container">
+                                        <span class="review-date">Posted on: {{ review.created_date }}</span>
+                                    </div>
                                 </div>
                                 <div class="review-body">
                                     <p class="review-text">{{ review.text }}</p>
@@ -543,15 +601,35 @@
                                 {% endfor %}
                             </div>
                             
-                            <!-- Reply Button (moved to bottom left) -->
-                            {% if user.is_authenticated %}
-                            <div class="text-left mt-2">
-                                <button class="btn btn-sm btn-outline-primary reply-toggle" 
-                                        data-review-id="{{ review.id }}">
-                                    Reply
-                                </button>
+                            <!-- Bottom Actions -->
+                            <div class="mt-2">
+                                {% if user.is_authenticated %}
+                                <!-- Reply Button -->
+                                <div class="text-left">
+                                    <button class="btn btn-sm btn-outline-primary reply-toggle" 
+                                            data-review-id="{{ review.id }}">
+                                        Reply
+                                    </button>
+                                </div>
+                                
+                                <!-- Flag Icon (positioned at bottom right) -->
+                                <div class="text-right" style="position: absolute; bottom: 15px; right: 15px;">
+                                    {% if review.id not in reported_reviews %}
+                                    <a href="{% url 'reviews:report_review' course.id review.id %}" class="btn btn-sm btn-outline-none report-btn" style="padding: 0.25rem 0.5rem; display: flex; align-items: center; border: none;" title="Report this review">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
+                                        </svg>
+                                    </a>
+                                    {% else %}
+                                    <span class="btn btn-sm btn-outline-none disabled" style="padding: 0.25rem 0.5rem; display: flex; align-items: center; border: none;" title="You've already reported this review">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
+                                        </svg>
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
                             </div>
-                            {% endif %}
                             
                             <!-- Reply Form (hidden by default) -->
                             <div class="reply-form-container mt-2" id="reply-form-{{ review.id }}" style="display: none;">
@@ -708,6 +786,17 @@
                     replyButton.style.display = 'inline-block';
                     console.log('Reply button shown');
                 }
+            });
+        });
+        
+        // Add hover effect for flag icons
+        const flagIcons = document.querySelectorAll('a[href*="report_review"]');
+        flagIcons.forEach(icon => {
+            icon.addEventListener('mouseover', function() {
+                this.style.color = '#dc3545';
+            });
+            icon.addEventListener('mouseout', function() {
+                this.style.color = '#6c757d';
             });
         });
     });

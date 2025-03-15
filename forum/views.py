@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.db.models import F, Q
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
-from .models import Topic, Post, Comment, Vote, TopicReport
-from .forms import TopicForm, PostForm, CommentForm, TopicDescriptionForm, TopicReportForm
+from .models import Topic, Post, Comment, Vote, TopicReport, PostReport
+from .forms import TopicForm, PostForm, CommentForm, TopicDescriptionForm, TopicReportForm, PostReportForm
 from django import forms
 
 def forum_home(request):
@@ -209,6 +209,11 @@ def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     comments = Comment.objects.filter(post=post, parent=None).order_by('created_at')
     
+    # Check if the user has already reported this post
+    user_reported_post = False
+    if request.user.is_authenticated:
+        user_reported_post = PostReport.objects.filter(post=post, user=request.user).exists()
+    
     # Comment form
     form = CommentForm()
     
@@ -216,6 +221,7 @@ def post_detail(request, post_id):
         'post': post,
         'comments': comments,
         'form': form,
+        'user_reported_post': user_reported_post,
     }
     return render(request, 'forum/post_detail.html', context)
 
@@ -374,3 +380,35 @@ def search_forum(request):
         'posts': posts,
     }
     return render(request, 'forum/search_results.html', context)
+
+@login_required
+def report_post(request, post_id):
+    """Handle reporting a forum post"""
+    post = get_object_or_404(Post, id=post_id)
+    
+    # Check if user already reported this post
+    if PostReport.objects.filter(post=post, user=request.user).exists():
+        messages.warning(request, "You have already reported this post.")
+        return redirect('forum:post_detail', post_id=post_id)
+    
+    if request.method == "POST":
+        form = PostReportForm(request.POST)
+        if form.is_valid():
+            # Create the report
+            report = form.save(commit=False)
+            report.post = post
+            report.user = request.user
+            report.save()
+            
+            # Check if post should be archived based on report count
+            if post.report_count() >= 5 and not post.is_archived:
+                post.is_archived = True
+                post.save()
+            
+            return JsonResponse({'success': True, 'message': 'Thank you for your report. This post will be reviewed by our team.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'There was an error with your report. Please try again.'})
+    else:
+        form = PostReportForm()
+    
+    return render(request, 'forum/report_post.html', {'form': form, 'post': post})

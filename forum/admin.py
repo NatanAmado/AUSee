@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Topic, Post, Comment, Vote
+from .models import Topic, Post, Comment, Vote, TopicReport, PostReport
 
 @admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
@@ -34,3 +34,9 @@ class VoteAdmin(admin.ModelAdmin):
     list_display = ('user', 'post', 'vote_type', 'created_at')
     list_filter = ('vote_type', 'created_at')
     search_fields = ('user__username', 'post__title')
+
+@admin.register(PostReport)
+class PostReportAdmin(admin.ModelAdmin):
+    list_display = ('post', 'user', 'reason', 'created_at')
+    list_filter = ('reason', 'created_at')
+    search_fields = ('post__title', 'user__username', 'additional_info')

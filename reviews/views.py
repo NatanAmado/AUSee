@@ -1,11 +1,12 @@
-from .models import Course, Review, ReviewVote, CourseReport, ReviewReply
-from .forms import ReviewForm, CourseForm, ReviewReplyForm
+from .models import Course, Review, ReviewVote, CourseReport, ReviewReply, ReviewReport
+from .forms import ReviewForm, CourseForm, ReviewReplyForm, ReviewReportForm
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect, JsonResponse
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, F, Count, Case, When, Value, IntegerField, Avg
 import json
+from django.contrib import messages
 
 # Create your views here.
 
@@ -79,6 +80,14 @@ def course_detail(request, course_id):
     # Prefetch review replies to avoid N+1 query problem
     reviews = reviews.prefetch_related('replies__user')
     
+    # Check which reviews the user has already reported
+    reported_reviews = set()
+    if request.user.is_authenticated:
+        reported_reviews = set(ReviewReport.objects.filter(
+            user=request.user, 
+            review__in=reviews
+        ).values_list('review_id', flat=True))
+    
     # Initialize reply form
     reply_form = ReviewReplyForm()
     
@@ -123,6 +132,7 @@ def course_detail(request, course_id):
         'current_year': current_year,
         'available_years': available_years,
         'user_reported': user_reported,
+        'reported_reviews': reported_reviews,
     }
 
     return render(request, 'reviews/course_detail.html', context)
@@ -221,5 +231,38 @@ def report_course(request, course_id):
             })
     
     return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+@login_required
+def report_review(request, course_id, review_id):
+    """Handle reporting a review"""
+    course = get_object_or_404(Course, id=course_id)
+    review = get_object_or_404(Review, id=review_id, course=course)
+    
+    # Check if user already reported this review
+    if ReviewReport.objects.filter(review=review, user=request.user).exists():
+        messages.warning(request, "You have already reported this review.")
+        return redirect('reviews:course_detail', course_id=course_id)
+    
+    if request.method == "POST":
+        form = ReviewReportForm(request.POST)
+        if form.is_valid():
+            # Create the report
+            report = form.save(commit=False)
+            report.review = review
+            report.user = request.user
+            report.save()
+            
+            # Check if review should be archived based on report count
+            if review.report_count() >= 5 and not review.archived:
+                review.archived = True
+                review.save()
+            
+            return JsonResponse({'success': True, 'message': 'Thank you for your report. This review will be reviewed by our team.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'There was an error with your report. Please try again.'})
+    else:
+        form = ReviewReportForm()
+    
+    return render(request, 'reviews/report_review.html', {'form': form, 'review': review, 'course': course})
 
 
