@@ -9,6 +9,37 @@
 <style>
     /* Additional custom styles */
     /* General Layout and Container Styles */
+    body, html {
+        background-color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden !important;
+    }
+    
+    /* Override Bootstrap container styles */
+    .container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+        background-color: #000000 !important;
+        max-width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    /* Ensure all rows have no margins */
+    .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+    }
+    
+    /* Ensure all columns have black backgrounds */
+    [class*="col-"] {
+        background-color: #000000 !important;
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+    
     .review-container {
         background-color: #1a1a1a !important;
         border-radius: 8px;
@@ -80,12 +111,25 @@
         padding: 15px;
         margin-bottom: 20px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        width: 100%;
     }
 
     .container-main {
         background-color: #000000 !important;
         color: #ffffff;
         font-weight: 100;
+        padding: 0;
+        max-width: 100%;
+        margin: 0;
+    }
+    
+    .row {
+        margin: 0;
+        width: 100%;
+    }
+    
+    .col-md-8.offset-md-2 {
+        background-color: #000000 !important;
     }
 
     /* Typography and Text Styles */
@@ -476,6 +520,34 @@
     .btn-outline-none.report-btn:hover {
         color: #dc3545;
         background: transparent;
+    }
+
+    /* Modal and Toast styling */
+    .modal-content {
+        background-color: #1a1a1a !important;
+        color: #f1f1f1 !important;
+    }
+    
+    .modal-header, .modal-footer {
+        border-color: #333 !important;
+    }
+    
+    .toast {
+        background-color: #1a1a1a !important;
+        color: #f1f1f1 !important;
+    }
+    
+    .toast-header {
+        background-color: #000000 !important;
+        color: #f1f1f1 !important;
+        border-color: #333 !important;
+    }
+    
+    /* Fix for any potential Bootstrap container margins */
+    .container, .container-fluid {
+        background-color: #000000 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
 
 </style>
