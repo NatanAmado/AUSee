@@ -289,4 +289,9 @@ def report_review(request, course_id, review_id):
     
     return render(request, 'reviews/report_review.html', {'form': form, 'review': review, 'course': course})
 
+def about(request):
+    """Display the about page with information about the site and moderation system"""
+    # No login required for the about page
+    return render(request, 'reviews/about.html')
+
 

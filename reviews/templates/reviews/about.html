@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .about-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px;
+        background-color: #000000;
+        color: #ffffff;
+    }
+    
+    .about-header {
+        font-family: PF Fuel Grime;
+        color: #dba309;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .about-section {
+        margin-bottom: 40px;
+    }
+    
+    .about-section h2 {
+        font-family: PF Fuel Grime;
+        color: #dba309;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+    }
+    
+    .about-section p {
+        margin-bottom: 15px;
+        line-height: 1.6;
+    }
+    
+    .feature-box {
+        background-color: #1a1a1a;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .feature-box h3 {
+        color: #dba309;
+        margin-bottom: 15px;
+        font-size: 1.4rem;
+    }
+    
+    .feature-box ul {
+        padding-left: 20px;
+    }
+    
+    .feature-box li {
+        margin-bottom: 10px;
+    }
+    
+    .highlight {
+        color: #dba309;
+        font-weight: bold;
+    }
+    
+    .moderation-diagram {
+        width: 100%;
+        max-width: 600px;
+        margin: 20px auto;
+        display: block;
+        background-color: #1a1a1a;
+        padding: 15px;
+        border-radius: 8px;
+    }
+</style>
+
+<div class="about-container">
+    <h1 class="about-header">About AUSee</h1>
+    
+    <div class="about-section">
+        <h2>Our Mission</h2>
+        <p>
+            AUSee is a community-driven platform designed specifically for students at Amsterdam University College. 
+            Our mission is to provide a transparent, helpful, and student-centered space where AUC students can share 
+            their experiences with courses, discuss academic topics, and make informed decisions about their education.
+        </p>
+        <p>
+            We believe in the power of collective knowledge and peer-to-peer support. By sharing reviews, 
+            insights, and engaging in meaningful discussions, students can help each other navigate their 
+            academic journey more effectively.
+        </p>
+    </div>
+    
+    <div class="about-section">
+        <h2>Key Features</h2>
+        
+        <div class="feature-box">
+            <h3>Course Reviews</h3>
+            <p>
+                Read and write detailed reviews of courses at AUC. Each review includes:
+            </p>
+            <ul>
+                <li>Overall course rating</li>
+                <li>Detailed feedback on course content and structure</li>
+                <li>Information about teachers and teaching quality</li>
+                <li>The ability to filter reviews by year</li>
+            </ul>
+        </div>
+        
+        <div class="feature-box">
+            <h3>Discussion Forum</h3>
+            <p>
+                Engage with fellow students in our topic-based discussion forum:
+            </p>
+            <ul>
+                <li>Create and participate in discussions organized by topics</li>
+                <li>Share insights, ask questions, and provide answers</li>
+                <li>Sort posts by recency or popularity</li>
+                <li>Comment on posts to continue the conversation</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="about-section">
+        <h2>Decentralized Moderation System</h2>
+        <p>
+            What makes AUSee unique is our <span class="highlight">decentralized, community-based moderation system</span>. 
+            Instead of relying solely on administrators to monitor content, we empower the community to 
+            collectively maintain the quality and integrity of the platform.
+        </p>
+        
+        <div class="feature-box">
+            <h3>How Our Moderation Works</h3>
+            <p>Our system is built on three key mechanisms:</p>
+            
+            <h4>1. Upvote/Downvote System</h4>
+            <p>
+                Every review and forum post can be upvoted or downvoted by users:
+            </p>
+            <ul>
+                <li>Upvotes indicate that content is helpful, constructive, and valuable</li>
+                <li>Downvotes indicate that content is unhelpful, inaccurate, or inappropriate</li>
+                <li>Content is sorted based on net votes (upvotes minus downvotes), ensuring the most valuable contributions are more visible</li>
+                <li>Posts with a significant negative score (10 more downvotes than upvotes) are automatically archived</li>
+            </ul>
+            
+            <h4>2. Flagging System</h4>
+            <p>
+                Users can flag content that violates our community guidelines:
+            </p>
+            <ul>
+                <li>Flag reviews, posts, or topics that contain inappropriate content, false information, spam, etc.</li>
+                <li>When flagging, users provide a reason for the report</li>
+                <li>Content that receives multiple flags (5 or more) is automatically archived</li>
+                <li>For courses, only user-added courses can be reported - verified courses from the official curriculum cannot be flagged</li>
+            </ul>
+            
+            <h4>3. Archiving System</h4>
+            <p>
+                Content that doesn't meet community standards is archived rather than deleted:
+            </p>
+            <ul>
+                <li>Archived content is still visible to administrators and staff</li>
+                <li>Regular users cannot see archived content</li>
+                <li>Archiving preserves the record while protecting the community from inappropriate content</li>
+                <li>Users cannot vote on or reply to archived content</li>
+            </ul>
+            
+            <!-- Visual Diagram of the Moderation System -->
+            <div class="text-center mt-4 mb-4">
+                <h4>Moderation Flow Diagram</h4>
+                <svg class="moderation-diagram" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Background -->
+                    <rect width="800" height="400" fill="#1a1a1a" rx="10" ry="10"/>
+                    
+                    <!-- Content Creation Box -->
+                    <rect x="50" y="50" width="200" height="80" rx="5" ry="5" fill="#2c3034" stroke="#dba309" stroke-width="2"/>
+                    <text x="150" y="90" text-anchor="middle" fill="#ffffff" font-size="16">Content Creation</text>
+                    <text x="150" y="110" text-anchor="middle" fill="#cccccc" font-size="12">Reviews, Posts, Comments</text>
+                    
+                    <!-- Community Moderation Box -->
+                    <rect x="300" y="50" width="200" height="300" rx="5" ry="5" fill="#2c3034" stroke="#dba309" stroke-width="2"/>
+                    <text x="400" y="80" text-anchor="middle" fill="#ffffff" font-size="16">Community Moderation</text>
+                    
+                    <!-- Upvote/Downvote Section -->
+                    <rect x="320" y="100" width="160" height="70" rx="5" ry="5" fill="#1a1a1a" stroke="#28a745" stroke-width="1"/>
+                    <text x="400" y="125" text-anchor="middle" fill="#ffffff" font-size="14">Upvote/Downvote</text>
+                    <text x="400" y="145" text-anchor="middle" fill="#cccccc" font-size="10">10+ net downvotes</text>
+                    <text x="400" y="160" text-anchor="middle" fill="#cccccc" font-size="10">triggers archiving</text>
+                    
+                    <!-- Flagging Section -->
+                    <rect x="320" y="190" width="160" height="70" rx="5" ry="5" fill="#1a1a1a" stroke="#dc3545" stroke-width="1"/>
+                    <text x="400" y="215" text-anchor="middle" fill="#ffffff" font-size="14">Flagging System</text>
+                    <text x="400" y="235" text-anchor="middle" fill="#cccccc" font-size="10">5+ flags triggers</text>
+                    <text x="400" y="250" text-anchor="middle" fill="#cccccc" font-size="10">automatic archiving</text>
+                    
+                    <!-- Admin Review Section -->
+                    <rect x="320" y="280" width="160" height="50" rx="5" ry="5" fill="#1a1a1a" stroke="#17a2b8" stroke-width="1"/>
+                    <text x="400" y="310" text-anchor="middle" fill="#ffffff" font-size="14">Admin Review</text>
+                    
+                    <!-- Outcome Box -->
+                    <rect x="550" y="50" width="200" height="300" rx="5" ry="5" fill="#2c3034" stroke="#dba309" stroke-width="2"/>
+                    <text x="650" y="80" text-anchor="middle" fill="#ffffff" font-size="16">Outcomes</text>
+                    
+                    <!-- Visible Content Section -->
+                    <rect x="570" y="100" width="160" height="70" rx="5" ry="5" fill="#1a1a1a" stroke="#28a745" stroke-width="1"/>
+                    <text x="650" y="125" text-anchor="middle" fill="#ffffff" font-size="14">Visible Content</text>
+                    <text x="650" y="145" text-anchor="middle" fill="#cccccc" font-size="10">Helpful, constructive</text>
+                    <text x="650" y="160" text-anchor="middle" fill="#cccccc" font-size="10">content remains visible</text>
+                    
+                    <!-- Archived Content Section -->
+                    <rect x="570" y="190" width="160" height="70" rx="5" ry="5" fill="#1a1a1a" stroke="#dc3545" stroke-width="1"/>
+                    <text x="650" y="215" text-anchor="middle" fill="#ffffff" font-size="14">Archived Content</text>
+                    <text x="650" y="235" text-anchor="middle" fill="#cccccc" font-size="10">Hidden from regular users</text>
+                    <text x="650" y="250" text-anchor="middle" fill="#cccccc" font-size="10">Record is kept</text>
+                    
+                    <!-- Arrows -->
+                    <!-- Content Creation to Community Moderation -->
+                    <path d="M 250 90 L 300 90" stroke="#dba309" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                    
+                    <!-- Community Moderation to Outcomes -->
+                    <path d="M 500 135 L 550 135" stroke="#28a745" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                    <path d="M 500 225 L 550 225" stroke="#dc3545" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                    
+                    <!-- Arrow Definitions -->
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#dba309"/>
+                        </marker>
+                    </defs>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="feature-box">
+            <h3>Benefits of Decentralized Moderation</h3>
+            <ul>
+                <li><strong>Community Ownership:</strong> Students have a direct role in maintaining the quality of the platform</li>
+                <li><strong>Scalability:</strong> As the community grows, moderation scales automatically</li>
+                <li><strong>Rapid Response:</strong> Problematic content can be addressed quickly without waiting for administrator action</li>
+                <li><strong>Collective Intelligence:</strong> The wisdom of the crowd helps identify valuable content and filter out unhelpful contributions</li>
+                <li><strong>Transparency:</strong> Clear rules and automated processes ensure fair treatment of all content</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="about-section">
+        <h2>Our Values</h2>
+        <p>
+            AUSee is built on the following core values:
+        </p>
+        <ul>
+            <li><strong>Authenticity:</strong> We encourage honest, thoughtful sharing of experiences</li>
+            <li><strong>Respect:</strong> All members of our community deserve to be treated with respect</li>
+            <li><strong>Helpfulness:</strong> Content should aim to be constructive and beneficial to others</li>
+            <li><strong>Transparency:</strong> Clear processes and open communication are essential</li>
+            <li><strong>Community:</strong> We're stronger when we work together and support each other</li>
+        </ul>
+    </div>
+    
+    <div class="about-section">
+        <h2>Join Our Community</h2>
+        <p>
+            AUSee is made by students, for students. We invite you to:
+        </p>
+        <ul>
+            <li>Share your course experiences through detailed reviews</li>
+            <li>Participate in forum discussions</li>
+            <li>Help moderate content through voting and flagging</li>
+            <li>Provide feedback on how we can improve the platform</li>
+        </ul>
+        <p>
+            Together, we can create a valuable resource that benefits all AUC students, present and future.
+        </p>
+    </div>
+    
+    <div class="about-section">
+        <h2>Contact Us</h2>
+        <p>
+            If you'd like to become a moderator, or have questions, suggestions, or need assistance? We'd love to hear from you!
+        </p>
+        <div class="feature-box">
+            <h3>Email</h3>
+            <p>
+                <a href="mailto:contact@ausee.courses" class="highlight">contact@ausee.courses</a>
+            </p>
+            <p>
+                We aim to respond to all inquiries within 48 hours. Your feedback helps us improve AUSee for everyone.
+            </p>
+        </div>
+    </div>
+    
+    <div class="about-section">
+        <h2>Disclaimer</h2>
+        <div class="feature-box">
+            <p>
+                <strong>AUSee is an independent platform created by students.</strong> We have no official ties with Amsterdam University College or any related institutions. This website is not affiliated with, endorsed by, or sponsored by AUC or its parent universities.
+            </p>
+            <p>
+                We hold no legal responsibility for the content posted by users on this platform. Reviews, comments, and forum posts represent the personal opinions of individual users and not those of AUSee, Amsterdam University College, or any affiliated institutions.
+            </p>
+            <p>
+                While we strive to maintain a helpful and accurate platform through our community moderation system, we cannot guarantee the accuracy, completeness, or reliability of any content posted by users.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %} 
