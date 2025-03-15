@@ -239,30 +239,14 @@
                 </li>
                 {% else %}
                 <li class="nav-item">
+                  <a class="nav-link" href="{% url 'reviews:about' %}">About</a>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link" href="{% url 'users:login' %}">Login</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'users:register' %}">Register</a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'feedback:form' %}">Survey</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'reviews:about' %}">About</a>
-                  </li>
-                   <!-- So I'm going to comment out this because I don't believe there should be 
-                    a feedback form that only the superusers can see. It's more in line with the
-                    mission of the website for feature requests to be submitted in GitHub and 
-                    issues with the site to be posted and discussed openly in the Forum. 
-
-                  However, I will not get rid of the functionality for now, in case a new solution
-                  is found that allows users to submit feedback and suggestions openly. 
-
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'feedback:feedback_list' %}">Feedback</a>
-                </li>
-                -->
-                  
                 {% endif %}
               </ul>
             </div>

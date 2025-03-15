@@ -10,6 +10,7 @@ from .models import Topic, Post, Comment, Vote, TopicReport, PostReport
 from .forms import TopicForm, PostForm, CommentForm, TopicDescriptionForm, TopicReportForm, PostReportForm
 from django import forms
 
+@login_required
 def forum_home(request):
     """Display the forum homepage with a list of topics"""
     topics = Topic.objects.all()
@@ -28,6 +29,7 @@ def forum_home(request):
     }
     return render(request, 'forum/home.html', context)
 
+@login_required
 def topic_list(request):
     """Display a list of all topics"""
     topics = Topic.objects.all()
@@ -64,6 +66,7 @@ def create_topic(request):
     }
     return render(request, 'forum/topic_form.html', context)
 
+@login_required
 def topic_detail(request, topic_id):
     """Display a topic and its posts"""
     topic = get_object_or_404(Topic, id=topic_id)
@@ -228,6 +231,7 @@ def edit_post(request, post_id):
     }
     return render(request, 'forum/post_form.html', context)
 
+@login_required
 def post_detail(request, post_id):
     """Display a post and its comments"""
     post = get_object_or_404(Post, id=post_id)
@@ -387,6 +391,7 @@ def vote_post(request, post_id):
             'message': 'Error processing vote'
         })
 
+@login_required
 def search_forum(request):
     """Search for posts and topics"""
     query = request.GET.get('q', '')

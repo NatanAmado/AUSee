@@ -11,7 +11,7 @@ from django.contrib import messages
 # Create your views here.
 
 
-
+@login_required
 def course_list(request):
     query = request.GET.get('q')
     
