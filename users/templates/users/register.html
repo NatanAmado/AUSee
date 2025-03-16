@@ -76,6 +76,22 @@
         color: #aaa;
         margin-top: 5px;
     }
+    
+    .terms-privacy {
+        font-size: 0.9em;
+        color: #aaa;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    
+    .terms-privacy a {
+        color: #dba309;
+        text-decoration: none;
+    }
+    
+    .terms-privacy a:hover {
+        text-decoration: underline;
+    }
 </style>
 
 <div class="register-container">
@@ -84,10 +100,12 @@
         {% csrf_token %}
         {{ form.as_p }}
         <div class="form-group">
-            <p>
+            <div class="terms-privacy">
                 By registering, you agree to the 
-                <a href="{% static 'tou.pdf' %}" target="_blank" style="color: #dba309;">Terms of Use</a>.
-            </p>
+                <a href="{% static 'Terms of Use for AUSee.pdf' %}" target="_blank">Terms of Use</a>
+                and
+                <a href="{% static 'Privacy Policy for AUSee.pdf' %}" target="_blank">Privacy Policy</a>.
+            </div>
             <button type="submit" class="btn btn-primary">Register</button>
         </div>
     </form>
