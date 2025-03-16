@@ -104,6 +104,22 @@ def course_detail(request, course_id):
             review__in=reviews
         ).values_list('review_id', flat=True))
     
+    # Get user votes for reviews
+    user_votes = {}
+    user_upvoted_reviews = set()
+    user_downvoted_reviews = set()
+    if request.user.is_authenticated:
+        user_vote_objects = ReviewVote.objects.filter(
+            user=request.user,
+            review__in=reviews
+        )
+        for vote in user_vote_objects:
+            user_votes[vote.review_id] = 'upvote' if vote.is_upvote else 'downvote'
+            if vote.is_upvote:
+                user_upvoted_reviews.add(vote.review_id)
+            else:
+                user_downvoted_reviews.add(vote.review_id)
+    
     # Initialize reply form
     reply_form = ReviewReplyForm()
     
@@ -149,6 +165,9 @@ def course_detail(request, course_id):
         'available_years': available_years,
         'user_reported': user_reported,
         'reported_reviews': reported_reviews,
+        'user_votes': user_votes,
+        'user_upvoted_reviews': user_upvoted_reviews,
+        'user_downvoted_reviews': user_downvoted_reviews,
         'is_staff_or_superuser': request.user.is_superuser or request.user.is_staff
     }
 

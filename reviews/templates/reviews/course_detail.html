@@ -332,14 +332,23 @@
 
     .up-arrow {
         border-width: 0 5px 8px 5px;
-        border-color: transparent transparent #4CAF50 transparent; /* Green arrow pointing up */
+        border-color: transparent transparent #808080 transparent; /* Gray arrow pointing up by default */
         margin-left: 5px;
     }
 
     .down-arrow {
         border-width: 8px 5px 0 5px;
-        border-color: #f44336 transparent transparent transparent; /* Red arrow pointing down */
+        border-color: #808080 transparent transparent transparent; /* Gray arrow pointing down by default */
         margin-left: 5px;
+    }
+
+    /* Colored arrows for when the user has voted */
+    .up-arrow.voted {
+        border-color: transparent transparent #4CAF50 transparent; /* Green arrow pointing up */
+    }
+
+    .down-arrow.voted {
+        border-color: #f44336 transparent transparent transparent; /* Red arrow pointing down */
     }
 
     .vote-count {
@@ -348,8 +357,13 @@
     }
 
     /* Hover effect for the buttons */
-    .btn-upvote:hover .up-arrow,
+    .btn-upvote:hover .up-arrow {
+        border-color: transparent transparent #4CAF50 transparent; /* Green on hover */
+        opacity: 0.8;
+    }
+
     .btn-downvote:hover .down-arrow {
+        border-color: #f44336 transparent transparent transparent; /* Red on hover */
         opacity: 0.8;
     }
 
@@ -660,11 +674,11 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="review_id" value="{{ review.id }}">
                                     <button type="submit" name="vote" value="upvote" class="btn btn-upvote" title="Was this review constructive?">
-                                        <span class="vote-arrow up-arrow"></span>
+                                        <span class="vote-arrow up-arrow {% if review.id in user_upvoted_reviews %}voted{% endif %}"></span>
                                     </button>
                                     <span class="vote-count">{{ review.net_votes }}</span>
                                     <button type="submit" name="vote" value="downvote" class="btn btn-downvote" title="Was this review unhelpful?">
-                                        <span class="vote-arrow down-arrow"></span>
+                                        <span class="vote-arrow down-arrow {% if review.id in user_downvoted_reviews %}voted{% endif %}"></span>
                                     </button>
                                 </form>
                             </div>
