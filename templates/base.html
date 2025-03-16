@@ -37,9 +37,14 @@
             min-height: 100%;
             display: flex;
             flex-direction: column;
+            background-color: black;
         }
         main {
             flex: 1;
+            background-color: black;
+        }
+        .container {
+            background-color: black !important;
         }
         .footer {
             background-color: #000000;
@@ -112,9 +117,10 @@
             max-width: 400px;
             margin: 0 auto;
             padding: 20px;
-            border: 1px solid #ddd;
+            border: 1px solid #333;
             border-radius: 5px;
-            background-color: #f9f9f9;
+            background-color: #000000;
+            color: #ffffff;
         }
 
         .register-form .form-group {
@@ -127,11 +133,16 @@
             font-weight: bold;
         }
 
-        .register-form input[type="text"], .register-form input[type="password"] {
+        .register-form input[type="text"], 
+        .register-form input[type="email"], 
+        .register-form input[type="password"],
+        .register-form select {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #444;
             border-radius: 4px;
+            background-color: #1a1a1a;
+            color: #ffffff;
         }
 
         .login-link {
@@ -254,7 +265,7 @@
         </nav>
       </header>
 
-<main class="container mt-5">
+<main class="container mt-5" style="background-color: #000000;">
     {% if messages %}
     <div class="messages">
         {% for message in messages %}

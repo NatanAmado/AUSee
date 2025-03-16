@@ -2,9 +2,82 @@
 
 {% load static %}
 
-
-
 {% block content %}
+<style>
+    body, html, main, .container {
+        background-color: #000000 !important;
+    }
+    
+    .register-container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #000000;
+        color: #ffffff;
+        border-radius: 5px;
+        border: 1px solid #333;
+    }
+
+    .register-form .form-group {
+        margin-bottom: 15px;
+    }
+
+    .register-form input[type="text"],
+    .register-form input[type="email"],
+    .register-form input[type="password"],
+    .register-form select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #444;
+        border-radius: 4px;
+        background-color: #1a1a1a;
+        color: #ffffff;
+        box-sizing: border-box;
+    }
+
+    .register-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .btn-primary {
+        background-color: #dba309;
+        color: #000000;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .btn-primary:hover {
+        background-color: #c79000;
+    }
+
+    .login-link {
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .login-link a {
+        color: #dba309;
+        text-decoration: none;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+
+    /* Fix for the help text */
+    .helptext {
+        display: block;
+        font-size: 0.8em;
+        color: #aaa;
+        margin-top: 5px;
+    }
+</style>
+
 <div class="register-container">
     <h2>Register</h2>
     <form method="post" class="register-form">
@@ -13,7 +86,7 @@
         <div class="form-group">
             <p>
                 By registering, you agree to the 
-                <a href="{% static 'tou.pdf' %}" target="_blank">Terms of Use</a>.
+                <a href="{% static 'tou.pdf' %}" target="_blank" style="color: #dba309;">Terms of Use</a>.
             </p>
             <button type="submit" class="btn btn-primary">Register</button>
         </div>

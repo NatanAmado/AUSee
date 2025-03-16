@@ -6,6 +6,10 @@ from django.core.exceptions import ValidationError
 
 class CustomUserCreationForm(UserCreationForm):
     major = forms.ChoiceField(choices=MAJOR_CHOICES)
+    email = forms.EmailField(
+        label="Student Email",
+        widget=forms.EmailInput(attrs={'placeholder': 'your.name@student.auc.nl'})
+    )
 
     class Meta:
         model = CustomUser
