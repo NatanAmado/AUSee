@@ -1,6 +1,5 @@
 # users/tokens.py
 
-import six
 import hashlib
 import time
 from datetime import datetime, timedelta
@@ -41,7 +40,11 @@ class SimpleTokenGenerator:
         """
         try:
             # Split token into timestamp and hash
-            timestamp_str, hash_part = token.split('-')
+            parts = token.split('-')
+            if len(parts) != 2:
+                return False
+                
+            timestamp_str, hash_part = parts
             timestamp = int(timestamp_str)
             
             # Check if token has expired
@@ -62,7 +65,11 @@ class SimpleTokenGenerator:
             
             # Compare the first 20 chars of the hash
             return token_hash[:20] == hash_part
-        except (ValueError, TypeError, AttributeError):
+        except (ValueError, TypeError, AttributeError) as e:
+            # Log the error for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Token validation error: {str(e)}, token: {token}, user: {user.username}")
             return False
         
     def __str__(self):
