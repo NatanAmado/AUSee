@@ -35,12 +35,23 @@ def activate(request, uidb64, token):
             user.is_active = True
             user.save()
             logger.info(f"User {user.username} (ID: {uid}) activated successfully")
-            messages.success(request, 'Your account has been activated successfully! You can now log in.')
-            return redirect('users:login')
+            messages.success(request, 'Your account has been activated successfully!')
+            
+            # Automatically log in the user
+            login(request, user)
+            
+            # Redirect to courses page instead of login
+            return redirect('reviews:course_list')
         else:
             logger.info(f"User {user.username} (ID: {uid}) is already active")
-            messages.info(request, 'Your account is already active. You can log in.')
-            return redirect('users:login')
+            messages.info(request, 'Your account is already active.')
+            
+            # Automatically log in the user if they're not already logged in
+            if not request.user.is_authenticated:
+                login(request, user)
+                
+            # Redirect to courses page
+            return redirect('reviews:course_list')
     else:
         if user is not None:
             logger.warning(f"Invalid token for user {user.username} (ID: {uid})")
