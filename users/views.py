@@ -13,6 +13,10 @@ from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # activate
 def activate(request, uidb64, token):
@@ -20,15 +24,30 @@ def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        logger.info(f"Attempting to activate user with ID: {uid}")
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
         user = None
+        logger.error(f"Error decoding user ID or finding user: {str(e)}")
+    
     if user is not None and account_activation_token.check_token(user, token): 
-        user.is_active = True
-        user.save()
-        messages.success(request, 'Your account has been activated successfully!')
-        return render(request, 'users/activation_success.html')
+        # Only activate if not already active
+        if not user.is_active:
+            user.is_active = True
+            user.save()
+            logger.info(f"User {user.username} (ID: {uid}) activated successfully")
+            messages.success(request, 'Your account has been activated successfully! You can now log in.')
+            return redirect('users:login')
+        else:
+            logger.info(f"User {user.username} (ID: {uid}) is already active")
+            messages.info(request, 'Your account is already active. You can log in.')
+            return redirect('users:login')
     else:
-        messages.error(request, 'Activation link is invalid or has expired!')
+        if user is not None:
+            logger.warning(f"Invalid token for user {user.username} (ID: {uid})")
+        else:
+            logger.warning(f"Activation attempt with invalid user ID: {uidb64}")
+        
+        messages.error(request, 'Activation link is invalid or has expired! Please register again or contact support.')
         return redirect('users:login')
 
 
@@ -38,7 +57,7 @@ def register(request):
         
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active=False
+            user.is_active = False
             
             # Fix for the sequence issue - get the max ID and increment it
             User = get_user_model()
@@ -48,6 +67,7 @@ def register(request):
                 user.id = max_id.id + 1
             
             user.save()
+            logger.info(f"New user registered: {user.username} (ID: {user.id})")
             
             current_site = get_current_site(request)
             mail_subject = 'Activate your AUSee account.'
@@ -59,10 +79,6 @@ def register(request):
             # Use HTTPS for production domains
             protocol = 'https' if not current_site.domain.startswith('127.0.0.1') else 'http'
             activation_link = f"{protocol}://{current_site.domain}/users/activate/{uid}/{token}/"
-            
-            # Don't store activation link in session for production
-            if current_site.domain.startswith('127.0.0.1'):
-                request.session['activation_link'] = activation_link
             
             email_message = render_to_string('users/acc_active_email.html', {
                 'user': user,
@@ -76,10 +92,19 @@ def register(request):
                         mail_subject, email_message, to=[to_email]
             )
             email.content_subtype = "html"  # Set the content type as HTML
-            email.send()
-            messages.success(request, f'Account created successfully! Please check your email ({to_email}) to activate your account. Check your spam folder if you don\'t see it.')
-            login(request, user)
-            return redirect('users:login')
+            
+            try:
+                email.send()
+                logger.info(f"Activation email sent to {to_email}")
+                messages.success(request, f'Account created successfully! Please check your email ({to_email}) to activate your account. Check your spam folder if you don\'t see it.')
+                
+                return redirect('users:login')
+            except Exception as e:
+                logger.error(f"Failed to send activation email: {str(e)}")
+                messages.error(request, 'Failed to send activation email. Please try again or contact support.')
+                # Delete the user if email sending fails
+                user.delete()
+                return render(request, 'users/register.html', {'form': form})
     else:
         form = CustomUserCreationForm()
     return render(request, 'users/register.html', {'form': form})

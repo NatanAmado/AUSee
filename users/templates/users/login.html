@@ -26,44 +26,9 @@
     .makeyellow {
         color: #dba309;
     }
-    
-    .activation-box {
-        background-color: #17a2b8;
-        color: white;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 30px;
-        text-align: center;
-        max-width: 600px;
-        width: 100%;
-    }
-    
-    .activation-box h3 {
-        color: #dba309;
-        margin-bottom: 15px;
-    }
-    
-    .activation-link {
-        background-color: #dba309;
-        color: black;
-        padding: 10px 15px;
-        border-radius: 4px;
-        display: inline-block;
-        margin: 10px 0;
-        font-weight: bold;
-        text-decoration: none;
-    }
-    
-    .activation-link:hover {
-        background-color: #c79000;
-    }
 </style>
 
 <div class="login-container">
-    {% if request.session.activation_link %}
-   
-    {% endif %}
-
     <h2 class="makeyellow">Login</h2>
     <form method="post" class="login-form">
         {% csrf_token %}
@@ -78,7 +43,7 @@
 </div>
 
 <!-- Email Verification Modal -->
-{% if messages %}
+{% if show_verification_modal %}
 <div class="modal fade" id="emailVerificationModal" tabindex="-1" aria-labelledby="emailVerificationModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">

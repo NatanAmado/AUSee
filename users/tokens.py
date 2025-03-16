@@ -1,12 +1,20 @@
 # users/tokens.py
 
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+import six
 
 class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
-        # This method will return a hash value that includes the user's primary key and the timestamp.
-        # The hash will change if the user's `is_active` status changes, which will invalidate the token
-        # after the account is activated.
-        return str(user.pk) + str(timestamp) + str(user.is_active)
+        """
+        Create a hash value that includes the user's primary key, timestamp, and email.
+        This ensures the token is unique to the user and doesn't change unless the user's
+        email or active status changes.
+        """
+        return (
+            six.text_type(user.pk) + 
+            six.text_type(timestamp) + 
+            six.text_type(user.is_active) +
+            six.text_type(user.email)
+        )
 
 account_activation_token = AccountActivationTokenGenerator()
