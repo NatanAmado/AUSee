@@ -38,12 +38,17 @@ class CourseForm(forms.ModelForm):
         }
 
 class ReviewReplyForm(forms.ModelForm):
+    is_anonymous = forms.BooleanField(
+        required=False,
+        initial=True,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    
     class Meta:
         model = ReviewReply
         fields = ['text', 'is_anonymous']
         widgets = {
             'text': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write your reply here...', 'class': 'form-control'}),
-            'is_anonymous': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         labels = {
             'text': 'Reply:',

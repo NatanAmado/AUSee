@@ -128,7 +128,7 @@ class ReviewReply(models.Model):
     text = models.TextField()
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
-    is_anonymous = models.BooleanField(default=False)
+    is_anonymous = models.BooleanField(default=True)
     
     def save(self, *args, **kwargs):
         # Clean the reply text before saving
