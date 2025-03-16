@@ -34,9 +34,14 @@ def activate(request, uidb64, token):
         user = User.objects.get(pk=uid)
         logger.info(f"Found user: {user.username} (ID: {uid}, is_active: {user.is_active})")
         
-        # Check if the token is valid
-        is_valid = account_activation_token.check_token(user, token)
-        logger.info(f"Token valid: {is_valid}")
+        # Special case for superusers - always allow activation
+        if user.is_superuser:
+            logger.info(f"Superuser {user.username} (ID: {uid}) detected, bypassing token check")
+            is_valid = True
+        else:
+            # Check if the token is valid for regular users
+            is_valid = account_activation_token.check_token(user, token)
+            logger.info(f"Token valid: {is_valid}")
         
         if is_valid:
             # Only activate if not already active
@@ -62,15 +67,6 @@ def activate(request, uidb64, token):
                 # Redirect to courses page
                 return redirect('reviews:course_list')
         else:
-            # For superusers, always activate regardless of token
-            if user.is_superuser and not user.is_active:
-                user.is_active = True
-                user.save()
-                login(request, user)
-                logger.info(f"Superuser {user.username} (ID: {uid}) activated despite invalid token")
-                messages.success(request, 'Your superuser account has been activated!')
-                return redirect('reviews:course_list')
-                
             logger.warning(f"Invalid token for user {user.username} (ID: {uid})")
             messages.error(request, 'Activation link is invalid or has expired! Please register again or contact support.')
             return redirect('users:login')
