@@ -1,71 +1,25 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<style>
-    .activation-container {
-        max-width: 600px;
-        margin: 3rem auto;
-        padding: 2rem;
-        text-align: center;
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    .success-icon {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 1.5rem;
-        background-color: #4CAF50;
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 40px;
-        font-weight: bold;
-    }
-    
-    .activation-title {
-        color: #333;
-        margin-bottom: 1.5rem;
-        font-size: 28px;
-    }
-    
-    .activation-message {
-        color: #555;
-        font-size: 16px;
-        line-height: 1.6;
-        margin-bottom: 2rem;
-    }
-    
-    .action-button {
-        display: inline-block;
-        padding: 10px 20px;
-        margin: 0 10px;
-        background-color: #dba309;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        transition: background-color 0.3s;
-    }
-    
-    .action-button:hover {
-        background-color: #c79000;
-    }
-</style>
-
-<div class="activation-container">
-    <div class="success-icon">✓</div>
-    <h1 class="activation-title">Account Activated!</h1>
-    <p class="activation-message">
-        Congratulations! Your AUSee account has been successfully activated. 
-        You are now ready to explore course reviews or share your own experiences in our anonymous forum.
-    </p>
-    <div>
-        <a href="{% url 'forum:index' %}" class="action-button">Go to Forum</a>
-        <a href="{% url 'reviews:course_list' %}" class="action-button">Browse Courses</a>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">Account Activated!</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <p>Congratulations! Your AUSee account has been successfully activated. 
+                        You are now logged in and ready to explore course reviews or share your own experiences in our anonymous forum.</p>
+                    </div>
+                    <div class="d-flex justify-content-center mt-4">
+                        <a href="/forum/" class="btn btn-primary mx-2">Go to Forum</a>
+                        <a href="{% url 'reviews:course_list' %}" class="btn btn-primary mx-2">Browse Courses</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %} 
