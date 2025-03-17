@@ -1,24 +1,79 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Account Activated!</h3>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-success">
-                        <p>Congratulations! Your AUSee account has been successfully activated. 
-                        You are now logged in and ready to explore course reviews or share your own experiences in our anonymous forum.</p>
-                    </div>
-                    <div class="d-flex justify-content-center mt-4">
-                        <a href="/forum/" class="btn btn-primary mx-2">Go to Forum</a>
-                        <a href="{% url 'reviews:course_list' %}" class="btn btn-primary mx-2">Browse Courses</a>
-                    </div>
-                </div>
-            </div>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    
+    body {
+        line-height: 1.6;
+        color: #333;
+        background-color: #000000;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        width: 70%;
+        margin: auto;
+        overflow-y: auto;
+        color: #5f5e5e;
+    }
+    .success-card {
+        background: #000000;
+        padding: 20px;
+        margin-top: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    .success-header {
+        color: #dba309;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 1.8em;
+        font-family: 'PF Fuel';
+        line-height: 1.4;
+        padding: 20px 0;
+    }
+    .success-message {
+        font-size: 18px;
+        color: #a3a3a3;
+        text-align: center;
+    }
+    .btn-custom {
+        background-color: #dba309;
+        border: none;
+        color: #000000;
+        padding: 8px 16px;
+        margin: 0 10px;
+    }
+    .btn-custom:hover {
+        background-color: #b88a07;
+        color: #000000;
+    }
+    @media only screen and (max-width: 600px) {
+        .container {
+            width: 100%;
+            padding: 20px;
+        }
+        .success-card {
+            margin: 0;
+            padding: 15px;
+        }
+        .success-header {
+            font-size: 1.4em;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="success-card">
+        <h3 class="success-header">🎉 Account Activated! ⭐</h3>
+        <div class="success-message">
+            <p>🌟 Congratulations! Your AUSee account has been successfully activated. 
+            You are now logged in and ready to explore course reviews or share your own experiences in our anonymous forum! 🚀</p>
+        </div>
+        <div class="d-flex justify-content-center mt-4">
+            <a href="/forum/" class="btn btn-custom">💬 Go to Forum</a>
+            <a href="{% url 'reviews:course_list' %}" class="btn btn-custom">📚 Browse Courses</a>
         </div>
     </div>
 </div>
