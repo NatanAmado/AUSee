@@ -16,13 +16,14 @@ from django.http import HttpResponse
 import logging
 import traceback
 from django.conf import settings
+from django.contrib.auth import views as auth_views
 
 # Set up logging
 logger = logging.getLogger(__name__)
 
 # activate
 def activate(request, uidb64, token):
-    User = get_user_model()
+    User = get_user_class()
     try:
         # Log the activation attempt with all details
         logger.info(f"Activation attempt with uidb64={uidb64}, token={token}")
@@ -146,6 +147,9 @@ def register(request):
                 logger.info(f"Activation email sent to {to_email}")
                 messages.success(request, f'Account created successfully! Please check your email ({to_email}) to activate your account. Check your spam folder if you don\'t see it.')
                 
+                # Add a session variable to show the verification modal
+                request.session['show_verification_modal'] = True
+                
                 return redirect('users:login')
             except Exception as e:
                 logger.error(f"Failed to send activation email: {str(e)}")
@@ -156,6 +160,16 @@ def register(request):
     else:
         form = CustomUserCreationForm()
     return render(request, 'users/register.html', {'form': form})
+
+
+class CustomLoginView(auth_views.LoginView):
+    template_name = 'users/login.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Check if we should show the verification modal
+        context['show_verification_modal'] = self.request.session.pop('show_verification_modal', False)
+        return context
 
 
 
