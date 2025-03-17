@@ -34,17 +34,27 @@ def activate(request, uidb64, token):
             logger.info(f"Decoded UID: {uid}")
         except Exception as e:
             logger.error(f"Failed to decode UID: {str(e)}, uidb64: {uidb64}")
+            logger.error(f"Raw uidb64 value: '{uidb64}'")
             messages.error(request, 'Invalid activation link format. Please try registering again.')
             return redirect('users:login')
         
         # Get the user
         try:
             user = User.objects.get(pk=uid)
-            logger.info(f"Found user: {user.username} (ID: {uid}, is_active: {user.is_active})")
+            logger.info(f"Found user: {user.username} (ID: {uid}, is_active: {user.is_active}, email: {user.email})")
         except User.DoesNotExist:
             logger.error(f"User with ID {uid} not found")
+            # Check if any users exist at all
+            all_users = User.objects.all()
+            logger.error(f"Total users in database: {all_users.count()}")
+            if all_users.count() > 0:
+                logger.error(f"Example user IDs: {list(all_users.values_list('id', flat=True)[:5])}")
             messages.error(request, 'User does not exist. The account may have been deleted or the activation link is invalid.')
             return redirect('users:login')
+        
+        # More detailed token check
+        is_token_valid = account_activation_token.check_token(user, token)
+        logger.info(f"Token valid: {is_token_valid}, token: {token}")
         
         # In production, always activate the user regardless of token
         # This is a temporary measure until we can debug the token issue in production
@@ -57,8 +67,12 @@ def activate(request, uidb64, token):
             is_valid = True
         else:
             # Check if the token is valid for regular users in development
-            is_valid = account_activation_token.check_token(user, token)
-            logger.info(f"Token valid: {is_valid}")
+            try:
+                is_valid = account_activation_token.check_token(user, token)
+                logger.info(f"Token valid: {is_valid}")
+            except Exception as e:
+                logger.error(f"Token validation error: {str(e)}")
+                is_valid = False
         
         if is_valid:
             user.is_active = True

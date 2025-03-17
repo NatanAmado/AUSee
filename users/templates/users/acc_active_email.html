@@ -88,7 +88,7 @@
             <p>You're just one click away from joining our community of students sharing their experiences to help others make informed decisions about their courses.</p>
             
             <p style="text-align: center; color: #ffffff;">
-                <a href="{{ protocol }}://{{ domain }}/users/activate/{{ uid }}/{{ token }}/" class="button">ACTIVATE MY ACCOUNT</a>
+                <a href="{{ protocol }}://{{ domain }}{% url 'users:activate' uidb64=uid token=token %}">Activate Account</a>
             </p>
             
             <p class="note">This link will expire in 24 hours for security reasons.</p>
