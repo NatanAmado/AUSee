@@ -25,6 +25,6 @@ class CustomUserCreationForm(UserCreationForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if not email.endswith('@student.auc.nl'):
-            raise ValidationError("Email must end with '@student.auc.nl'")
+        if not email.endswith('@student.auc.nl' or '@student.uva.nl' or '@student.vu.nl'):
+            raise ValidationError("It should be a AUC, UVA or VU student email")
         return email
