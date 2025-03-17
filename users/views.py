@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 # activate
 def activate(request, uidb64, token):
-    User = get_user_class()
+    User = get_user_model()
     try:
         # Log the activation attempt with all details
         logger.info(f"Activation attempt with uidb64={uidb64}, token={token}")
@@ -61,31 +61,15 @@ def activate(request, uidb64, token):
             logger.info(f"Token valid: {is_valid}")
         
         if is_valid:
-            # Only activate if not already active
-            if not user.is_active:
-                user.is_active = True
-                user.save()
-                logger.info(f"User {user.username} (ID: {uid}) activated successfully")
-                messages.success(request, 'Your account has been activated successfully!')
-                
-                # Automatically log in the user
-                login(request, user)
-                
-                # Redirect to courses page instead of login
-                return redirect('reviews:course_list')
-            else:
-                logger.info(f"User {user.username} (ID: {uid}) is already active")
-                messages.info(request, 'Your account is already active.')
-                
-                # Automatically log in the user if they're not already logged in
-                if not request.user.is_authenticated:
-                    login(request, user)
-                    
-                # Redirect to courses page
-                return redirect('reviews:course_list')
+            user.is_active = True
+            user.save()
+            logger.info(f"User {user.username} successfully activated")
+            
+            # Return success template instead of redirecting to login
+            return render(request, 'users/activation_success.html')
         else:
-            logger.warning(f"Invalid token for user {user.username} (ID: {uid})")
-            messages.error(request, 'Activation link is invalid or has expired! Please register again or contact support.')
+            logger.error(f"Invalid token for user {user.username}")
+            messages.error(request, 'Activation link is invalid or has expired. Please try registering again.')
             return redirect('users:login')
     except Exception as e:
         logger.error(f"Unexpected error during activation: {str(e)}")
