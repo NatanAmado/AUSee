@@ -55,10 +55,10 @@
     <h1 class="activation-title">Account Activated!</h1>
     <p class="activation-message">
         Congratulations! Your AUSee account has been successfully activated. 
-        You can now log in and start exploring course reviews or share your own experiences.
+        You are now logged in and ready to explore course reviews or share your own experiences in our anonymous forum.
     </p>
     <div>
-        <a href="{% url 'users:login' %}" class="action-button">Log In Now</a>
+        <a href="{% url 'forum:index' %}" class="action-button">Go to Forum</a>
         <a href="{% url 'reviews:course_list' %}" class="action-button">Browse Courses</a>
     </div>
 </div>
