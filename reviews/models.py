@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, connection
 from profanity import profanity
 from users.models import CustomUser
 import math
@@ -83,6 +83,16 @@ class Review(models.Model):
     def downvote_count(self):
         return self.reviewvote_set.filter(is_upvote=False).count()
 
+    @classmethod
+    def reset_sequence(cls):
+        """Reset the PostgreSQL sequence for the Review model's primary key."""
+        cursor = connection.cursor()
+        table_name = cls._meta.db_table
+        cursor.execute(f"""
+            SELECT setval(pg_get_serial_sequence('{table_name}', 'id'), 
+                          (SELECT MAX(id) FROM {table_name})+1);
+        """)
+        
     def save(self, *args, **kwargs):
         # Clean the review text before saving
         self.text = profanity.censor(self.text)
