@@ -124,6 +124,15 @@ def course_detail(request, course_id):
     reply_form = ReviewReplyForm()
     
     if request.method == "POST":
+        # Check if this is a delete request
+        if 'delete_review' in request.POST:
+            review_id = request.POST.get('review_id')
+            review_to_delete = get_object_or_404(Review, id=review_id, user=request.user)
+            review_to_delete.delete()
+            # Redirect to the same page after deletion
+            return redirect('reviews:course_detail', course_id=course_id)
+            
+        # Otherwise handle the review creation code
         form = ReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
