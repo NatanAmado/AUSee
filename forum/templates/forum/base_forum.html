@@ -111,7 +111,7 @@
     <div class="row mb-3">
         <div class="col-md-12">
             <h1 class="forum-title">
-                <a href="{% url 'forum:home' %}">The AUC Forum</a>
+                <a href="{% url 'forum:home' university_college=university_college %}">The {{ university_college|upper }} Forum</a>
             </h1>
         </div>
     </div>
@@ -121,7 +121,7 @@
         <div class="col-md-12">
             <div class="card bg-dark text-light">
                 <div class="card-body">
-                    <form action="{% url 'forum:search' %}" method="get" class="d-flex">
+                    <form action="{% url 'forum:search' university_college=university_college %}" method="get" class="d-flex">
                         <div class="input-group">
                             <input type="text" name="q" class="form-control custom-input" placeholder="Search forum...">
                             <button type="submit" class="btn btn-warning">Search</button>
@@ -143,6 +143,9 @@
 
 <!-- Forum JavaScript -->
 <script>
+    // Store the university_college value for use in fetch requests
+    const university_college = "{{ university_college }}";
+    
     // Function to handle voting
     async function vote(postId, voteType) {
         console.log(`Attempting to vote ${voteType} on post ${postId}`);
@@ -174,7 +177,7 @@
             formData.append('vote_type', voteType);
             
             // Send the vote request
-            const response = await fetch(`/forum/posts/${postId}/vote/`, {
+            const response = await fetch(`/${university_college}/forum/posts/${postId}/vote/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrfToken,

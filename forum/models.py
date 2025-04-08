@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 import math
 from datetime import timedelta
+from users.models import UNIVERSITY_COLLEGE_CHOICES
 
 class Topic(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -11,6 +12,7 @@ class Topic(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_topics')
     is_archived = models.BooleanField(default=False)
+    university_college = models.CharField(max_length=4, choices=UNIVERSITY_COLLEGE_CHOICES, default='auc')
     
     def __str__(self):
         return self.name
@@ -40,6 +42,7 @@ class Topic(models.Model):
     
     class Meta:
         ordering = ['name']
+        unique_together = ['name', 'university_college']  # Name only needs to be unique within a university college
 
 class TopicReport(models.Model):
     REPORT_REASONS = [

@@ -47,12 +47,12 @@
             {% endfor %}
             <button type="submit" class="btn btn-warning">{% if post %}Update Post{% else %}Create Post{% endif %}</button>
             {% if post %}
-            <a href="{% url 'forum:post_detail' post.id %}" class="btn btn-secondary">Cancel</a>
+            <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}" class="btn btn-secondary">Cancel</a>
             {% else %}
                 {% if topic %}
-                <a href="{% url 'forum:topic_detail' topic.id %}" class="btn btn-secondary">Cancel</a>
+                <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=topic.id %}" class="btn btn-secondary">Cancel</a>
                 {% else %}
-                <a href="{% url 'forum:home' %}" class="btn btn-secondary">Cancel</a>
+                <a href="{% url 'forum:home' university_college=university_college %}" class="btn btn-secondary">Cancel</a>
                 {% endif %}
             {% endif %}
         </form>

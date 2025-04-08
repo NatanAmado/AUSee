@@ -269,14 +269,14 @@
 <div class="container">
 
   <!-- Search Form -->
-  <form method="get" action="{% url 'reviews:course_list' %}" class="search-form">
+  <form action="{% url 'reviews:course_list' university_college=university_college %}" method="get" class="search-form">
     <input type="text" name="q" class="search-input" placeholder="Search courses..." value="{{ request.GET.q }}">
     <button type="submit" class="search-button">Search</button>
   </form>
 
   <!-- Position the "Add a course" link next to the search button -->
   <div class="text-center mb-3">
-    <a href="{% url 'reviews:add_course' %}" class="add-course-link" style="font-size: 0.9em; color: #dba309; text-decoration: underline;">Add a course</a>
+    <a href="{% url 'reviews:add_course' university_college=university_college %}" class="add-course-link" style="font-size: 0.9em; color: #dba309; text-decoration: underline;">Add a course</a>
   </div>
 
   <!-- Course Levels -->
@@ -299,7 +299,7 @@
 
   <!-- Then add the empty results message AFTER the filters but before the course cards -->
   <div id="no-results-message" style="display: none;" class="text-center my-4">
-    <p>Is your course not listed? <a href="{% url 'reviews:add_course' %}" style="color: #dba309; font-weight: bold;">Add it!</a></p>
+    <p>Is your course not listed? <a href="{% url 'reviews:add_course' university_college=university_college %}" style="color: #dba309; font-weight: bold;">Add it!</a></p>
   </div>
 
   <div class="row">
@@ -321,7 +321,7 @@
           </p>
 
           <p class="descrip">{{ course.description|truncatechars:100 }}</p>
-          <a href="{% url 'reviews:course_detail' course.id %}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;View
+          <a href="{% url 'reviews:course_detail' university_college=university_college course_id=course.id %}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;View
             Reviews&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
         </div>
       </div>
@@ -348,7 +348,7 @@
           </p>
 
           <p class="descrip">{{ course.description|truncatechars:100 }}</p>
-          <a href="{% url 'reviews:course_detail' course.id %}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;View
+          <a href="{% url 'reviews:course_detail' university_college=university_college course_id=course.id %}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;View
             Reviews&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
         </div>
       </div>
@@ -375,7 +375,7 @@
           </p>
 
           <p class="descrip">{{ course.description|truncatechars:100 }}</p>
-          <a href="{% url 'reviews:course_detail' course.id %}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;View
+          <a href="{% url 'reviews:course_detail' university_college=university_college course_id=course.id %}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;View
             Reviews&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
         </div>
       </div>

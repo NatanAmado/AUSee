@@ -44,7 +44,7 @@
                         </div>
                         
                         <div class="d-flex justify-content-between">
-                            <a href="{% url 'forum:post_detail' post.id %}" class="btn btn-secondary">Cancel</a>
+                            <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}" class="btn btn-secondary">Cancel</a>
                             <button type="submit" class="btn btn-danger">Submit Report</button>
                         </div>
                     </form>

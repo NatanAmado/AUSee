@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_home.html" %}
 {% load static %}
 
 
@@ -82,17 +82,51 @@
   padding: 0px;
 }
 
+.college-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.college-button {
+  flex: 0 0 30%;
+  max-width: 200px;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: #1a1a1a;
+  color: #dba309;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.college-button:hover {
+  background-color: #dba309;
+  color: #000000;
+  transform: translateY(-3px);
+}
+
 @media screen and (max-width: 768px) {
     .image1 {
         display: none;
     }
+    .college-button {
+        flex: 0 0 45%;
+    }
 }
 
+@media screen and (max-width: 480px) {
+    .college-button {
+        flex: 0 0 100%;
+    }
+}
 
 </style>
 
 <div class="welcome-container">
-  <h2 class="ausee-text">AUSee the Unseen<span></span>...</h2>
+  <h2 class="ausee-text">See the Unseen<span></span>...</h2>
 
   <p class="lead-text">
     Discover insights about university courses through student reviews.
@@ -102,10 +136,16 @@
     Anonymously share your experiences and learn from others. Your name won't be displayed, ensuring honest feedback without reservations.
   </p>
 
+  <div class="college-buttons">
+    {% for code, name in university_colleges %}
+    <a href="/{{ code }}/courses/" class="college-button">{{ name }}</a>
+    {% endfor %}
+  </div>
+
   <div class="action-buttons">
-    <a href="{% url 'users:login' %}" class="btn btn-primary btn-lg w-50">Log In</a>
+    <a href="/users/login/" class="btn btn-primary btn-lg w-50">Log In</a>
     <p class="spacer">    </p>
-    <a href="{% url 'users:register' %}" class="btn btn-secondary btn-lg w-50">Register</a>
+    <a href="/users/register/" class="btn btn-secondary btn-lg w-50">Register</a>
   </div>
 </div>
 

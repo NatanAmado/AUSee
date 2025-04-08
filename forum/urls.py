@@ -3,6 +3,8 @@ from . import views
 
 app_name = 'forum'
 
+# The university_college parameter is captured from the parent URL pattern
+# in CourseReviews1/urls.py and passed to each view
 urlpatterns = [
     path('', views.forum_home, name='home'),
     path('topics/', views.topic_list, name='topic_list'),

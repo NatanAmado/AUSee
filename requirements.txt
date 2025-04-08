@@ -1,1 +1,11 @@
-asgiref==3.7.2\ndj-database-url==2.1.0\nDjango==4.2.7\ndjango-jazzmin==2.6.0\nprofanity==1.1\npsycopg==3.1.12\nsqlparse==0.4.4\ntyping_extensions==4.9.0\ntzdata==2023.3\nwhitenoise==6.6.0\npython-dotenv==1.0.0
+asgiref==3.7.2
+dj-database-url==2.1.0
+Django==4.2.7
+django-jazzmin==2.6.0
+profanity==1.1
+psycopg==3.1.12
+sqlparse==0.4.4
+typing_extensions==4.9.0
+tzdata==2023.3
+whitenoise==6.6.0
+python-dotenv==1.0.0

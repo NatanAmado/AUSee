@@ -1,0 +1,91 @@
+{% extends "base_home.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+.selection-container {
+  margin: 5% auto;
+  text-align: center;
+  padding: 30px;
+  background-color: #000000;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  color: #ffffff;
+  max-width: 700px;
+}
+
+.title {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: #dba309;
+}
+
+.college-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.college-card {
+  flex: 0 0 45%;
+  max-width: 280px;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: #1a1a1a;
+  color: #dba309;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.college-card:hover {
+  background-color: #dba309;
+  color: #000000;
+  transform: translateY(-5px);
+}
+
+.college-name {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.college-location {
+  font-size: 0.9em;
+  color: #999;
+}
+
+@media screen and (max-width: 768px) {
+  .college-card {
+    flex: 0 0 100%;
+  }
+}
+</style>
+
+<div class="selection-container">
+  <h1 class="title">Select Your University College to {{ action_type|title }}</h1>
+  
+  <p class="lead">
+    {% if action_type == 'login' %}
+    Please select the university college you want to log in to.
+    {% else %}
+    Please select the university college you want to register for.
+    {% endif %}
+  </p>
+  
+  <div class="college-grid">
+    {% for code, name in university_colleges %}
+    <a href="/{{ code }}/users/{% if action_type == 'login' %}login{% else %}register{% endif %}/" class="college-card">
+      <div class="college-name">{{ name }}</div>
+    </a>
+    {% endfor %}
+  </div>
+  
+  <div class="mt-4">
+    <a href="/" class="btn btn-outline-secondary">Back to Home</a>
+  </div>
+</div>
+{% endblock %} 
