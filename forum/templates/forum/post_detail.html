@@ -128,7 +128,7 @@
         <!-- Comment Form -->
         <form method="post" action="{% url 'forum:add_comment' university_college=university_college post_id=post.id %}" class="mb-4">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ comment_form.as_p }}
             <button type="submit" class="btn btn-primary">Add Comment</button>
         </form>
         {% elif post.is_archived %}

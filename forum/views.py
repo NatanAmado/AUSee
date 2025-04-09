@@ -84,7 +84,12 @@ def create_topic(request, university_college):
 @login_required
 def topic_detail(request, university_college, topic_id):
     """Display a topic and its posts"""
-    topic = get_object_or_404(Topic, id=topic_id, university_college=university_college)
+    topic = get_object_or_404(
+        Topic.objects.filter(
+            Q(university_college=university_college) | Q(is_global=True)
+        ),
+        id=topic_id
+    )
     
     # Redirect regular users if the topic is archived
     if topic.is_archived and not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
@@ -131,7 +136,12 @@ def topic_detail(request, university_college, topic_id):
 @login_required
 def edit_topic_description(request, university_college, topic_id):
     """Allow any user to edit a topic's description"""
-    topic = get_object_or_404(Topic, id=topic_id, university_college=university_college)
+    topic = get_object_or_404(
+        Topic.objects.filter(
+            Q(university_college=university_college) | Q(is_global=True)
+        ),
+        id=topic_id
+    )
     
     if request.method == 'POST':
         form = TopicDescriptionForm(request.POST, instance=topic)
@@ -153,7 +163,12 @@ def edit_topic_description(request, university_college, topic_id):
 @login_required
 def report_topic(request, university_college, topic_id):
     """Allow users to report a topic"""
-    topic = get_object_or_404(Topic, id=topic_id, university_college=university_college)
+    topic = get_object_or_404(
+        Topic.objects.filter(
+            Q(university_college=university_college) | Q(is_global=True)
+        ),
+        id=topic_id
+    )
     
     # Don't allow reporting already archived topics
     if topic.is_archived:
@@ -202,7 +217,12 @@ def create_post(request, university_college, topic_id=None):
     initial = {}
     topic = None
     if topic_id:
-        topic = get_object_or_404(Topic, id=topic_id, university_college=university_college)
+        topic = get_object_or_404(
+            Topic.objects.filter(
+                Q(university_college=university_college) | Q(is_global=True)
+            ),
+            id=topic_id
+        )
         initial['topic'] = topic
     
     if request.method == 'POST':
@@ -210,18 +230,25 @@ def create_post(request, university_college, topic_id=None):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            # Ensure the topic belongs to the correct university college
+            # Ensure the topic belongs to the correct university college or is global
             topic = form.cleaned_data.get('topic')
-            if topic.university_college != university_college:
+            if topic.university_college != university_college and not topic.is_global:
                 messages.error(request, 'Invalid topic selection.')
                 return redirect('forum:home', university_college=university_college)
+            
+            # For global topics, save the author's university college
+            if topic.is_global:
+                post.author_university_college = request.user.university_college
+                
             post.save()
             messages.success(request, 'Post created successfully!')
             return redirect('forum:post_detail', university_college=university_college, post_id=post.id)
     else:
         form = PostForm(initial=initial)
-        # Filter topics by university_college
-        form.fields['topic'].queryset = Topic.objects.filter(university_college=university_college)
+        # Filter topics to include both university-specific and global topics
+        form.fields['topic'].queryset = Topic.objects.filter(
+            Q(university_college=university_college) | Q(is_global=True)
+        )
     
     context = {
         'form': form,
@@ -233,7 +260,12 @@ def create_post(request, university_college, topic_id=None):
 @login_required
 def edit_post(request, university_college, post_id):
     """Edit an existing post"""
-    post = get_object_or_404(Post, id=post_id, topic__university_college=university_college)
+    post = get_object_or_404(
+        Post.objects.filter(
+            Q(topic__university_college=university_college) | Q(topic__is_global=True)
+        ),
+        id=post_id
+    )
     
     # Only allow the author to edit the post
     if post.author != request.user:
@@ -249,7 +281,9 @@ def edit_post(request, university_college, post_id):
     else:
         form = PostForm(instance=post)
         # Filter topics by university_college
-        form.fields['topic'].queryset = Topic.objects.filter(university_college=university_college)
+        form.fields['topic'].queryset = Topic.objects.filter(
+            Q(university_college=university_college) | Q(is_global=True)
+        )
     
     context = {
         'form': form,
@@ -262,7 +296,12 @@ def edit_post(request, university_college, post_id):
 @login_required
 def post_detail(request, university_college, post_id):
     """Display a post and its comments"""
-    post = get_object_or_404(Post, id=post_id, topic__university_college=university_college)
+    post = get_object_or_404(
+        Post.objects.filter(
+            Q(topic__university_college=university_college) | Q(topic__is_global=True)
+        ),
+        id=post_id
+    )
     
     # Redirect regular users if the post is archived
     if post.is_archived and not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
@@ -301,7 +340,13 @@ def post_detail(request, university_college, post_id):
 @require_POST
 def add_comment(request, university_college, post_id):
     """Add a comment to a post"""
-    post = get_object_or_404(Post, id=post_id, topic__university_college=university_college)
+    post = get_object_or_404(
+        Post.objects.filter(
+            Q(topic__university_college=university_college) | Q(topic__is_global=True)
+        ),
+        id=post_id
+    )
+    
     parent_id = request.POST.get('parent_id')
     
     form = CommentForm(request.POST)
@@ -329,7 +374,12 @@ def add_comment(request, university_college, post_id):
 @require_POST
 def vote_post(request, university_college, post_id):
     """Handle upvoting and downvoting of posts"""
-    post = get_object_or_404(Post, id=post_id, topic__university_college=university_college)
+    post = get_object_or_404(
+        Post.objects.filter(
+            Q(topic__university_college=university_college) | Q(topic__is_global=True)
+        ),
+        id=post_id
+    )
     vote_type = request.POST.get('vote_type')
     
     if vote_type not in ['upvote', 'downvote']:
@@ -427,10 +477,10 @@ def search_forum(request, university_college):
     posts = Post.objects.none()
     
     if query:
-        # Filter by university_college for all searches
+        # Filter by university_college for all searches, include global topics
         if search_type == 'topics' or search_type == 'all':
             topics = Topic.objects.filter(
-                university_college=university_college,
+                Q(university_college=university_college) | Q(is_global=True),
                 name__icontains=query
             )
             # Only show non-archived topics to regular users
@@ -438,10 +488,10 @@ def search_forum(request, university_college):
                 topics = topics.filter(is_archived=False)
         
         if search_type == 'posts' or search_type == 'all':
-            # Filter posts by both title and content
+            # Filter posts by both title and content, include posts in global topics
             posts = Post.objects.filter(
                 Q(title__icontains=query) | Q(content__icontains=query),
-                topic__university_college=university_college
+                Q(topic__university_college=university_college) | Q(topic__is_global=True)
             )
             # Only show non-archived posts to regular users
             if not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
@@ -459,7 +509,12 @@ def search_forum(request, university_college):
 @login_required
 def report_post(request, university_college, post_id):
     """Allow users to report a post"""
-    post = get_object_or_404(Post, id=post_id, topic__university_college=university_college)
+    post = get_object_or_404(
+        Post.objects.filter(
+            Q(topic__university_college=university_college) | Q(topic__is_global=True)
+        ),
+        id=post_id
+    )
     
     # Don't allow reporting already archived posts
     if post.is_archived:
@@ -500,7 +555,12 @@ def report_post(request, university_college, post_id):
 @login_required
 def create_post_in_topic(request, university_college, topic_id):
     """Create a new post in a specific topic"""
-    topic = get_object_or_404(Topic, id=topic_id)
+    topic = get_object_or_404(
+        Topic.objects.filter(
+            Q(university_college=university_college) | Q(is_global=True)
+        ),
+        id=topic_id
+    )
     
     # Redirect regular users if the topic is archived
     if topic.is_archived and not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
