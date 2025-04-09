@@ -186,8 +186,21 @@ class CustomLoginView(auth_views.LoginView):
         return context
     
     def get_success_url(self):
-        university_college = self.kwargs.get('university_college')
-        return f'/{university_college}/courses/'
+        # Get the university_college from the URL
+        url_university_college = self.kwargs.get('university_college')
+        # Get the user's university_college
+        user_university_college = self.request.user.university_college
+        
+        # Staff and superusers can access any university college
+        if self.request.user.is_staff or self.request.user.is_superuser:
+            return f'/{url_university_college}/courses/'
+        
+        # Regular users are redirected to their own university college
+        if url_university_college != user_university_college:
+            messages.warning(self.request, f"You've been redirected to your university college's page ({user_university_college.upper()}).")
+            return f'/{user_university_college}/courses/'
+        
+        return f'/{url_university_college}/courses/'
 
 
 def custom_logout(request, university_college):
