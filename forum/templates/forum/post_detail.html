@@ -90,6 +90,9 @@
                 <br>
                 {% if not post.is_anonymous %}
                 By: {{ post.author.username }}
+                {% if post.topic.is_global %}
+                <span class="badge bg-secondary">{{ post.author.university_college|upper }}</span>
+                {% endif %}
                 {% else %}
                 By: Anonymous
                 {% endif %}

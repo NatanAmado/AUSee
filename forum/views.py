@@ -17,18 +17,19 @@ def forum_home(request, university_college):
     # Verify university_college is valid
     university_college_check(request, university_college)
     
-    topics = Topic.objects.filter(university_college=university_college)
+    # Query topics for this university college OR global topics
+    topics = Topic.objects.filter(Q(university_college=university_college) | Q(is_global=True))
     
     # Only show non-archived topics to regular users
     if not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
         topics = topics.filter(is_archived=False)
         recent_posts = Post.objects.filter(
-            topic__university_college=university_college, 
+            Q(topic__university_college=university_college) | Q(topic__is_global=True), 
             is_archived=False
         ).order_by('-created_at')[:5]
     else:
         recent_posts = Post.objects.filter(
-            topic__university_college=university_college
+            Q(topic__university_college=university_college) | Q(topic__is_global=True)
         ).order_by('-created_at')[:5]
     
     context = {
@@ -42,13 +43,14 @@ def forum_home(request, university_college):
 @login_required
 def topic_list(request, university_college):
     """Display a list of all topics"""
-    topics = Topic.objects.filter(university_college=university_college)
+    # Include both university-specific topics and global topics
+    topics = Topic.objects.filter(Q(university_college=university_college) | Q(is_global=True))
     
     # Only show non-archived topics to regular users
     if not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
         topics = topics.filter(is_archived=False)
     
-    topics = topics.order_by('name')
+    topics = topics.order_by('-is_global', 'name')
     
     context = {
         'topics': topics,
@@ -494,3 +496,39 @@ def report_post(request, university_college, post_id):
         'university_college': university_college
     }
     return render(request, 'forum/report_post.html', context)
+
+@login_required
+def create_post_in_topic(request, university_college, topic_id):
+    """Create a new post in a specific topic"""
+    topic = get_object_or_404(Topic, id=topic_id)
+    
+    # Redirect regular users if the topic is archived
+    if topic.is_archived and not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
+        messages.warning(request, "This topic has been archived and is not available for posting.")
+        return redirect('forum:home', university_college=university_college)
+    
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.topic = topic
+            
+            # For global topics, posts should have the author's university college
+            if topic.is_global:
+                post.author_university_college = request.user.university_college
+                
+            post.save()
+            messages.success(request, 'Post created successfully!')
+            return redirect('forum:post_detail', university_college=university_college, post_id=post.id)
+    else:
+        form = PostForm(initial={'topic': topic})
+        form.fields['topic'].widget = forms.HiddenInput()
+    
+    context = {
+        'form': form,
+        'topic': topic,
+        'title': 'Create New Post',
+        'university_college': university_college
+    }
+    return render(request, 'forum/post_form.html', context)

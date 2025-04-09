@@ -33,6 +33,9 @@
                                 {% if is_staff_or_superuser and topic.is_archived %}
                                 <span class="archived-badge">Archived</span>
                                 {% endif %}
+                                {% if topic.is_global %}
+                                <span class="badge bg-warning text-dark">Global</span>
+                                {% endif %}
                             </a>
                         </h5>
                         <p class="card-text text-muted">{{ topic.description }}</p>

@@ -56,39 +56,49 @@
     }
 </style>
 
-<div class="card bg-dark text-light mb-4 {% if topic.is_archived %}border-danger{% endif %}">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="mb-0">{{ topic.name }}{% if topic.is_archived %} <span class="badge bg-danger ms-2">Archived</span>{% endif %}</h3>
-        <div class="btn-group">
-            {% if user.is_authenticated and not topic.is_archived %}
-            <a href="{% url 'forum:edit_topic_description' university_college=university_college topic_id=topic.id %}" class="btn ms-2" style="color: white; transition: color 0.3s;" onmouseover="this.style.color='#ffc107'" onmouseout="this.style.color='white'">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
-                </svg>
-                <span class="visually-hidden">Edit Description</span>
-            </a>
-            <a href="{% url 'forum:report_topic' university_college=university_college topic_id=topic.id %}" class="btn ms-2" style="color: white; transition: color 0.3s;" onmouseover="this.style.color='#dc3545'" onmouseout="this.style.color='white'">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
-                </svg>
-                <span class="visually-hidden">Report Topic</span>
-                {% if is_staff_or_superuser %}
-                <span class="ms-1 badge bg-danger">{{ topic.report_count }}</span>
-                {% endif %}
-            </a>
-            {% if is_staff_or_superuser and topic.is_archived %}
-            <span class="btn ms-2 disabled" style="color: white;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
-                </svg>
-                <span class="visually-hidden">Topic Reports</span>
-                <span class="ms-1 badge bg-danger">{{ topic.report_count }}</span>
-            </span>
-            {% endif %}
-            {% endif %}
-        </div>
-    </div>
+<!-- Topic Information -->
+<div class="card mb-4 bg-dark text-light {% if topic.is_global %}global-topic-header{% endif %}">
     <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h2 class="card-title {% if topic.is_global %}global-topic-title{% endif %}">
+                {{ topic.name }}
+                {% if topic.is_global %}
+                <span class="global-badge">Global Discussion</span>
+                {% endif %}
+                {% if is_staff_or_superuser and topic.is_archived %}
+                <span class="badge bg-danger ms-2">Archived</span>
+                {% endif %}
+            </h2>
+            <!-- Edit and Report buttons -->
+            <div class="btn-group">
+                {% if user.is_authenticated and not topic.is_archived %}
+                <a href="{% url 'forum:edit_topic_description' university_college=university_college topic_id=topic.id %}" class="btn ms-2" style="color: white; transition: color 0.3s;" onmouseover="this.style.color='#ffc107'" onmouseout="this.style.color='white'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                    </svg>
+                    <span class="visually-hidden">Edit Description</span>
+                </a>
+                <a href="{% url 'forum:report_topic' university_college=university_college topic_id=topic.id %}" class="btn ms-2" style="color: white; transition: color 0.3s;" onmouseover="this.style.color='#dc3545'" onmouseout="this.style.color='white'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
+                    </svg>
+                    <span class="visually-hidden">Report Topic</span>
+                    {% if is_staff_or_superuser %}
+                    <span class="ms-1 badge bg-danger">{{ topic.report_count }}</span>
+                    {% endif %}
+                </a>
+                {% if is_staff_or_superuser and topic.is_archived %}
+                <span class="btn ms-2 disabled" style="color: white;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
+                    </svg>
+                    <span class="visually-hidden">Topic Reports</span>
+                    <span class="ms-1 badge bg-danger">{{ topic.report_count }}</span>
+                </span>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
         <p class="text-muted">{{ topic.description }}</p>
         <div class="text-muted small">
             Created by: {{ topic.created_by.username|default:"Anonymous" }}
@@ -119,16 +129,33 @@
 <!-- Posts List -->
 <div class="posts-list">
     {% for post in posts %}
-    <div class="card mb-4 bg-dark text-light {% if post.is_archived %}border-danger{% else %}border-secondary{% endif %}" id="post-{{ post.id }}">
-        <div class="card-body">
+    <div class="card mb-4 bg-dark text-light post-card" id="post-{{ post.id }}">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h4 class="card-title">
                 <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}" class="text-light text-decoration-none">
                     {{ post.title }}
                 </a>
-                {% if post.is_archived %}
+                {% if is_staff_or_superuser and post.is_archived %}
                 <span class="badge bg-danger ms-2">Archived</span>
                 {% endif %}
             </h4>
+            <div class="post-meta text-muted">
+                {% if not post.is_anonymous %}
+                <span class="author">By: {{ post.author.username }}</span>
+                {% if topic.is_global %}
+                <span class="badge bg-secondary">{{ post.author.university_college|upper }}</span>
+                {% endif %}
+                {% else %}
+                <span class="author">Anonymous</span>
+                {% if topic.is_global %}
+                <span class="badge bg-secondary">{{ post.author.university_college|upper }}</span>
+                {% endif %}
+                {% endif %}
+                <br>
+                <span class="date">{{ post.created_at|date:"M d, Y" }}</span>
+            </div>
+        </div>
+        <div class="card-body">
             <p class="card-text">{{ post.content|linebreaks|truncatewords:100 }}</p>
             
             <div class="d-flex justify-content-between align-items-center">
