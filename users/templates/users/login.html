@@ -1,5 +1,19 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+<script>
+  // Script to change the logo link to homepage on login page only
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get the logo link (navbar-brand)
+    const logoLink = document.querySelector('a.navbar-brand');
+    if (logoLink) {
+      // Change the link to point to the home page
+      logoLink.href = '/';
+    }
+  });
+</script>
+{% endblock %}
+
 {% block content %}
 
 <style>
