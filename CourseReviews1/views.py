@@ -14,7 +14,10 @@ def homepage(request):
     
     # For anonymous users, show university college selection with filtered list
     context = {
-        'university_colleges': filtered_colleges
+        'university_colleges': filtered_colleges,
+        'university_college': 'auc',  # Default to AUC for navbar links
+        'show_full_navbar': True,     # Flag to ensure navbar is fully displayed
+        'hide_navbar': False          # Explicitly set to false
     }
     return render(request, 'homepage.html', context)
 

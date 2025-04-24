@@ -170,15 +170,6 @@ textarea.form-control {
     font-size: 0.875rem;
 }
 
-/* Enhanced archived styling */
-.card.border-danger {
-    box-shadow: 0 0 10px rgba(220, 53, 69, 0.3);
-}
-
-.bg-danger.bg-opacity-25 {
-    background-color: rgba(220, 53, 69, 0.25) !important;
-}
-
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; }
@@ -203,4 +194,90 @@ textarea.form-control {
         margin-left: 0.5rem;
         padding-left: 0.5rem;
     }
+}
+
+/* Topic and Post Title Links - Change from blue to gold */
+.card-title a {
+    color: #dba309 !important; /* Gold color */
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.card-title a:hover {
+    color: #ffffff !important; /* White on hover */
+    text-decoration: none;
+}
+
+/* Fix for any other text-light links that might be blue */
+.text-light {
+    color: #f8f9fa !important;
+}
+
+.text-light.text-decoration-none {
+    color: #dba309 !important;
+}
+
+.text-light.text-decoration-none:hover {
+    color: #ffffff !important;
+}
+
+/* For post detail and other text links */
+.card a.text-light {
+    color: #dba309 !important;
+}
+
+.card a.text-light:hover {
+    color: #ffffff !important;
+}
+
+/* Text-primary override if used anywhere */
+.text-primary {
+    color: #dba309 !important;
+}
+
+/* Override any other link colors in the forum */
+.posts-list a, .topic-list a {
+    color: #dba309;
+}
+
+.posts-list a:hover, .topic-list a:hover {
+    color: #ffffff;
+}
+
+/* Override blue links throughout the forum application */
+a, a.text-decoration-none, a.text-muted, a:link, a:visited {
+    color: #dba309 !important;
+    text-decoration: none;
+}
+
+a:hover, a.text-decoration-none:hover, a.text-muted:hover {
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+/* Specific fix for topic links */
+.topic-card h3 a, .post-item h4 a {
+    color: #dba309 !important;
+}
+
+.topic-card h3 a:hover, .post-item h4 a:hover {
+    color: #ffffff !important;
+}
+
+/* Fix for post meta links */
+.post-meta a {
+    color: #dba309 !important;
+}
+
+.post-meta a:hover {
+    color: #ffffff !important;
+}
+
+/* Fix for browse all topics link */
+.text-center .cta-button {
+    color: #dba309 !important;
+}
+
+.text-center .cta-button:hover {
+    color: #000000 !important;
 } 
