@@ -31,8 +31,7 @@
 }
 
 .welcome-container {
-  
-  margin: 5% auto;
+  margin: 2% auto;  /* Reduced from 5% to make more room for navbar */
   margin-bottom: 0px;
   margin-top: 0px;
   text-align: center;
@@ -123,6 +122,14 @@
     }
 }
 
+/* Ensure navbar is visible */
+.navbar {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 1030 !important;
+}
+
 </style>
 
 <div class="welcome-container">
@@ -142,12 +149,14 @@
     {% endfor %}
   </div>
 
+  <!-- Login/Register buttons only shown if they're not visible in the navbar -->
+  {% if hide_navbar %}
   <div class="action-buttons">
-    <!-- Use direct link to first university college -->
     <a href="/auc/users/login/" class="btn btn-primary btn-lg w-50">Log In</a>
     <p class="spacer">    </p>
     <a href="/auc/users/register/" class="btn btn-secondary btn-lg w-50">Register</a>
   </div>
+  {% endif %}
 </div>
 
 <a class="image1">
