@@ -1,0 +1,31 @@
+/* MAXIMUM GOLD LINK OVERRIDE FOR FORUM - NO EXCEPTIONS */
+a, a:link, a:visited, a:active,
+.navbar-nav a, .nav-link,
+#forum-content a, #navbarNav a,
+.topic-card a, .topic-card h3 a,
+.post-item a, .post-item h4 a,
+.post-meta a, .post-meta a:link,
+a.text-decoration-none, a.text-light, a.text-muted,
+.text-primary, a.text-primary,
+a[href*="forum"], [id*="forum"] a, [class*="forum"] a,
+a.badge, span.badge a {
+    color: #dba309 !important;
+    text-decoration: none !important;
+}
+
+a:hover, a:focus,
+#forum-content a:hover,
+.topic-card a:hover, .post-item a:hover,
+.nav-link:hover, #navbarNav a:hover {
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Make buttons still look like buttons */
+a.btn-primary, a.btn-secondary, a.btn-success, a.btn-danger, 
+a.btn-warning, a.btn-info, a.btn-light, a.btn-dark,
+button.btn-primary, button.btn-secondary, button.btn-success, 
+button.btn-danger, button.btn-warning, button.btn-info, 
+button.btn-light, button.btn-dark {
+    color: inherit !important;
+} 
