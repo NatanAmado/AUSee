@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="error-page">
+    <div class="glitch-container">
+        <h1 class="glitch" data-text="404">404</h1>
+    </div>
+    <h2 class="error-subtitle">Page Not Found</h2>
+    <p class="error-message">The page you are looking for has been archived, deleted, or never existed.</p>
+    <div class="error-illustration">
+        <div class="static"></div>
+        <div class="planet"></div>
+        <div class="spaceship"></div>
+        <div class="stars"></div>
+    </div>
+    <div class="actions">
+        <a href="/" class="cta-button">Back to Home</a>
+        <a href="/{{ university_college|default:'auc' }}/courses/" class="cta-button secondary">View Courses</a>
+    </div>
+</div>
+
+<style>
+    .error-page {
+        color: #fff;
+        text-align: center;
+        padding: 50px 20px;
+        min-height: 60vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .glitch-container {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .glitch {
+        font-size: 120px;
+        font-weight: bold;
+        color: #dba309;
+        letter-spacing: 10px;
+        position: relative;
+        text-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+        margin: 0;
+        animation: glitch 2s infinite;
+    }
+    
+    .glitch::before,
+    .glitch::after {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.8;
+    }
+    
+    .glitch::before {
+        color: #ff0000;
+        z-index: -1;
+        animation: glitch-effect 3s infinite;
+    }
+    
+    .glitch::after {
+        color: #00ffff;
+        z-index: -2;
+        animation: glitch-effect 2s infinite reverse;
+    }
+    
+    @keyframes glitch-effect {
+        0% {
+            transform: translate(0);
+        }
+        20% {
+            transform: translate(-3px, 3px);
+        }
+        40% {
+            transform: translate(-3px, -3px);
+        }
+        60% {
+            transform: translate(3px, 3px);
+        }
+        80% {
+            transform: translate(3px, -3px);
+        }
+        100% {
+            transform: translate(0);
+        }
+    }
+    
+    .error-subtitle {
+        font-size: 32px;
+        margin-bottom: 20px;
+        font-weight: 300;
+        color: #dba309;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .error-message {
+        font-size: 18px;
+        color: #ccc;
+        margin-bottom: 30px;
+        max-width: 600px;
+    }
+    
+    .error-illustration {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        margin: 30px 0;
+    }
+    
+    .static {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)),
+                    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        opacity: 0.1;
+        animation: staticAnimation 2s infinite;
+    }
+    
+    @keyframes staticAnimation {
+        0% { opacity: 0.1; }
+        50% { opacity: 0.2; }
+        100% { opacity: 0.1; }
+    }
+    
+    .stars {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+            radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
+            radial-gradient(1px 1px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+            radial-gradient(2px 2px at 160px 120px, #ffffff, rgba(0,0,0,0)),
+            radial-gradient(1px 1px at 200px 80px, #ffffff, rgba(0,0,0,0)),
+            radial-gradient(1px 1px at 300px 50px, #ffffff, rgba(0,0,0,0)),
+            radial-gradient(2px 2px at 350px 90px, #ffffff, rgba(0,0,0,0)),
+            radial-gradient(2px 2px at 400px 30px, #ffffff, rgba(0,0,0,0));
+        background-repeat: repeat;
+        background-size: 500px 500px;
+        animation: starsAnimation 100s linear infinite;
+    }
+    
+    @keyframes starsAnimation {
+        from { background-position: 0 0; }
+        to { background-position: 500px 500px; }
+    }
+    
+    .planet {
+        position: absolute;
+        top: 50%;
+        left: 30%;
+        transform: translateY(-50%);
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle at 30% 30%, #dba309, #664d0f);
+        border-radius: 50%;
+        box-shadow: 0 0 30px rgba(219, 163, 9, 0.3);
+    }
+    
+    .planet::after {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 20px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 50%;
+        filter: blur(4px);
+    }
+    
+    .spaceship {
+        position: absolute;
+        top: 50%;
+        right: 30%;
+        transform: translateY(-50%) rotate(45deg);
+        width: 60px;
+        height: 30px;
+        background-color: #b8b8b8;
+        clip-path: polygon(0% 50%, 20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%);
+        animation: spaceshipFloat 5s ease-in-out infinite;
+    }
+    
+    .spaceship::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: -10px;
+        transform: translateY(-50%);
+        width: 15px;
+        height: 8px;
+        background-color: #ff4d4d;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #ff4d4d;
+        animation: thruster 0.5s ease-in-out infinite alternate;
+    }
+    
+    @keyframes spaceshipFloat {
+        0%, 100% { transform: translateY(-50%) rotate(45deg) translateX(0); }
+        50% { transform: translateY(-60%) rotate(45deg) translateX(-20px); }
+    }
+    
+    @keyframes thruster {
+        from { box-shadow: 0 0 10px #ff4d4d; }
+        to { box-shadow: 0 0 20px #ff4d4d, 0 0 30px #ff4d4d; }
+    }
+    
+    .actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    
+    .cta-button {
+        display: inline-block;
+        background-color: #000000;
+        color: #dba309;
+        padding: 12px 25px;
+        border: 2px solid #dba309;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+        transition: all 0.3s;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .cta-button:hover {
+        background-color: #dba309;
+        color: #000000;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .cta-button.secondary {
+        background-color: transparent;
+        border-color: #555;
+        color: #ccc;
+    }
+    
+    .cta-button.secondary:hover {
+        background-color: #555;
+        color: #fff;
+    }
+    
+    @media (max-width: 768px) {
+        .glitch {
+            font-size: 80px;
+        }
+        
+        .error-subtitle {
+            font-size: 24px;
+        }
+        
+        .actions {
+            flex-direction: column;
+        }
+        
+        .planet {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .spaceship {
+            width: 40px;
+            height: 20px;
+        }
+    }
+</style>
+{% endblock %} 
