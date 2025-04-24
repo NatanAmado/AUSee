@@ -4,31 +4,22 @@
 {% block extra_head %}
 <link rel="preload" href="{% static 'fonts/PF_Fuel_Grime.otf' %}" as="font" type="font/otf" crossorigin>
 <style>
-    /* !!! Fix for blue links - high specificity to ensure override !!! */
-    #forum-content a:not(.btn):not(.btn-primary):not(.btn-secondary):not(.btn-outline-success):not(.btn-outline-danger),
-    #forum-content .topic-card h3 a,
-    #forum-content .post-item h4 a,
-    #forum-content .topic-card a,
-    #forum-content .post-item a,
-    #forum-content .post-meta a,
-    #forum-content a.text-decoration-none,
-    #forum-content a.text-muted,
-    #forum-content a:link,
-    #forum-content a:visited {
+    /* SUPER AGGRESSIVE LINK OVERRIDE */
+    a, a:link, a:visited,
+    #forum-content a:not(.btn):not(.navbar-brand),
+    .topic-card a, .topic-card h3 a,
+    .post-item a, .post-item h4 a,
+    .post-meta a, .post-meta a:link,
+    a.text-decoration-none, a.text-light, a.text-muted,
+    .text-primary, a.text-primary {
         color: #dba309 !important;
         text-decoration: none !important;
     }
     
-    #forum-content a:not(.btn):hover,
-    #forum-content .topic-card h3 a:hover,
-    #forum-content .post-item h4 a:hover,
-    #forum-content .topic-card a:hover,
-    #forum-content .post-item a:hover,
-    #forum-content .post-meta a:hover,
-    #forum-content a.text-decoration-none:hover,
-    #forum-content a.text-muted:hover {
+    a:hover, a:focus, a:active,
+    #forum-content a:hover,
+    .topic-card a:hover, .post-item a:hover {
         color: #ffffff !important;
-        text-decoration: none !important;
     }
     
     .forum-title {
