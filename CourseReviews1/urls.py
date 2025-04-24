@@ -20,6 +20,11 @@ from CourseReviews1 import views as core_views
 from django.conf import settings
 from django.conf.urls.static import static
 import users.views as user_views
+from django.views.generic import RedirectView
+from django.conf.urls import handler404
+
+# Import custom view for 404
+from .views import custom_404_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,3 +39,10 @@ urlpatterns = [
     path('users/register/', user_views.college_selection_register, name='college_selection_register'),
     
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Add static and media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Custom error handlers
+handler404 = 'CourseReviews1.views.custom_404_view'
