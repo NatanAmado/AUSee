@@ -26,6 +26,8 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="{% static 'css/forum.css' %}" rel="stylesheet">
     <link href="{% static 'css/reviews.css' %}" rel="stylesheet">
+    <link href="{% static 'css/link-override.css' %}" rel="stylesheet">
+    <link href="{% static 'css/forum-gold-links.css' %}" rel="stylesheet">
     {% block extra_head %}{% endblock %}
     <style>
         body, html {
@@ -220,7 +222,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
               <ul class="navbar-nav ms-auto">
-                <!-- Restored navbar links from base.html -->
+                {% if user.is_authenticated %}
                 <li class="nav-item">
                   <a class="nav-link" href="/auc/courses/">Courses</a>
                 </li>
@@ -243,11 +245,19 @@
                   <a class="nav-link" href="https://donate.stripe.com/dR6g1o86T1UObXqcMM">Donate</a>
                 </li>
                 <li class="nav-item">
+                  <a class="nav-link" href="/auc/users/logout/">Logout</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                  <a class="nav-link" href="/auc/courses/about/">About</a>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link" href="/auc/users/login/">Login</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="/auc/users/register/">Register</a>
                 </li>
+                {% endif %}
               </ul>
             </div>
           </div>
