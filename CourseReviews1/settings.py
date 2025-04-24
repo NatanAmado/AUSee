@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-x)y9y!*l7=@+rgw$d+g_ea67rv76wq_%w(446wim^7gvx@%#ar'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-x)y9y!*l7=@+rgw$d+g_ea67rv76wq_%w(446wim^7gvx@%#ar')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'  # Get DEBUG value from environment variable
@@ -187,7 +187,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'auseecourses@gmail.com'
-EMAIL_HOST_PASSWORD = 'innm uqcw yean ejti'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 
 # For development - prints emails to console instead of sending them
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

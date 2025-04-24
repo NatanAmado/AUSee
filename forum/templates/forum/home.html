@@ -3,6 +3,17 @@
 
 {% block forum_content %}
 <style>
+    /* Direct override for blue links on forum home page */
+    .topic-card a, .post-item a, .post-meta a, a.text-decoration-none {
+        color: #dba309 !important;
+        text-decoration: none !important;
+    }
+    
+    .topic-card a:hover, .post-item a:hover, .post-meta a:hover, a.text-decoration-none:hover {
+        color: #ffffff !important;
+        text-decoration: none !important;
+    }
+    
     /* Vote button styles */
     .vote-btn {
         padding: 0.15rem 0.3rem !important;

@@ -4,6 +4,33 @@
 {% block extra_head %}
 <link rel="preload" href="{% static 'fonts/PF_Fuel_Grime.otf' %}" as="font" type="font/otf" crossorigin>
 <style>
+    /* !!! Fix for blue links - high specificity to ensure override !!! */
+    #forum-content a:not(.btn):not(.btn-primary):not(.btn-secondary):not(.btn-outline-success):not(.btn-outline-danger),
+    #forum-content .topic-card h3 a,
+    #forum-content .post-item h4 a,
+    #forum-content .topic-card a,
+    #forum-content .post-item a,
+    #forum-content .post-meta a,
+    #forum-content a.text-decoration-none,
+    #forum-content a.text-muted,
+    #forum-content a:link,
+    #forum-content a:visited {
+        color: #dba309 !important;
+        text-decoration: none !important;
+    }
+    
+    #forum-content a:not(.btn):hover,
+    #forum-content .topic-card h3 a:hover,
+    #forum-content .post-item h4 a:hover,
+    #forum-content .topic-card a:hover,
+    #forum-content .post-item a:hover,
+    #forum-content .post-meta a:hover,
+    #forum-content a.text-decoration-none:hover,
+    #forum-content a.text-muted:hover {
+        color: #ffffff !important;
+        text-decoration: none !important;
+    }
+    
     .forum-title {
         font-size: 2.5rem;
         font-weight: bold;
@@ -165,7 +192,7 @@
 <form id="csrf-form">
     {% csrf_token %}
 </form>
-<div class="container mt-4">
+<div class="container mt-4" id="forum-content">
     <!-- Forum Title -->
     <div class="row mb-3">
         <div class="col-md-12">
