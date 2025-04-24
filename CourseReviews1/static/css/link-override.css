@@ -1,0 +1,34 @@
+/* Emergency override for blue links */
+a:not(.btn):not(.navbar-brand) {
+    color: #dba309 !important;
+    text-decoration: none !important;
+}
+
+a:not(.btn):not(.navbar-brand):hover {
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Topic specific links */
+.topic-card h3 a, 
+.post-item h4 a, 
+.post-meta a, 
+a.text-decoration-none,
+a.text-light,
+a.text-muted {
+    color: #dba309 !important;
+}
+
+.topic-card h3 a:hover, 
+.post-item h4 a:hover, 
+.post-meta a:hover, 
+a.text-decoration-none:hover,
+a.text-light:hover,
+a.text-muted:hover {
+    color: #ffffff !important;
+}
+
+/* Text primary class */
+.text-primary {
+    color: #dba309 !important;
+} 
