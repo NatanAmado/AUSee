@@ -291,10 +291,21 @@
 
   <!-- Major Filters -->
   <div class="course-filters" style="margin-top: -20px;">
-    <button class="filter-btn major-btn" onclick="filterByMajor('HUM')" style="background-color: #1A1A1A; color: #FF9966;">Humanities</button>
-    <button class="filter-btn major-btn" onclick="filterByMajor('ACC')" style="background-color: #1A1A1A; color: #66CCFF;">Academic Core</button>
-    <button class="filter-btn major-btn" onclick="filterByMajor('SSC')" style="background-color: #1A1A1A; color: #CC99FF;">Social Sciences</button>
-    <button class="filter-btn major-btn" onclick="filterByMajor('SCI')" style="background-color: #1A1A1A; color: #99FF99;">Sciences</button>
+    {% if majors %}
+      {% for major in majors %}
+        <button class="filter-btn major-btn" onclick="filterByMajor('{{ major }}')" 
+                style="background-color: #1A1A1A; color: 
+                {% if forloop.counter|divisibleby:4 %}#99FF99{% elif forloop.counter|divisibleby:3 %}#CC99FF{% elif forloop.counter|divisibleby:2 %}#66CCFF{% else %}#FF9966{% endif %};">
+          {{ major }}
+        </button>
+      {% endfor %}
+    {% else %}
+      <!-- Fallback filters if no majors are found -->
+      <button class="filter-btn major-btn" onclick="filterByMajor('HUM')" style="background-color: #1A1A1A; color: #FF9966;">Humanities</button>
+      <button class="filter-btn major-btn" onclick="filterByMajor('ACC')" style="background-color: #1A1A1A; color: #66CCFF;">Academic Core</button>
+      <button class="filter-btn major-btn" onclick="filterByMajor('SSC')" style="background-color: #1A1A1A; color: #CC99FF;">Social Sciences</button>
+      <button class="filter-btn major-btn" onclick="filterByMajor('SCI')" style="background-color: #1A1A1A; color: #99FF99;">Sciences</button>
+    {% endif %}
   </div>
 
   <!-- Then add the empty results message AFTER the filters but before the course cards -->
@@ -474,15 +485,8 @@
       // Get the course code
       const courseCode = card.querySelector('.card-code').textContent.trim();
       
-      // Extract the major code from the course code
-      let courseMajor = '';
-      if (courseCode.includes('HUM')) courseMajor = 'HUM';
-      else if (courseCode.includes('ACC')) courseMajor = 'ACC';
-      else if (courseCode.includes('SSC')) courseMajor = 'SSC';
-      else if (courseCode.includes('SCI')) courseMajor = 'SCI';
-      
-      // Show the card if it matches the major, hide it otherwise
-      if (courseMajor === major) {
+      // Check if the course code contains the major code
+      if (courseCode.includes(major)) {
         card.parentElement.style.display = '';
         visibleCount++;
       } else {

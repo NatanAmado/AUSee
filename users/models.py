@@ -19,6 +19,7 @@ UNIVERSITY_COLLEGE_CHOICES = [
     ('ucg', 'University College Groningen'),
     ('uct', 'University College Twente'),
     ('uctm', 'University College Tilburg Maastricht'),
+    ('euc', 'Erasmus University College'),
 ]
 
 

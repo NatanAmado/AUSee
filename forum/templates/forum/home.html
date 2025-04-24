@@ -1,8 +1,9 @@
 {% extends 'forum/base_forum.html' %}
+{% load static %}
 
 {% block forum_content %}
 <style>
-    /* Additional vote button styles for home page */
+    /* Vote button styles */
     .vote-btn {
         padding: 0.15rem 0.3rem !important;
         font-size: 0.65rem !important;
@@ -13,109 +14,312 @@
         font-size: 0.75rem !important;
         min-width: 18px !important;
     }
+    
+    /* New styling based on provided template */
+    .btn-primary {
+        background-color: #dba309;
+        margin-bottom: 10px;
+        width: 95%;
+        color: #000000;
+    }
+    
+    .btn-primary:hover {
+        background-color: #313030;
+        color: #dba309;
+    }
+      
+    .btn-secondary {
+        margin-bottom: 10px;
+        background-color: black;
+        color: #dba309;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #dba309;
+        color: #000000;
+        font-size: smaller;
+    }
+    
+    .hero {
+        padding: 40px 0;
+        background: linear-gradient(to right, #000000, #2c2c2c);
+        border-radius: 15px;
+        margin-bottom: 30px;
+        color: #dba309;
+        text-align: center;
+    }
+    
+    .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .hero p {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+        color: #ccc;
+    }
+    
+    .cta-button {
+        display: inline-block;
+        background-color: #000000;
+        color: #dba309;
+        padding: 10px 25px;
+        border: 2px solid #dba309;
+        text-decoration: none;
+        font-size: 1.1rem;
+        font-weight: bold;
+        transition: all 0.3s;
+        margin: 10px;
+    }
+    
+    .cta-button:hover {
+        background-color: #dba309;
+        color: #000000;
+    }
+    
+    .features {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+    
+    .feature {
+        flex: 1;
+        min-width: 250px;
+        max-width: 350px;
+        padding: 30px;
+        background-color: #1a1a1a;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature i {
+        font-size: 2.5rem;
+        color: #dba309;
+        margin-bottom: 20px;
+    }
+    
+    .feature h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #dba309;
+    }
+    
+    .feature p {
+        font-size: 1rem;
+        color: #ccc;
+    }
+    
+    .topic-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+    
+    .topic-card {
+        background-color: #1a1a1a;
+        border-radius: 10px;
+        text-align: center;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 1px solid #333;
+    }
+    
+    .topic-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(219, 163, 9, 0.2);
+        border-color: #dba309;
+    }
+    
+    .topic-card h3 {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+        color: #dba309;
+    }
+    
+    .topic-card p {
+        color: #ccc;
+        margin-bottom: 15px;
+    }
+    
+    .topic-card .badge {
+        margin-left: 5px;
+    }
+    
+    .recent-posts {
+        background-color: #1a1a1a;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .recent-posts h2 {
+        color: #dba309;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .post-item {
+        border-bottom: 1px solid #333;
+        padding: 15px 0;
+        margin-bottom: 15px;
+    }
+    
+    .post-item:last-child {
+        border-bottom: none;
+    }
+    
+    .post-item h4 {
+        color: #dba309;
+        margin-bottom: 10px;
+    }
+    
+    .post-item p {
+        color: #ccc;
+        margin-bottom: 10px;
+    }
+    
+    .post-meta {
+        color: #777;
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .features {
+            flex-direction: column;
+        }
+        
+        .feature {
+            max-width: 100%;
+        }
+        
+        .topic-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
-<div class="row">
-    <!-- Topics Section -->
-    <div class="col-12 mb-4">
-        <div class="card bg-dark text-light">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Discussion Topics</h4>
-                {% if user.is_authenticated %}
-                <div class="text-end mb-3">
-                    <a href="{% url 'forum:create_topic' university_college=university_college %}" class="btn btn-warning btn-sm">Create Topic</a>
-                </div>
+<!-- Hero Section -->
+<div class="hero">
+    <h1>Welcome to {{ university_college|upper }} Forum</h1>
+    <p>Connect with fellow students, discuss courses, share experiences, and get advice on academic and campus life.</p>
+    {% if user.is_authenticated %}
+        <a href="{% url 'forum:create_topic' university_college=university_college %}" class="cta-button">Create New Topic</a>
+        <a href="{% url 'forum:topic_list' university_college=university_college %}" class="cta-button">View All Topics</a>
+    {% else %}
+        <a href="{% url 'users:login' %}" class="cta-button">Login to Participate</a>
+    {% endif %}
+</div>
+
+<!-- Features Section -->
+<div class="features">
+    <div class="feature">
+        <i class="fas fa-comments"></i>
+        <h3>Discuss</h3>
+        <p>Start conversations with fellow students about courses, campus life, and more.</p>
+    </div>
+    <div class="feature">
+        <i class="fas fa-lightbulb"></i>
+        <h3>Share Ideas</h3>
+        <p>Exchange thoughts, insights, and creative solutions to academic challenges.</p>
+    </div>
+    <div class="feature">
+        <i class="fas fa-globe"></i>
+        <h3>Global Topics</h3>
+        <p>Connect with students from all University Colleges in shared discussions.</p>
+    </div>
+</div>
+
+<!-- Topics Section -->
+<h2 style="color: #dba309; margin-bottom: 20px; text-align: center;">Popular Discussion Topics</h2>
+<div class="topic-grid">
+    {% for topic in topics %}
+    <div class="topic-card" id="topic-{{ topic.id }}">
+        <h3>
+            <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=topic.id %}" class="text-decoration-none">
+                {{ topic.name }}
+                {% if topic.is_global %}
+                <span class="badge bg-warning text-dark">Global</span>
                 {% endif %}
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    {% for topic in topics %}
-                    <div class="col-md-4 mb-4" id="topic-{{ topic.id }}">
-                        <div class="card bg-dark text-light h-100 {% if topic.is_archived %}border-danger{% else %}border-secondary{% endif %}">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=topic.id %}" class="text-light text-decoration-none">
-                                        {{ topic.name }}
-                                        {% if is_staff_or_superuser and topic.is_archived %}
-                                        <span class="badge bg-danger">Archived</span>
-                                        {% endif %}
-                                        {% if topic.is_global %}
-                                        <span class="badge bg-warning text-dark">Global</span>
-                                        {% endif %}
-                                    </a>
-                                </h5>
-                                <p class="card-text text-muted">{{ topic.description|truncatewords:30 }}</p>
-                                <div class="text-muted small">
-                                    Created by: {{ topic.created_by.username|default:"Anonymous" }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="col-12">
-                        <p class="text-muted">No topics have been created yet.</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+                {% if is_staff_or_superuser and topic.is_archived %}
+                <span class="badge bg-danger">Archived</span>
+                {% endif %}
+            </a>
+        </h3>
+        <p>{{ topic.description|truncatewords:15 }}</p>
+        <div class="post-meta">
+            Created by: {{ topic.created_by.username|default:"Anonymous" }}
         </div>
     </div>
+    {% empty %}
+    <div class="text-center w-100">
+        <p class="text-muted">No topics have been created yet.</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'forum:create_topic' university_college=university_college %}" class="cta-button">Create the First Topic</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
 
-    <!-- Recent Posts Section -->
-    <div class="col-12">
-        <div class="card bg-dark text-light">
-            <div class="card-header">
-                <h4 class="mb-0">Recent Posts</h4>
+<!-- Recent Posts Section -->
+<div class="recent-posts">
+    <h2>Recent Discussions</h2>
+    
+    {% for post in recent_posts %}
+    <div class="post-item {% if post.is_archived %}border-danger{% endif %}" id="post-{{ post.id }}">
+        <h4>
+            <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}" class="text-decoration-none">
+                {{ post.title }}
+            </a>
+            {% if post.is_archived %}
+            <span class="badge bg-danger ms-2">Archived</span>
+            {% endif %}
+        </h4>
+        <p>{{ post.content|truncatewords:30 }}</p>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="post-meta">
+                In: <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=post.topic.id %}" class="text-muted">{{ post.topic.name }}</a>
+                | By: {{ post.author.username|default:"Anonymous" }}
+                {% if post.topic.is_global and post.author %}
+                <span class="badge bg-secondary">{{ post.author.university_college|upper }}</span>
+                {% endif %}
+                | {{ post.created_at|timesince }} ago
             </div>
-            <div class="card-body">
-                {% for post in recent_posts %}
-                <div class="card mb-3 bg-dark text-light {% if post.is_archived %}border-danger{% else %}border-secondary{% endif %}" id="post-{{ post.id }}">
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}" class="text-light text-decoration-none">
-                                {{ post.title }}
-                            </a>
-                            {% if post.is_archived %}
-                            <span class="badge bg-danger ms-2">Archived</span>
-                            {% endif %}
-                        </h5>
-                        <p class="card-text">{{ post.content|truncatewords:50 }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="text-muted small">
-                                Posted in: <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=post.topic.id %}" class="text-muted">{{ post.topic.name }}</a>
-                                <br>
-                                By: {{ post.author.username|default:"Anonymous" }}
-                                <br>
-                                {{ post.created_at|timesince }} ago
-                                {% if post.is_archived %}
-                                <br>
-                                <span class="text-danger">This post has been archived due to negative feedback</span>
-                                {% endif %}
-                            </div>
-                            
-                            {% if user.is_authenticated and not post.is_archived and not post.topic.is_archived %}
-                            <div class="d-flex align-items-center">
-                                <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
-                                    👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
-                                </button>
-                                <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
-                                    👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
-                                </button>
-                            </div>
-                            {% else %}
-                            <div class="d-flex align-items-center text-muted">
-                                <span class="me-3">👍 <span class="vote-count">{{ post.upvotes }}</span></span>
-                                <span>👎 <span class="vote-count">{{ post.downvotes }}</span></span>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <p class="text-muted">No posts have been created yet.</p>
-                {% endfor %}
+            
+            {% if user.is_authenticated and not post.is_archived and not post.topic.is_archived %}
+            <div class="d-flex align-items-center">
+                <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
+                    👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
+                </button>
+                <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
+                    👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
+                </button>
             </div>
+            {% else %}
+            <div class="d-flex align-items-center text-muted">
+                <span class="me-3">👍 <span class="vote-count">{{ post.upvotes }}</span></span>
+                <span>👎 <span class="vote-count">{{ post.downvotes }}</span></span>
+            </div>
+            {% endif %}
         </div>
+    </div>
+    {% empty %}
+    <p class="text-muted text-center">No posts have been created yet.</p>
+    {% endfor %}
+    
+    <div class="text-center mt-4">
+        <a href="{% url 'forum:topic_list' university_college=university_college %}" class="cta-button">Browse All Topics</a>
     </div>
 </div>
 {% endblock %} 

@@ -39,11 +39,32 @@ def course_list(request, university_college):
     level_100_courses = courses.filter(level=100).order_by('name')
     level_200_courses = courses.filter(level=200).order_by('name')
     level_300_courses = courses.filter(level=300).order_by('name')
+    
+    # Get unique majors/departments for this university college
+    # This extracts unique department codes from the course codes
+    majors = set()
+    for course in courses:
+        # Extract department code from course.code
+        code = course.code.strip()
+        if code and not code == "--":
+            # Try to extract a department code (usually 3-4 letters)
+            import re
+            dept_match = re.search(r'^([A-Za-z]{2,4})', code)
+            if dept_match:
+                dept_code = dept_match.group(1).upper()
+                majors.add(dept_code)
+            
+            # For EUC-style codes with department names in parentheses
+            dept_match = re.search(r'\(([A-Za-z]{2,4})\)', code)
+            if dept_match:
+                dept_code = dept_match.group(1).upper()
+                majors.add(dept_code)
 
     context = {
         'level_100_courses': level_100_courses,
         'level_200_courses': level_200_courses,
         'level_300_courses': level_300_courses,
+        'majors': sorted(majors),
         'is_staff_or_superuser': request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff),
         'university_college': university_college
     }
