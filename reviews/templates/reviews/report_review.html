@@ -44,7 +44,7 @@
                         </div>
                         
                         <div class="d-flex justify-content-between">
-                            <a href="{% url 'reviews:course_detail' course.id %}" class="btn btn-secondary">Cancel</a>
+                            <a href="{% url 'reviews:course_detail' university_college=university_college course_id=course.id %}" class="btn btn-secondary">Cancel</a>
                             <button type="submit" class="btn btn-danger">Submit Report</button>
                         </div>
                     </form>
@@ -64,7 +64,7 @@
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            fetch('{% url "reviews:report_review" course.id review.id %}', {
+            fetch('{% url "reviews:report_review" university_college=university_college course_id=course.id review_id=review.id %}', {
                 method: 'POST',
                 body: new FormData(form),
                 headers: {
@@ -76,7 +76,7 @@
                 if (data.success) {
                     // Show success message and redirect
                     alert(data.message);
-                    window.location.href = '{% url "reviews:course_detail" course.id %}';
+                    window.location.href = '{% url "reviews:course_detail" university_college=university_college course_id=course.id %}';
                 } else {
                     // Show error message
                     alert(data.message);

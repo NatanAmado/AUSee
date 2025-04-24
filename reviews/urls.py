@@ -12,7 +12,4 @@ urlpatterns = [
     path('<int:course_id>/review/<int:review_id>/reply/', views.add_reply, name='add_reply'),
     path('<int:course_id>/reply/<int:reply_id>/delete/', views.delete_reply, name='delete_reply'),
     path('<int:course_id>/review/<int:review_id>/report/', views.report_review, name='report_review'),
-    # ... other url patterns will go here later ...
-]
-
-
+] 

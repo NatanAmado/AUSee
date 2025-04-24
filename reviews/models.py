@@ -1,6 +1,6 @@
 from django.db import models, connection
 from profanity import profanity
-from users.models import CustomUser
+from users.models import CustomUser, UNIVERSITY_COLLEGE_CHOICES
 import math
 import math
 from django.contrib.auth.decorators import login_required
@@ -24,7 +24,7 @@ class Course(models.Model):
     description = models.TextField(blank=True, null=True)
     level = models.PositiveSmallIntegerField(choices=LEVEL_CHOICES, default=100)
     archived = models.BooleanField(default=False)
-
+    university_college = models.CharField(max_length=4, choices=UNIVERSITY_COLLEGE_CHOICES, default='auc')
 
     def average_rating(self):
         # Get all reviews for this course

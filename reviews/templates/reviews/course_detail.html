@@ -729,7 +729,7 @@
                                         </small>
                                         {% if user.is_authenticated and reply.user == user %}
                                         <small>
-                                            <a href="{% url 'reviews:delete_reply' course.id reply.id %}" 
+                                            <a href="{% url 'reviews:delete_reply' university_college=university_college course_id=course.id reply_id=reply.id %}" 
                                                class="text-danger delete-reply-link"
                                                onclick="return confirm('Are you sure you want to delete this reply?');">
                                                 Delete
@@ -758,7 +758,7 @@
                                 <!-- Flag Icon (positioned at bottom right) -->
                                 <div class="text-right" style="position: absolute; bottom: 15px; right: 15px;">
                                     {% if review.id not in reported_reviews %}
-                                    <a href="{% url 'reviews:report_review' course.id review.id %}" class="btn btn-sm btn-outline-none report-btn" style="padding: 0.25rem 0.5rem; display: flex; align-items: center; border: none;" title="Report this review">
+                                    <a href="{% url 'reviews:report_review' university_college=university_college course_id=course.id review_id=review.id %}" class="btn btn-sm btn-outline-none report-btn" style="padding: 0.25rem 0.5rem; display: flex; align-items: center; border: none;" title="Report this review">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                             <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
                                         </svg>
@@ -782,7 +782,7 @@
                             
                             <!-- Reply Form (hidden by default) -->
                             <div class="reply-form-container mt-2" id="reply-form-{{ review.id }}" style="display: none;">
-                                <form method="post" action="{% url 'reviews:add_reply' course.id review.id %}">
+                                <form method="post" action="{% url 'reviews:add_reply' university_college=university_college course_id=course.id review_id=review.id %}">
                                     {% csrf_token %}
                                     <div class="form-group">
                                         {{ reply_form.text }}
@@ -978,7 +978,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   function submitVote(voteType) {
     // Send the vote via AJAX
-    fetch("{% url 'reviews:report_course' course.id %}", {
+    fetch("{% url 'reviews:report_course' university_college=university_college course_id=course.id %}", {
       method: 'POST',
       headers: {
         'X-CSRFToken': '{{ csrf_token }}',

@@ -18,7 +18,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4 class="mb-0">All Topics</h4>
         {% if user.is_authenticated %}
-        <a href="{% url 'forum:create_topic' %}" class="btn btn-primary">Create New Topic</a>
+        <a href="{% url 'forum:create_topic' university_college=university_college %}" class="btn btn-primary">Create New Topic</a>
         {% endif %}
     </div>
     <div class="card-body">
@@ -28,10 +28,13 @@
                 <div class="card h-100 bg-dark text-light border-secondary">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <a href="{% url 'forum:topic_detail' topic.id %}" class="text-light text-decoration-none">
+                            <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=topic.id %}" class="text-light text-decoration-none">
                                 {{ topic.name }}
                                 {% if is_staff_or_superuser and topic.is_archived %}
                                 <span class="archived-badge">Archived</span>
+                                {% endif %}
+                                {% if topic.is_global %}
+                                <span class="badge bg-warning text-dark">Global</span>
                                 {% endif %}
                             </a>
                         </h5>
@@ -53,7 +56,7 @@
             <div class="col-12">
                 <p class="text-muted">No topics have been created yet.
                     {% if user.is_authenticated %}
-                    <a href="{% url 'forum:create_topic' %}" class="text-primary">Create the first topic!</a>
+                    <a href="{% url 'forum:create_topic' university_college=university_college %}" class="text-primary">Create the first topic!</a>
                     {% endif %}
                 </p>
             </div>

@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 import math
 from datetime import timedelta
+from users.models import UNIVERSITY_COLLEGE_CHOICES
 
 class Topic(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -11,6 +12,8 @@ class Topic(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_topics')
     is_archived = models.BooleanField(default=False)
+    university_college = models.CharField(max_length=4, choices=UNIVERSITY_COLLEGE_CHOICES, default='auc')
+    is_global = models.BooleanField(default=False, help_text="If True, this topic is visible to all university colleges")
     
     def __str__(self):
         return self.name
@@ -40,6 +43,7 @@ class Topic(models.Model):
     
     class Meta:
         ordering = ['name']
+        unique_together = ['name', 'university_college']  # Name only needs to be unique within a university college
 
 class TopicReport(models.Model):
     REPORT_REASONS = [
@@ -67,12 +71,13 @@ class Post(models.Model):
     content = models.TextField()
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='posts')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='posts')
-    is_anonymous = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     upvotes = models.IntegerField(default=0)
     downvotes = models.IntegerField(default=0)
+    is_anonymous = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
+    author_university_college = models.CharField(max_length=4, blank=True, null=True)
     
     def __str__(self):
         return self.title

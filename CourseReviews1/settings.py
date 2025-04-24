@@ -66,6 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'CourseReviews1.middleware.UniversityCollegeAccessMiddleware',
 ]
 
 ROOT_URLCONF = 'CourseReviews1.urls'
@@ -158,7 +159,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-LOGIN_REDIRECT_URL = '/courses/'
+# Remove the hardcoded redirect URL since we'll handle redirects dynamically in views
+# LOGIN_REDIRECT_URL = '/courses/'
 
 LOGIN_URL = '/users/login/'
 

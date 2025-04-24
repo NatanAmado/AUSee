@@ -68,12 +68,12 @@
     <div class="success-card">
         <h3 class="success-header">🎉 Account Activated! ⭐</h3>
         <div class="success-message">
-            <p>🌟 Congratulations! Your AUSee account has been successfully activated. 
+            <p>🌟 Congratulations! Your account has been successfully activated. 
             You are now logged in and ready to explore course reviews or share your own experiences in our anonymous forum! 🚀</p>
         </div>
         <div class="d-flex justify-content-center mt-4">
-            <a href="/forum/" class="btn btn-custom">💬 Go to Forum</a>
-            <a href="{% url 'reviews:course_list' %}" class="btn btn-custom">📚 Browse Courses</a>
+            <a href="/{{ university_college }}/forum/" class="btn btn-custom">💬 Go to Forum</a>
+            <a href="{% url 'reviews:course_list' university_college=university_college %}" class="btn btn-custom">📚 Browse Courses</a>
         </div>
     </div>
 </div>

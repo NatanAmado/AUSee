@@ -19,13 +19,18 @@ from django.urls import path, include
 from CourseReviews1 import views as core_views
 from django.conf import settings
 from django.conf.urls.static import static
+import users.views as user_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('users/', include('users.urls')),
-    path('courses/', include('reviews.urls')),
-    path('feedback/', include('feedback.urls')),
-    path('forum/', include('forum.urls')),
+    path('<str:university_college>/users/', include('users.urls')),
+    path('<str:university_college>/courses/', include('reviews.urls')),
+    path('<str:university_college>/feedback/', include('feedback.urls')),
+    path('<str:university_college>/forum/', include('forum.urls')),
     path('', core_views.homepage, name='homepage'),
+    
+    # Non-university specific routes for login and registration
+    path('users/login/', user_views.college_selection_login, name='college_selection_login'),
+    path('users/register/', user_views.college_selection_register, name='college_selection_register'),
     
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

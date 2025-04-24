@@ -4,18 +4,43 @@
 {% block extra_head %}
 <link rel="preload" href="{% static 'fonts/PF_Fuel_Grime.otf' %}" as="font" type="font/otf" crossorigin>
 <style>
-    /* Vote button styles */
-    .vote-btn {
-        transition: all 0.2s ease;
-        position: relative;
-        overflow: hidden;
-        padding: 0.15rem 0.3rem;
-        font-size: 0.65rem;
+    .forum-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #dba309;
+        margin-bottom: 0.5rem;
     }
     
-    .vote-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    .forum-title a {
+        color: #dba309;
+        text-decoration: none;
+    }
+    
+    .forum-title a:hover {
+        color: #ffc107;
+    }
+    
+    .custom-input {
+        background-color: #2a2a2a;
+        border-color: #444;
+        color: #fff;
+    }
+    
+    .custom-input:focus {
+        background-color: #333;
+        border-color: #dba309;
+        box-shadow: 0 0 0 0.25rem rgba(219, 163, 9, 0.25);
+        color: #fff;
+    }
+    
+    .vote-btn {
+        background: transparent;
+        border: 1px solid;
+        margin: 0 3px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        position: relative;
+        overflow: visible;
     }
     
     .vote-btn.active {
@@ -99,6 +124,40 @@
         0% { opacity: 1; transform: translateY(0); }
         100% { opacity: 0; transform: translateY(-20px); }
     }
+    
+    /* Global topic styles */
+    .global-topic-header {
+        background-color: #2d2d2d;
+        border-bottom: 2px solid #dba309;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .global-topic-title {
+        color: #dba309;
+        font-size: 1.4em;
+        margin-bottom: 10px;
+    }
+    
+    .global-badge {
+        background-color: #dba309;
+        color: #000;
+        font-size: 0.8em;
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-weight: bold;
+    }
+    
+    .college-badge {
+        display: inline-block;
+        background-color: #555;
+        color: #fff;
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-size: 0.7em;
+        font-weight: bold;
+        margin-left: 5px;
+    }
 </style>
 {% endblock %}
 
@@ -111,7 +170,7 @@
     <div class="row mb-3">
         <div class="col-md-12">
             <h1 class="forum-title">
-                <a href="{% url 'forum:home' %}">The AUC Forum</a>
+                <a href="{% url 'forum:home' university_college=university_college %}">The {{ university_college|upper }} Forum</a>
             </h1>
         </div>
     </div>
@@ -121,7 +180,7 @@
         <div class="col-md-12">
             <div class="card bg-dark text-light">
                 <div class="card-body">
-                    <form action="{% url 'forum:search' %}" method="get" class="d-flex">
+                    <form action="{% url 'forum:search' university_college=university_college %}" method="get" class="d-flex">
                         <div class="input-group">
                             <input type="text" name="q" class="form-control custom-input" placeholder="Search forum...">
                             <button type="submit" class="btn btn-warning">Search</button>
@@ -143,6 +202,9 @@
 
 <!-- Forum JavaScript -->
 <script>
+    // Store the university_college value for use in fetch requests
+    const university_college = "{{ university_college }}";
+    
     // Function to handle voting
     async function vote(postId, voteType) {
         console.log(`Attempting to vote ${voteType} on post ${postId}`);
@@ -174,7 +236,7 @@
             formData.append('vote_type', voteType);
             
             // Send the vote request
-            const response = await fetch(`/forum/posts/${postId}/vote/`, {
+            const response = await fetch(`/${university_college}/forum/posts/${postId}/vote/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrfToken,

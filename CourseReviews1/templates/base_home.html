@@ -17,7 +17,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AUC Course Reviews</title>
+    <title>University Course Reviews</title>
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{% static 'AUSee_FAVICON.ico' %}">
     <link rel="shortcut icon" href="{% static 'AUSee_FAVICON.ico' %}" type="image/x-icon">
@@ -165,7 +165,6 @@
             margin-right: 15px;
         }
 
-
         /* Message styling */
         .messages {
             margin-bottom: 20px;
@@ -213,53 +212,15 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark">
           <div class="container">
-            <a class="navbar-brand" href="{% url 'reviews:course_list' university_college=university_college %}">
+            <a class="navbar-brand" href="/">
                 <img class="logo" src="{% static 'logo1.svg' %}">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav ms-auto"> <!-- Changed from 'ml-auto' to 'ms-auto' for bootstrap 5 -->
-                {% if user.is_authenticated %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'reviews:course_list' university_college=university_college %}">Courses</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'forum:home' university_college=university_college %}">{{ university_college|upper }} Forum</a>
-                  </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://limonata.app/utm_source=AUSee" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom" title="By the creators of AUSee">Study Together</a>
-                  </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'feedback:form' university_college=university_college %}">Survey</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'reviews:about' university_college=university_college %}">About</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="https://github.com/NatanAmado/AUSee/issues/new" target="_blank">Feedback</a>
-                </li>
-                
-                <li class="nav-item">
-                  <a class="nav-link" href="https://donate.stripe.com/dR6g1o86T1UObXqcMM">Donate</a>
-                </li>
-
-
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'users:logout' university_college=university_college %}">Logout</a>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'reviews:about' university_college=university_college %}">About</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'users:login' university_college=university_college %}">Login</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'users:register' university_college=university_college %}">Register</a>
-                </li>
-                {% endif %}
+              <ul class="navbar-nav ms-auto">
+                <!-- No login/register buttons in the header since we display them in the welcome container -->
               </ul>
             </div>
           </div>
@@ -291,4 +252,4 @@
 </footer>
 
 </body>
-</html>
+</html> 

@@ -7,16 +7,20 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q, F, Count, Case, When, Value, IntegerField, Avg
 import json
 from django.contrib import messages
+from CourseReviews1.views import university_college_check
 
 # Create your views here.
 
 
 @login_required
-def course_list(request):
+def course_list(request, university_college):
+    # Verify university_college is valid
+    university_college_check(request, university_college)
+    
     query = request.GET.get('q')
     
     # Start with an optimized queryset that prefetches reviews
-    courses = Course.objects.all()
+    courses = Course.objects.filter(university_college=university_college)
     
     # Only show non-archived courses to regular users
     if not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
@@ -35,24 +39,46 @@ def course_list(request):
     level_100_courses = courses.filter(level=100).order_by('name')
     level_200_courses = courses.filter(level=200).order_by('name')
     level_300_courses = courses.filter(level=300).order_by('name')
+    
+    # Get unique majors/departments for this university college
+    # This extracts unique department codes from the course codes
+    majors = set()
+    for course in courses:
+        # Extract department code from course.code
+        code = course.code.strip()
+        if code and not code == "--":
+            # Try to extract a department code (usually 3-4 letters)
+            import re
+            dept_match = re.search(r'^([A-Za-z]{2,4})', code)
+            if dept_match:
+                dept_code = dept_match.group(1).upper()
+                majors.add(dept_code)
+            
+            # For EUC-style codes with department names in parentheses
+            dept_match = re.search(r'\(([A-Za-z]{2,4})\)', code)
+            if dept_match:
+                dept_code = dept_match.group(1).upper()
+                majors.add(dept_code)
 
     context = {
         'level_100_courses': level_100_courses,
         'level_200_courses': level_200_courses,
         'level_300_courses': level_300_courses,
-        'is_staff_or_superuser': request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)
+        'majors': sorted(majors),
+        'is_staff_or_superuser': request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff),
+        'university_college': university_college
     }
 
     return render(request, 'reviews/course_list.html', context)
 
 @login_required
-def course_detail(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
+def course_detail(request, university_college, course_id):
+    course = get_object_or_404(Course, id=course_id, university_college=university_college)
     
     # Redirect regular users if the course is archived
     if course.archived and not (request.user.is_superuser or request.user.is_staff):
         messages.warning(request, "This course has been archived and is not available for viewing.")
-        return redirect('reviews:course_list')
+        return redirect('reviews:course_list', university_college=university_college)
     
     # Check if the user has already reported this course
     user_reported = False
@@ -130,7 +156,7 @@ def course_detail(request, course_id):
             review_to_delete = get_object_or_404(Review, id=review_id, user=request.user)
             review_to_delete.delete()
             # Redirect to the same page after deletion
-            return redirect('reviews:course_detail', course_id=course_id)
+            return redirect('reviews:course_detail', university_college=university_college, course_id=course_id)
             
         # Otherwise handle the review creation code
         form = ReviewForm(request.POST)
@@ -140,7 +166,7 @@ def course_detail(request, course_id):
             review.user = request.user  # Set the user for the review
             review.save()
             # Redirect to the same course detail page after adding the review
-            return redirect('reviews:course_detail', course_id=course_id)
+            return redirect('reviews:course_detail', university_college=university_college, course_id=course_id)
     else:
         form = ReviewForm()
 
@@ -177,15 +203,16 @@ def course_detail(request, course_id):
         'user_votes': user_votes,
         'user_upvoted_reviews': user_upvoted_reviews,
         'user_downvoted_reviews': user_downvoted_reviews,
-        'is_staff_or_superuser': request.user.is_superuser or request.user.is_staff
+        'is_staff_or_superuser': request.user.is_superuser or request.user.is_staff,
+        'university_college': university_college
     }
 
     return render(request, 'reviews/course_detail.html', context)
 
 @login_required
-def add_reply(request, course_id, review_id):
+def add_reply(request, university_college, course_id, review_id):
     """Add a reply to a review"""
-    course = get_object_or_404(Course, id=course_id)
+    course = get_object_or_404(Course, id=course_id, university_college=university_college)
     review = get_object_or_404(Review, id=review_id, course=course)
     
     if request.method == "POST":
@@ -198,128 +225,113 @@ def add_reply(request, course_id, review_id):
             reply.review = review
             reply.user = request.user
             
-            # Get the is_anonymous value directly from POST data
-            # Checkbox will only be in POST data if it's checked
-            reply.is_anonymous = 'is_anonymous' in request.POST
-            print(f"Is anonymous: {reply.is_anonymous}")
+            # Set whether the reply is anonymous
+            reply.is_anonymous = form.cleaned_data.get('is_anonymous', True)
             
             reply.save()
-            print(f"Reply saved with is_anonymous={reply.is_anonymous}")
             
-    # Redirect back to the course detail page
-    return redirect('reviews:course_detail', course_id=course_id)
+            # Redirect back to the course detail page
+            return redirect('reviews:course_detail', university_college=university_college, course_id=course_id)
+    
+    # If not POST or form invalid, redirect to the course page
+    return redirect('reviews:course_detail', university_college=university_college, course_id=course_id)
 
 @login_required
-def delete_reply(request, course_id, reply_id):
+def delete_reply(request, university_college, course_id, reply_id):
     """Delete a reply"""
-    course = get_object_or_404(Course, id=course_id)
-    reply = get_object_or_404(ReviewReply, id=reply_id, review__course=course)
+    course = get_object_or_404(Course, id=course_id, university_college=university_college)
+    reply = get_object_or_404(ReviewReply, id=reply_id, user=request.user)
     
-    # Check if the user is the author of the reply
-    if reply.user == request.user:
-        reply.delete()
+    # Delete the reply
+    reply.delete()
     
     # Redirect back to the course detail page
-    return redirect('reviews:course_detail', course_id=course_id)
+    return redirect('reviews:course_detail', university_college=university_college, course_id=course_id)
 
 @login_required
-def add_course(request):
+def add_course(request, university_college):
+    """Add a new course"""
     if request.method == "POST":
         form = CourseForm(request.POST)
         if form.is_valid():
-            course = form.save()
-            return redirect('reviews:course_detail', course_id=course.id)
+            course = form.save(commit=False)
+            course.university_college = university_college
+            course.save()
+            return redirect('reviews:course_detail', university_college=university_college, course_id=course.id)
     else:
         form = CourseForm()
     
-    context = {
-        'form': form,
-    }
-    
-    return render(request, 'reviews/add_course.html', context)
-
+    return render(request, 'reviews/add_course.html', {'form': form, 'university_college': university_college})
 
 @login_required
-def report_course(request, course_id):
-    course = get_object_or_404(Course, id=course_id)
+def report_course(request, university_college, course_id):
+    """Report a course as not real"""
+    course = get_object_or_404(Course, id=course_id, university_college=university_college)
     
-    # Prevent reporting of existing courses in the database
+    # Check if this is a verified course that cannot be reported
     if course.is_verified():
-        return JsonResponse({
-            'success': False, 
-            'message': 'This is a verified course and cannot be reported.'
-        })
+        messages.error(request, "This course is verified and cannot be reported.")
+        return redirect('reviews:course_detail', university_college=university_college, course_id=course_id)
     
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            vote_type = data.get('vote', 'not_real')  # Default to not_real for backward compatibility
-        except:
-            vote_type = 'not_real'  # Default if JSON parsing fails
-        
-        # Check if user already reported this course
-        if not CourseReport.objects.filter(course=course, user=request.user).exists():
-            # Temporarily use a simpler approach without the vote field
-            report = CourseReport(
-                course=course,
-                user=request.user,
-                reason=f"User voted: {vote_type}"
-            )
-            report.save()
-            
-            # Check if course should be archived based on report count
-            if course.report_count() >= 5 and not course.archived:
-                course.archived = True
-                course.save()
-            
-            return JsonResponse({
-                'success': True, 
-                'message': 'Thank you for your feedback. Your vote has been recorded.'
-            })
-        else:
-            return JsonResponse({
-                'success': False, 
-                'message': 'You have already voted on this course.'
-            })
+    # Check if the user has already reported this course
+    if CourseReport.objects.filter(course=course, user=request.user).exists():
+        messages.warning(request, "You have already reported this course.")
+        return redirect('reviews:course_detail', university_college=university_college, course_id=course_id)
     
-    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+    # Process the vote
+    vote = request.POST.get('vote', 'not_real')  # Default to 'not_real'
+    reason = request.POST.get('reason', '')
+    
+    # Create the report
+    CourseReport.objects.create(
+        course=course,
+        user=request.user,
+        vote=vote,
+        reason=reason
+    )
+    
+    # Check if the course should be archived
+    if course.should_be_archived():
+        course.archived = True
+        course.save()
+        messages.success(request, "This course has been archived based on user reports.")
+    else:
+        messages.success(request, "Thank you for your report. It has been recorded.")
+    
+    # Redirect back to the course list
+    return redirect('reviews:course_list', university_college=university_college)
 
 @login_required
-def report_review(request, course_id, review_id):
-    """Handle reporting a review"""
-    course = get_object_or_404(Course, id=course_id)
+def report_review(request, university_college, course_id, review_id):
+    """Report a review"""
+    course = get_object_or_404(Course, id=course_id, university_college=university_college)
     review = get_object_or_404(Review, id=review_id, course=course)
     
-    # Check if user already reported this review
+    # Check if the user has already reported this review
     if ReviewReport.objects.filter(review=review, user=request.user).exists():
         messages.warning(request, "You have already reported this review.")
-        return redirect('reviews:course_detail', course_id=course_id)
+        return redirect('reviews:course_detail', university_college=university_college, course_id=course_id)
     
     if request.method == "POST":
         form = ReviewReportForm(request.POST)
         if form.is_valid():
-            # Create the report
             report = form.save(commit=False)
             report.review = review
             report.user = request.user
             report.save()
             
-            # Check if review should be archived based on report count
-            if review.report_count() >= 5 and not review.archived:
-                review.archived = True
-                review.save()
+            # Check if review should be archived
+            if review.check_archive_status():
+                messages.success(request, "The review has been archived due to multiple reports.")
+            else:
+                messages.success(request, "Thank you for your report. It has been recorded.")
             
-            return JsonResponse({'success': True, 'message': 'Thank you for your report. This review will be reviewed by our team.'})
-        else:
-            return JsonResponse({'success': False, 'message': 'There was an error with your report. Please try again.'})
-    else:
-        form = ReviewReportForm()
+            return redirect('reviews:course_detail', university_college=university_college, course_id=course_id)
     
-    return render(request, 'reviews/report_review.html', {'form': form, 'review': review, 'course': course})
+    messages.error(request, "There was an error processing your report.")
+    return redirect('reviews:course_detail', university_college=university_college, course_id=course_id)
 
-def about(request):
-    """Display the about page with information about the site and moderation system"""
-    # No login required for the about page
-    return render(request, 'reviews/about.html')
+def about(request, university_college):
+    return render(request, 'reviews/about.html', {'university_college': university_college})
 
 

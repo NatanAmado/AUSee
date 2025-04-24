@@ -6,7 +6,6 @@ class TopicAdmin(admin.ModelAdmin):
     list_display = ('name', 'created_at', 'created_by')
     search_fields = ('name', 'description')
     list_filter = ('created_at',)
-
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'topic', 'author', 'is_anonymous', 'created_at', 'upvotes', 'downvotes', 'is_archived')
