@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activate Your AUSee Account</title>
+    <title>Activate Your USee Account</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -76,19 +76,19 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>AUSee Courses</h1>
-            <p>Anonymous Course Reviews for AUC</p>
+            <h1>{{ university_college|upper }}See Courses</h1>
+            <p>Anonymous Course Reviews for {{ university_college|upper }}</p>
         </div>
         
         <div class="content">
             <h2>Hey {{ user.username }}! 🎉</h2>
             
-            <p>Welcome to <span class="highlight">AUSee</span> – your go-to platform for honest course reviews at Amsterdam University College!</p>
+            <p>Welcome to <span class="highlight">USee</span> – your go-to platform for honest course reviews at {{ university_college|upper }}!</p>
             
             <p>You're just one click away from joining our community of students sharing their experiences to help others make informed decisions about their courses.</p>
             
             <p style="text-align: center; color: #ffffff;">
-                <a href="{{ protocol }}://{{ domain }}{% url 'users:activate' uidb64=uid token=token %}">Activate Account</a>
+                <a href="{{ protocol }}://{{ domain }}{% url 'users:activate' university_college=university_college uidb64=uid token=token %}">Activate Account</a>
             </p>
             
             <p class="note">This link will expire in 24 hours for security reasons.</p>
@@ -100,12 +100,12 @@
                 <li>Help create a <span class="highlight">transparent</span> course selection process</li>
             </ul>
             
-            <p>If you didn't register for an AUSee account, you can safely ignore this email.</p>
+            <p>If you didn't register for anUsee account, you can safely ignore this email.</p>
         </div>
         
         <div class="footer">
-            <p>© 2025 AUSee. All rights reserved.</p>
-            <p>This email was sent to you as part of the registration process for AUSee.</p>
+            <p>© 2025 Usee. All rights reserved.</p>
+            <p>This email was sent to you as part of the registration process for Usee.</p>
             <p>If the button doesn't work, copy and paste this URL into your browser:</p>
             <p style="word-break: break-all;">{{ protocol }}://{{ domain }}/users/activate/{{ uid }}/{{ token }}/</p>
         </div>

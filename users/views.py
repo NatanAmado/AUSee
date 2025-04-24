@@ -19,6 +19,7 @@ import traceback
 from django.conf import settings
 from django.contrib.auth import views as auth_views
 from CourseReviews1.views import university_college_check
+import re
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -213,20 +214,23 @@ def custom_logout(request, university_college):
 
 
 def college_selection_login(request):
-    """Display a page for users to select which university college they want to log in to"""
-    context = {
-        'university_colleges': UNIVERSITY_COLLEGE_CHOICES,
-        'action_type': 'login'
-    }
-    return render(request, 'users/college_selection.html', context)
+    """Redirect directly to AUC login page to skip the intermediate step"""
+    # Default to AUC or use the next parameter if available
+    next_param = request.GET.get('next', '')
+    
+    # If next contains a university college path, extract it
+    match = re.match(r'^/([^/]+)/', next_param)
+    if match:
+        university_college = match.group(1)
+        return redirect(f'/{university_college}/users/login/')
+    
+    # Default to AUC if no university college found in next param
+    return redirect('/auc/users/login/')
 
 def college_selection_register(request):
-    """Display a page for users to select which university college they want to register for"""
-    context = {
-        'university_colleges': UNIVERSITY_COLLEGE_CHOICES,
-        'action_type': 'register'
-    }
-    return render(request, 'users/college_selection.html', context)
+    """Redirect directly to AUC register page to skip the intermediate step"""
+    # Always redirect to AUC register page
+    return redirect('/auc/users/register/')
 
 
 
