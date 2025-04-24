@@ -219,6 +219,19 @@
             grid-template-columns: 1fr;
         }
     }
+    
+    /* Emergency override for blue links */
+    #forum-content a:not(.btn):not(.navbar-brand),
+    .topic-card a, .post-item a, .post-meta a,
+    a.text-decoration-none, a.text-muted {
+        color: #dba309 !important;
+        text-decoration: none !important;
+    }
+    
+    #forum-content a:hover,
+    .topic-card a:hover, .post-item a:hover {
+        color: #ffffff !important;
+    }
 </style>
 
 <!-- Hero Section -->
