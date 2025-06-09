@@ -245,11 +245,13 @@
                 <li class="nav-item">
                   <a class="nav-link" href="/auc/courses/">Courses</a>
                 </li>
+                {% if university_college %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'forum:home' university_college=university_college %}">
                     <i class="fas fa-comments"></i> {{ university_college|upper }} Hub
                   </a>
                 </li>
+                {% endif %}
                 <li class="nav-item">
                   <a class="nav-link" href="https://limonata.app/utm_source=AUSee" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom" title="By the creators of AUSee">Study Together</a>
                 </li>
@@ -272,11 +274,13 @@
                 <li class="nav-item visible-important">
                   <a class="nav-link visible-important" href="/auc/courses/">Courses</a>
                 </li>
+                {% if university_college %}
                 <li class="nav-item visible-important">
                   <a class="nav-link visible-important" href="{% url 'forum:home' university_college=university_college %}">
                     <i class="fas fa-comments"></i> {{ university_college|upper }} Hub
                   </a>
                 </li>
+                {% endif %}
                 <li class="nav-item visible-important">
                   <a class="nav-link visible-important" href="https://limonata.app/utm_source=AUSee" target="_blank">Study Together</a>
                 </li>
