@@ -32,7 +32,7 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'  # Get DEBUG value from envir
 
 
 
-ALLOWED_HOSTS = ['www.ausee.courses', 'ausee.courses', '127.0.0.1', '.vercel.app']
+ALLOWED_HOSTS = ['www.ausee.courses', 'ausee.courses', '127.0.0.1', '.vercel.app', 'www.usee.reviews', 'usee.reviews']
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
