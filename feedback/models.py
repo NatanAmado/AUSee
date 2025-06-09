@@ -5,11 +5,11 @@ from users.models import UNIVERSITY_COLLEGE_CHOICES
 
 
 class Feedback(models.Model):
-    name = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
     feedback = models.TextField()
+    email = models.EmailField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    university_college = models.CharField(max_length=4, choices=UNIVERSITY_COLLEGE_CHOICES, default='auc')
 
     def __str__(self):
-        return f"Feedback from {self.name.username}"
+        return f"Anonymous Feedback - {self.created_at}"
     
