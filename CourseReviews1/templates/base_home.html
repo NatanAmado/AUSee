@@ -230,7 +230,11 @@
         <nav class="navbar navbar-expand-lg navbar-dark">
           <div class="container">
             <a class="navbar-brand" href="/">
-                <img class="logo" src="{% static 'logo1.svg' %}">
+                {% if university_college %}
+                  <img class="logo" src="{% static 'uc_logos/'|add:university_college|lower|add:'.svg' %}" alt="{{ university_college|upper }} logo">
+                {% else %}
+                  <img class="logo" src="{% static 'logo1.svg' %}" alt="AUSee logo">
+                {% endif %}
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
