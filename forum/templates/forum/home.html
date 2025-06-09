@@ -1,7 +1,7 @@
 {% extends "base_home.html" %}
 {% load static %}
 
-{% block forum_content %}
+{% block content %}
 <style>
     /* Forum-specific link styling only */
     #forum-content a,
@@ -110,7 +110,6 @@
         min-width: 250px;
         max-width: 350px;
         padding: 30px;
-        background-color: #1a1a1a;
         border-radius: 10px;
         text-align: center;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -248,94 +247,61 @@
     <div class="feature">
         <i class="fas fa-lightbulb"></i>
         <h3>Share Ideas</h3>
-        <p>Exchange thoughts, insights, and creative solutions to academic challenges.</p>
+        <p>Share your thoughts, experiences, and insights with the community.</p>
     </div>
     <div class="feature">
-        <i class="fas fa-globe"></i>
-        <h3>Global Topics</h3>
-        <p>Connect with students from all University Colleges in shared discussions.</p>
+        <i class="fas fa-users"></i>
+        <h3>Connect</h3>
+        <p>Build connections with other students and get help when you need it.</p>
     </div>
 </div>
 
-<!-- Topics Section -->
-<h2 style="color: #dba309; margin-bottom: 20px; text-align: center;">Popular Discussion Topics</h2>
+<!-- Topics Grid -->
 <div class="topic-grid">
     {% for topic in topics %}
-    <div class="topic-card" id="topic-{{ topic.id }}">
+    <div class="topic-card">
         <h3>
-            <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=topic.id %}" class="text-decoration-none">
+            <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=topic.id %}">
                 {{ topic.name }}
-                {% if topic.is_global %}
-                <span class="badge bg-warning text-dark">Global</span>
-                {% endif %}
-                {% if is_staff_or_superuser and topic.is_archived %}
-                <span class="badge bg-danger">Archived</span>
-                {% endif %}
             </a>
+            {% if topic.is_global %}
+                <span class="badge bg-warning">Global</span>
+            {% endif %}
         </h3>
-        <p>{{ topic.description|truncatewords:15 }}</p>
+        <p>{{ topic.description|truncatewords:20 }}</p>
         <div class="post-meta">
-            Created by: {{ topic.created_by.username|default:"Anonymous" }}
+            <small>Created by {{ topic.created_by.username }} • {{ topic.created_at|timesince }} ago</small>
         </div>
     </div>
     {% empty %}
-    <div class="text-center w-100">
-        <p class="text-muted">No topics have been created yet.</p>
-        {% if user.is_authenticated %}
-        <a href="{% url 'forum:create_topic' university_college=university_college %}" class="cta-button">Create the First Topic</a>
-        {% endif %}
+    <div class="col-12 text-center">
+        <p>No topics available yet. Be the first to create one!</p>
     </div>
     {% endfor %}
 </div>
 
 <!-- Recent Posts Section -->
 <div class="recent-posts">
-    <h2>Recent Discussions</h2>
-    
+    <h2>Recent Posts</h2>
     {% for post in recent_posts %}
-    <div class="post-item {% if post.is_archived %}border-danger{% endif %}" id="post-{{ post.id }}">
+    <div class="post-item">
         <h4>
-            <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}" class="text-decoration-none">
+            <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}">
                 {{ post.title }}
             </a>
-            {% if post.is_archived %}
-            <span class="badge bg-danger ms-2">Archived</span>
-            {% endif %}
         </h4>
         <p>{{ post.content|truncatewords:30 }}</p>
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="post-meta">
-                In: <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=post.topic.id %}" class="text-muted">{{ post.topic.name }}</a>
-                | By: {{ post.author.username|default:"Anonymous" }}
-                {% if post.topic.is_global and post.author %}
-                <span class="badge bg-secondary">{{ post.author.university_college|upper }}</span>
-                {% endif %}
-                | {{ post.created_at|timesince }} ago
-            </div>
-            
-            {% if user.is_authenticated and not post.is_archived and not post.topic.is_archived %}
-            <div class="d-flex align-items-center">
-                <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
-                    👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
-                </button>
-                <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
-                    👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
-                </button>
-            </div>
-            {% else %}
-            <div class="d-flex align-items-center text-muted">
-                <span class="me-3">👍 <span class="vote-count">{{ post.upvotes }}</span></span>
-                <span>👎 <span class="vote-count">{{ post.downvotes }}</span></span>
-            </div>
-            {% endif %}
+        <div class="post-meta">
+            <small>Posted by {{ post.author.username }} in 
+                <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=post.topic.id %}">
+                    {{ post.topic.name }}
+                </a>
+                • {{ post.created_at|timesince }} ago
+            </small>
         </div>
     </div>
     {% empty %}
-    <p class="text-muted text-center">No posts have been created yet.</p>
+    <p class="text-center">No recent posts available.</p>
     {% endfor %}
-    
-    <div class="text-center mt-4">
-        <a href="{% url 'forum:topic_list' university_college=university_college %}" class="cta-button">Browse All Topics</a>
-    </div>
 </div>
 {% endblock %} 
