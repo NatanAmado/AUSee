@@ -283,28 +283,40 @@
 
   <!-- Navigation Buttons -->
   <div class="course-filters">
-    <button class="filter-btn all-courses-btn active" onclick="filterCourses('all')">All Courses</button>
-    <button class="filter-btn level-100-btn" onclick="filterCourses('100')">100</button>
-    <button class="filter-btn level-200-btn" onclick="filterCourses('200')">200</button>
-    <button class="filter-btn level-300-btn" onclick="filterCourses('300')">300</button>
+    <button class="filter-btn all-courses-btn active" data-filter="all">All Courses</button>
+    <button class="filter-btn level-100-btn" data-filter="100">100</button>
+    <button class="filter-btn level-200-btn" data-filter="200">200</button>
+    <button class="filter-btn level-300-btn" data-filter="300">300</button>
   </div>
-
-  <!-- Major Filters -->
-  <div class="course-filters" style="margin-top: -20px;">
-    {% if majors %}
-      {% for major in majors %}
-        <button class="filter-btn major-btn" onclick="filterByMajor('{{ major }}')" 
-                style="background-color: #1A1A1A; color: 
-                {% if forloop.counter|divisibleby:4 %}#99FF99{% elif forloop.counter|divisibleby:3 %}#CC99FF{% elif forloop.counter|divisibleby:2 %}#66CCFF{% else %}#FF9966{% endif %};">
-          {{ major }}
-        </button>
-      {% endfor %}
+  <div class="course-filters" style="margin-top: -10px;">
+    {% if university_college|lower == 'auc' %}
+      <button class="filter-btn" data-filter="HUMY" style="background-color: #1A1A1A; color: #FFB6C1;">Humanities</button>
+      <button class="filter-btn" data-filter="SSCY" style="background-color: #1A1A1A; color: #98FB98;">Social Sciences</button>
+      <button class="filter-btn" data-filter="SCIY" style="background-color: #1A1A1A; color: #87CEEB;">Sciences</button>
+      <button class="filter-btn" data-filter="ACCY" style="background-color: #1A1A1A; color: #DDA0DD;">Academic Core</button>
+      {% if majors %}
+        {% for major in majors %}
+          {% if major != 'ALL' and major != 'HUMY' and major != 'SSCY' and major != 'SCIY' and major != 'ACCY' %}
+          <button class="filter-btn major-btn" onclick="filterByMajor('{{ major }}')"
+                  style="background-color: #1A1A1A; color: 
+                  {% if forloop.counter|divisibleby:4 %}#99FF99{% elif forloop.counter|divisibleby:3 %}#CC99FF{% elif forloop.counter|divisibleby:2 %}#66CCFF{% else %}#FF9966{% endif %};">
+            {{ major }}
+          </button>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
     {% else %}
-      <!-- Fallback filters if no majors are found -->
-      <button class="filter-btn major-btn" onclick="filterByMajor('HUM')" style="background-color: #1A1A1A; color: #FF9966;">Humanities</button>
-      <button class="filter-btn major-btn" onclick="filterByMajor('ACC')" style="background-color: #1A1A1A; color: #66CCFF;">Academic Core</button>
-      <button class="filter-btn major-btn" onclick="filterByMajor('SSC')" style="background-color: #1A1A1A; color: #CC99FF;">Social Sciences</button>
-      <button class="filter-btn major-btn" onclick="filterByMajor('SCI')" style="background-color: #1A1A1A; color: #99FF99;">Sciences</button>
+      {% if majors %}
+        {% for major in majors %}
+          {% if major != 'ALL' %}
+          <button class="filter-btn major-btn" onclick="filterByMajor('{{ major }}')"
+                  style="background-color: #1A1A1A; color: 
+                  {% if forloop.counter|divisibleby:4 %}#99FF99{% elif forloop.counter|divisibleby:3 %}#CC99FF{% elif forloop.counter|divisibleby:2 %}#66CCFF{% else %}#FF9966{% endif %};">
+            {{ major }}
+          </button>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
     {% endif %}
   </div>
 
@@ -439,16 +451,16 @@
     cards.forEach(card => {
       // Check if we are showing all courses or filtering by level
       if (level === 'all') {
-        card.parentElement.style.display = ''; // Show all courses
+        card.parentElement.style.display = ""; // Show all courses
         visibleCount++;
       } else {
         // Show the card if it matches the level, hide it otherwise
         const cardLevel = card.querySelector('.level-holder').textContent.trim();
         if (cardLevel === level) {
-          card.parentElement.style.display = '';
+          card.parentElement.style.display = "";
           visibleCount++;
         } else {
-          card.parentElement.style.display = 'none';
+          card.parentElement.style.display = "none";
         }
       }
     });
@@ -461,7 +473,7 @@
       noResultsMessage.style.display = 'none';
     }
     
-    document.querySelector(`.filter-btn[onclick*="'${level}'"]`).classList.add('active');
+    document.querySelector(`.filter-btn[data-filter="${level}"]`).classList.add('active');
   }
   
   function filterByMajor(major) {
@@ -487,10 +499,10 @@
       
       // Check if the course code contains the major code
       if (courseCode.includes(major)) {
-        card.parentElement.style.display = '';
+        card.parentElement.style.display = "";
         visibleCount++;
       } else {
-        card.parentElement.style.display = 'none';
+        card.parentElement.style.display = "none";
       }
     });
     
@@ -519,6 +531,36 @@
     if (searchQuery && allCards.length === 0) {
       document.getElementById('no-results-message').style.display = 'block';
     }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const courseCards = document.querySelectorAll('.card');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+
+            const filter = this.getAttribute('data-filter');
+
+            courseCards.forEach(card => {
+                const courseCode = card.querySelector('.card-code').textContent;
+                const courseLevel = card.querySelector('.level-holder').textContent;
+
+                if (filter === 'all') {
+                    card.parentElement.style.display = "";
+                } else if (filter === '100' || filter === '200' || filter === '300') {
+                    card.parentElement.style.display = courseLevel.includes(filter) ? "" : "none";
+                } else {
+                    // Filter by course code prefix
+                    card.parentElement.style.display = courseCode.includes(filter) ? "" : "none";
+                }
+            });
+        });
+    });
   });
 </script>
 
