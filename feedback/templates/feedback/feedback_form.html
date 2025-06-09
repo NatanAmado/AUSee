@@ -6,18 +6,26 @@
 {% block content %}
 <style>
   .feedback-container {
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    background-color: #f9f9f9;
+    background-color: #000000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #ffffff;
   }
   
   .feedback-container h2 {
     text-align: center;
-    color: #333;
+    color: #dba309;
+    margin-bottom: 20px;
+  }
+
+  .feedback-container h3 {
+    color: #dba309;
+    margin-top: 30px;
+    margin-bottom: 15px;
   }
   
   .feedback-form {
@@ -27,49 +35,91 @@
   
   .feedback-form button {
     background-color: #dba309;
-    color: white;
+    color: #000000;
     padding: 10px 15px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
+    margin-top: 20px;
   }
 
+  .feedback-form button:hover {
+    background-color: #ffffff;
+  }
+  
   .feedback-form label {
     display: block;
     font-size: 16px;
     font-weight: bold;
-    
+    margin-bottom: 10px;
+    color: #ffffff;
   }
   
-  .feedback-form button:hover {
-    background-color: #001F3F;
-  }
-  
-  .feedback-form p {
-    margin-bottom: 15px;
-  }
-
   .feedback-form textarea {
-    width: 100%; /* Makes the textarea stretch to the full width of its container */
-    height: 150px; /* Sets the height of the textarea */
-    padding: 10px; /* Adds some space inside the textarea around the text */
-    border: 1px solid #ccc; /* Standard border */
-    border-radius: 4px; /* Slightly rounded corners for the textarea */
-    box-sizing: border-box; /* Includes padding and border in the width and height */
-    resize: vertical; /* Allows the user to resize the textarea vertically */
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    resize: vertical;
+    background-color: #1a1a1a;
+    color: #ffffff;
   }
-  
 
+  .feedback-form input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+
+  .contribution-info {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #1a1a1a;
+    border-radius: 4px;
+    border-left: 4px solid #dba309;
+  }
+
+  .contribution-info p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+  }
+
+  .contribution-info a {
+    color: #dba309;
+    text-decoration: none;
+  }
+
+  .contribution-info a:hover {
+    text-decoration: underline;
+  }
 </style>
 
 <div class="feedback-container">
-  <h2>Feedback Form</h2>
+  <h2>Send Us Feedback</h2>
   <form method="post" class="feedback-form">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Send Feedback</button>
   </form>
+
+  <div class="contribution-info">
+    <h3>Want to Contribute?</h3>
+    <p>AUSee is an open-source project, and we welcome contributions from the community! You can help improve the platform in several ways:</p>
+    <ul>
+      <li>Report bugs or suggest new features through this feedback form</li>
+      <li>Submit pull requests with code improvements on our <a href="https://github.com/NatanAmado/AUSee" target="_blank">GitHub repository</a></li>
+      <li>Help improve documentation or fix typos</li>
+      <li>Share your ideas for new features or improvements</li>
+    </ul>
+    <p>Visit our <a href="https://github.com/NatanAmado/AUSee" target="_blank">GitHub repository</a> to learn more about contributing to AUSee.</p>
+  </div>
 </div>
 {% endblock %}
 
