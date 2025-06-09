@@ -68,6 +68,8 @@
     .hero h1 {
         font-size: 2.5rem;
         margin-bottom: 20px;
+        font-family: 'PF Fuel', 'decay';
+
     }
     
     .hero p {
@@ -227,7 +229,7 @@
 
 <!-- Hero Section -->
 <div class="hero">
-    <h1>Welcome to {{ university_college|upper }} Forum</h1>
+    <h1>Welcome to {{ university_college|upper }} Hub</h1>
     <p>Connect with fellow students, discuss courses, share experiences, and get advice on academic and campus life.</p>
     {% if user.is_authenticated %}
         <a href="{% url 'forum:create_topic' university_college=university_college %}" class="cta-button">Create New Topic</a>
