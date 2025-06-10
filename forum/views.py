@@ -11,6 +11,7 @@ from .forms import TopicForm, PostForm, CommentForm, TopicDescriptionForm, Topic
 from django import forms
 from CourseReviews1.views import university_college_check
 from datetime import datetime, timedelta
+from django.conf import settings
 
 @login_required
 def forum_home(request, university_college):
@@ -236,17 +237,28 @@ def create_post(request, university_college):
             post = post_form.save(commit=False)
             post.author = request.user
             post.author_university_college = university_college
+
+            # Handle image data if present
+            image_data = request.POST.get('image_data')
+            if image_data:
+                # Find the [GIF][/GIF] placeholder in the content
+                content = post.content
+                if '[GIF][/GIF]' in content:
+                    # Replace the placeholder with the actual image data
+                    post.content = content.replace('[GIF][/GIF]', f'[GIF]{image_data}[/GIF]')
+
             post.save()
             
-            # Handle poll creation if poll form is valid
-            if poll_form.is_valid() and poll_option_formset.is_valid():
-                poll = poll_form.save(commit=False)
-                poll.post = post
-                poll.save()
-                
-                # Save poll options
-                poll_option_formset.instance = poll
-                poll_option_formset.save()
+            # Only handle poll creation if poll data is present
+            if request.POST.get('poll_question'):  # Check if poll is being used
+                if poll_form.is_valid() and poll_option_formset.is_valid():
+                    poll = poll_form.save(commit=False)
+                    poll.post = post
+                    poll.save()
+                    
+                    # Save poll options
+                    poll_option_formset.instance = poll
+                    poll_option_formset.save()
             
             return redirect('forum:post_detail', university_college=university_college, post_id=post.id)
     else:
@@ -258,7 +270,8 @@ def create_post(request, university_college):
         'post_form': post_form,
         'poll_form': poll_form,
         'poll_option_formset': poll_option_formset,
-        'university_college': university_college
+        'university_college': university_college,
+        'giphy_api_key': settings.GIPHY_API_KEY
     })
 
 @login_required

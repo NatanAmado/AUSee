@@ -1,5 +1,6 @@
 {% extends "base_home.html" %}
 {% load static %}
+{% load forum_extras %}
 
 {% block content %}
 {% csrf_token %}
@@ -266,6 +267,17 @@
             grid-template-columns: 1fr;
         }
     }
+
+    /* GIF styles */
+    .post-gif {
+        max-width: 500px;
+        max-height: 500px;
+        width: auto;
+        height: auto;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+        object-fit: contain;
+    }
 </style>
 
 <!-- Hero Section -->
@@ -351,41 +363,64 @@
         {% for post in recent_posts %}
         <div class="post-item">
             <h4>
-                <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}">
+                <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}" class="text-light text-decoration-none">
                     {{ post.title }}
                 </a>
+                {% if is_staff_or_superuser and post.is_archived %}
+                <span class="badge bg-danger ms-2">Archived</span>
+                {% endif %}
             </h4>
-            <p>{{ post.content|truncatewords:30 }}</p>
-            <div class="post-meta">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <small>Posted by {{ post.author.username }} in 
-                            <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=post.topic.id %}">
-                                {{ post.topic.name }}
-                            </a>
-                            • {{ post.created_at|timesince }} ago
-                        </small>
+            <div class="post-meta text-muted">
+                {% if not post.is_anonymous %}
+                <span class="author">By: {{ post.author.username }}</span>
+                {% if post.topic.is_global %}
+                <span class="badge bg-secondary">{{ post.author.university_college|upper }}</span>
+                {% endif %}
+                {% else %}
+                <span class="author">Anonymous</span>
+                {% if post.topic.is_global %}
+                <span class="badge bg-secondary">{{ post.author.university_college|upper }}</span>
+                {% endif %}
+                {% endif %}
+                <br>
+                <span class="date">{{ post.created_at|date:"M d, Y" }}</span>
+            </div>
+            {% with content_parts=post.content|split:"[GIF]" %}
+                {% for part in content_parts %}
+                    {% if forloop.counter0|divisibleby:2 %}
+                        <p class="post-content">{{ part|linebreaks|truncatewords:50 }}</p>
+                    {% else %}
+                        {% with gif_url=part|split:"[/GIF]"|first %}
+                            <img src="{{ gif_url }}" alt="GIF" class="post-gif">
+                            {% with remaining_text=part|split:"[/GIF]"|last %}
+                                {% if remaining_text %}
+                                    <p class="post-content">{{ remaining_text|linebreaks|truncatewords:50 }}</p>
+                                {% endif %}
+                            {% endwith %}
+                        {% endwith %}
+                    {% endif %}
+                {% endfor %}
+            {% endwith %}
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <div class="d-flex align-items-center gap-3">
+                    {% if user.is_authenticated and not post.is_archived %}
+                    <div class="d-flex align-items-center">
+                        <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
+                            👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
+                        </button>
+                        <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
+                            👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
+                        </button>
                     </div>
-                    <div class="d-flex align-items-center gap-3">
-                        {% if user.is_authenticated and not post.is_archived %}
-                        <div class="d-flex align-items-center">
-                            <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
-                                👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
-                            </button>
-                            <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
-                                👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
-                            </button>
-                        </div>
-                        {% else %}
-                        <div class="d-flex align-items-center text-muted">
-                            <span class="me-2">👍 {{ post.upvotes }}</span>
-                            <span>👎 {{ post.downvotes }}</span>
-                        </div>
-                        {% endif %}
-                        <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}#comments" class="text-muted">
-                            💬 {{ post.comments.count }} comments
-                        </a>
+                    {% else %}
+                    <div class="d-flex align-items-center text-muted">
+                        <span class="me-2">👍 {{ post.upvotes }}</span>
+                        <span>👎 {{ post.downvotes }}</span>
                     </div>
+                    {% endif %}
+                    <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}#comments" class="text-muted">
+                        💬 {{ post.comments.count }} comments
+                    </a>
                 </div>
             </div>
         </div>

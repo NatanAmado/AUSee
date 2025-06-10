@@ -189,6 +189,9 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'auseecourses@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 
+# GIPHY API Key
+GIPHY_API_KEY = os.environ.get('GIPHY_API_KEY')
+
 # For development - prints emails to console instead of sending them
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 

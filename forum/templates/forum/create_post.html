@@ -76,19 +76,185 @@
     .icon-btn {
         width: 40px;
         height: 40px;
-        display: flex;
+        padding: 0;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
+        border-radius: 0.5rem;
         transition: all 0.2s ease;
     }
 
     .icon-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* GIF preview styling */
+    .gif-preview {
+        max-width: 300px;
+        max-height: 300px;
+        width: auto;
+        height: auto;
+        border-radius: 0.5rem;
+        display: none;
+        object-fit: contain;
+    }
+
+    /* GIF modal styling */
+    .gif-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+    }
+
+    .gif-modal-content {
+        position: relative;
+        background-color: #212529;
+        margin: 5% auto;
+        padding: 20px;
+        width: 90%;
+        max-width: 800px;
+        border-radius: 0.5rem;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .gif-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .gif-modal-header h5 {
+        margin: 0;
+        color: #dba309;
+    }
+
+    #gif-source-tabs.nav-tabs .nav-link {
+        color: #adb5bd !important;
+        border: none !important;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: none !important;
+    }
+
+    #gif-source-tabs.nav-tabs .nav-link:hover {
+        color: #dba309 !important;
+        border: none !important;
+    }
+
+    #gif-source-tabs.nav-tabs .nav-link.active {
+        color: #dba309 !important;
+        border-bottom: 2px solid #dba309 !important;
+        background: none !important;
+    }
+
+    .close-gif-modal {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+    }
+
+    .gif-search {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        background-color: #343a40;
+        border: 1px solid #495057;
+        border-radius: 0.25rem;
+        color: white;
+    }
+
+    .gif-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .gif-item {
+        cursor: pointer;
+        border-radius: 0.25rem;
+        overflow: hidden;
+        transition: transform 0.2s ease;
+    }
+
+    .gif-item:hover {
+        transform: scale(1.05);
+    }
+
+    .gif-item img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        display: block;
+    }
+
+    /* Upload area styling */
+    .upload-area {
+        border: 2px dashed #495057;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .upload-area:hover {
+        border-color: #dba309;
         background-color: rgba(219, 163, 9, 0.1);
     }
 
-    .icon-btn i {
-        font-size: 1.2rem;
+    .upload-area i {
+        font-size: 2rem;
+        color: #dba309;
+        margin-bottom: 1rem;
+    }
+
+    .upload-area p {
+        margin: 0;
+        color: #adb5bd;
+    }
+
+    .upload-area input[type="file"] {
+        display: none;
+    }
+
+    .image-preview {
+        max-width: 300px;
+        max-height: 300px;
+        width: auto;
+        height: auto;
+        margin-top: 1rem;
+        border-radius: 0.5rem;
+        display: none;
+        object-fit: contain;
+    }
+
+    /* Form validation styles */
+    input:invalid {
+        border-color: #dc3545;
+    }
+
+    input:invalid:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
     }
 </style>
 
@@ -97,7 +263,7 @@
         <h4 class="mb-0">Create New Post</h4>
     </div>
     <div class="card-body">
-        <form method="post">
+        <form method="post" id="post-form">
             {% csrf_token %}
             
             <!-- Post Form -->
@@ -116,18 +282,26 @@
             </div>
             {% endfor %}
 
-            <!-- Add Poll Button -->
-            <button type="button" class="btn btn-outline-warning mb-3 icon-btn" id="toggle-poll" title="Add Poll">
-                <i class="fas fa-chart-bar"></i>
-            </button>
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2 mb-3">
+                <button type="button" class="btn btn-outline-warning icon-btn" id="toggle-poll" title="Add Poll">
+                    <i class="fas fa-chart-bar"></i>
+                </button>
+                <button type="button" class="btn btn-outline-warning icon-btn" id="toggle-gif" title="Add GIF/Meme">
+                    <i class="fas fa-image"></i>
+                </button>
+            </div>
+
+            <!-- GIF Preview -->
+            <img id="gif-preview" class="gif-preview mb-3" alt="Selected GIF">
 
             <!-- Poll Form (Hidden by default) -->
             <div id="poll-section" style="display: none;">
                 <div class="card bg-dark text-light mb-3">
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="{{ poll_form.question.id_for_label }}" class="form-label">Poll Question</label>
-                            {{ poll_form.question }}
+                            <label for="poll_question" class="form-label">Poll Question</label>
+                            <input type="text" name="poll_question" id="poll_question" class="form-control" maxlength="200">
                         </div>
                         
                         <h6 class="mt-4">Poll Options</h6>
@@ -160,6 +334,32 @@
     </div>
 </div>
 
+<!-- GIF Modal -->
+<div id="gif-modal" class="gif-modal">
+    <div class="gif-modal-content">
+        <div class="gif-modal-header">
+            <h5>Select GIF/Meme</h5>
+            <button type="button" class="close-gif-modal" id="close-gif-modal">&times;</button>
+        </div>
+        <div class="nav nav-tabs mb-3" id="gif-source-tabs">
+            <button class="nav-link active" data-source="giphy">GIPHY</button>
+            <button class="nav-link" data-source="upload">Upload</button>
+        </div>
+        <div id="gif-search-container">
+            <input type="text" id="gif-search" class="gif-search" placeholder="Search GIFs...">
+            <div id="gif-grid" class="gif-grid"></div>
+        </div>
+        <div id="upload-container" style="display: none;">
+            <div class="upload-area" id="upload-area">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag and drop an image here or click to browse</p>
+                <input type="file" id="file-input" accept="image/*">
+            </div>
+            <img id="image-preview" class="image-preview" alt="Preview">
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const togglePollBtn = document.getElementById('toggle-poll');
@@ -167,6 +367,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const addOptionBtn = document.getElementById('add-option');
     const pollOptions = document.getElementById('poll-options');
     const totalForms = document.getElementById('id_polloption_set-TOTAL_FORMS');
+    const questionInput = document.getElementById('poll_question');
+    const postForm = document.getElementById('post-form');
     
     // Add remove functionality to initial options
     document.querySelectorAll('.remove-option').forEach(btn => {
@@ -183,10 +385,12 @@ document.addEventListener('DOMContentLoaded', function() {
             pollSection.style.display = 'block';
             togglePollBtn.innerHTML = '<i class="fas fa-times"></i>';
             togglePollBtn.title = 'Remove Poll';
+            questionInput.focus();
         } else {
             pollSection.style.display = 'none';
             togglePollBtn.innerHTML = '<i class="fas fa-chart-bar"></i>';
             togglePollBtn.title = 'Add Poll';
+            questionInput.value = '';
         }
     });
     
@@ -221,6 +425,239 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTotalForms() {
         totalForms.value = pollOptions.children.length;
     }
+
+    // Form validation
+    postForm.addEventListener('submit', function(e) {
+        if (pollSection.style.display === 'block') {
+            if (!questionInput.value.trim()) {
+                e.preventDefault();
+                alert('Please enter a poll question');
+                questionInput.focus();
+                return false;
+            }
+            
+            // Check if at least two options have text
+            const options = pollOptions.querySelectorAll('input[type="text"]');
+            const filledOptions = Array.from(options).filter(opt => opt.value.trim());
+            if (filledOptions.length < 2) {
+                e.preventDefault();
+                alert('Please provide at least two poll options');
+                return false;
+            }
+        }
+        return true;
+    });
+
+    // GIF Modal functionality
+    const gifModal = document.getElementById('gif-modal');
+    const toggleGifBtn = document.getElementById('toggle-gif');
+    const closeGifModal = document.getElementById('close-gif-modal');
+    const gifSearch = document.getElementById('gif-search');
+    const gifGrid = document.getElementById('gif-grid');
+    const gifPreview = document.getElementById('gif-preview');
+    const sourceTabs = document.querySelectorAll('#gif-source-tabs .nav-link');
+    const gifSearchContainer = document.getElementById('gif-search-container');
+    const uploadContainer = document.getElementById('upload-container');
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-input');
+    const imagePreview = document.getElementById('image-preview');
+    let currentSource = 'giphy';
+    let searchTimeout;
+
+    // GIPHY API key
+    const GIPHY_API_KEY = '{{ giphy_api_key }}';
+
+    toggleGifBtn.addEventListener('click', () => {
+        gifModal.style.display = 'block';
+        searchGifs();
+    });
+
+    closeGifModal.addEventListener('click', () => {
+        gifModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === gifModal) {
+            gifModal.style.display = 'none';
+        }
+    });
+
+    sourceTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            sourceTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentSource = tab.dataset.source;
+            
+            if (currentSource === 'upload') {
+                gifSearchContainer.style.display = 'none';
+                uploadContainer.style.display = 'block';
+            } else {
+                gifSearchContainer.style.display = 'block';
+                uploadContainer.style.display = 'none';
+                searchGifs();
+            }
+        });
+    });
+
+    gifSearch.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(searchGifs, 500);
+    });
+
+    async function searchGifs() {
+        const query = gifSearch.value || 'trending';
+        const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${query}&limit=20`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            displayGifs(data);
+        } catch (error) {
+            console.error('Error fetching GIFs:', error);
+        }
+    }
+
+    function displayGifs(data) {
+        gifGrid.innerHTML = '';
+        data.data.forEach(gif => {
+            const img = document.createElement('img');
+            img.src = gif.images.fixed_height.url;
+            img.alt = gif.title;
+            
+            const div = document.createElement('div');
+            div.className = 'gif-item';
+            div.appendChild(img);
+            
+            div.addEventListener('click', () => {
+                gifPreview.src = gif.images.original.url;
+                gifPreview.style.display = 'block';
+                gifModal.style.display = 'none';
+
+                // Store the GIF URL in a hidden input
+                const imageDataInput = document.getElementById('image_data');
+                if (!imageDataInput) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.id = 'image_data';
+                    input.name = 'image_data';
+                    document.getElementById('post-form').appendChild(input);
+                }
+                document.getElementById('image_data').value = gif.images.original.url;
+
+                // Update content field to replace any existing [GIF] tags
+                const contentField = document.getElementById('id_content');
+                let content = contentField.value;
+                // Remove any existing [GIF] tags and their content
+                content = content.replace(/\[GIF\].*?\[\/GIF\]/g, '');
+                // Add new placeholder
+                contentField.value = content + '\n\n[GIF][/GIF]';
+            });
+            
+            gifGrid.appendChild(div);
+        });
+    }
+
+    // Upload functionality
+    uploadArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        handleFileUpload(file);
+    });
+
+    function handleFileUpload(file) {
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            showUploadError('Please select an image file');
+            return;
+        }
+
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showUploadError('File size must be less than 5MB');
+            return;
+        }
+
+        // Create preview and compress image
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                // Create canvas for compression
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Calculate new dimensions while maintaining aspect ratio
+                let width = img.width;
+                let height = img.height;
+                const maxSize = 500;
+
+                if (width > height) {
+                    if (width > maxSize) {
+                        height = Math.round((height * maxSize) / width);
+                        width = maxSize;
+                    }
+                } else {
+                    if (height > maxSize) {
+                        width = Math.round((width * maxSize) / height);
+                        height = maxSize;
+                    }
+                }
+
+                // Set canvas dimensions
+                canvas.width = width;
+                canvas.height = height;
+
+                // Draw and compress image
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convert to JPEG with minimal compression
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.95);
+
+                // Display preview
+                imagePreview.src = compressedDataUrl;
+                imagePreview.style.display = 'block';
+                gifPreview.src = compressedDataUrl;
+                gifPreview.style.display = 'block';
+                gifModal.style.display = 'none';
+
+                // Store the image data in a hidden input
+                const imageDataInput = document.getElementById('image_data');
+                if (!imageDataInput) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.id = 'image_data';
+                    input.name = 'image_data';
+                    document.getElementById('post-form').appendChild(input);
+                }
+                document.getElementById('image_data').value = compressedDataUrl;
+
+                // Update content field to replace any existing [GIF] tags
+                const contentField = document.getElementById('id_content');
+                let content = contentField.value;
+                // Remove any existing [GIF] tags and their content
+                content = content.replace(/\[GIF\].*?\[\/GIF\]/g, '');
+                // Add new placeholder
+                contentField.value = content + '\n\n[GIF][/GIF]';
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function showUploadError(message) {
+        imagePreview.style.display = 'none';
+        gifPreview.style.display = 'none';
+        gifModal.style.display = 'none';
+        alert(message);
+    }
+
+    // Initial search
+    searchGifs();
 });
 </script>
 {% endblock %} 

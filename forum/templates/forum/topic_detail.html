@@ -156,7 +156,11 @@
             </div>
         </div>
         <div class="card-body">
-            <p class="card-text">{{ post.content|linebreaks|truncatewords:100 }}</p>
+            {% if post.content|slice:":4" == "http" %}
+                <img src="{{ post.content }}" alt="GIF" class="post-gif" style="max-width: 100%; height: auto; border-radius: 0.5rem; margin: 1rem 0;">
+            {% else %}
+                <p class="card-text">{{ post.content|linebreaks|truncatewords:100 }}</p>
+            {% endif %}
             
             <div class="d-flex justify-content-between align-items-center">
                 <div class="text-muted small">
