@@ -212,6 +212,46 @@
         font-size: 0.9rem;
     }
     
+    .create-topic-card {
+        border: 2px dashed #dba309;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+        transition: all 0.3s ease;
+    }
+    
+    .create-topic-card:hover {
+        background-color: rgba(219, 163, 9, 0.1);
+        transform: scale(1.02);
+    }
+    
+    .create-topic-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        text-decoration: none;
+        color: #dba309;
+    }
+    
+    .create-topic-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .plus-sign {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+    
+    .create-topic-text {
+        font-size: 1.2rem;
+    }
+    
     @media (max-width: 768px) {
         .features {
             flex-direction: column;
@@ -232,7 +272,7 @@
     <h1>Welcome to {{ university_college|upper }} Hub</h1>
     <p>Connect with fellow students, discuss courses, share experiences, and get advice on academic and campus life.</p>
     {% if user.is_authenticated %}
-        <a href="{% url 'forum:create_topic' university_college=university_college %}" class="cta-button">Create New Topic</a>
+        <a href="{% url 'forum:create_post' university_college=university_college %}" class="cta-button">Create New Post</a>
         <a href="{% url 'forum:topic_list' university_college=university_college %}" class="cta-button">View All Topics</a>
     {% else %}
         <a href="{% url 'users:login' %}" class="cta-button">Login to Participate</a>
@@ -280,6 +320,17 @@
         <p>No topics available yet. Be the first to create one!</p>
     </div>
     {% endfor %}
+    
+    {% if user.is_authenticated %}
+    <div class="topic-card create-topic-card">
+        <a href="{% url 'forum:create_topic' university_college=university_college %}" class="create-topic-link">
+            <div class="create-topic-content">
+                <span class="plus-sign">+</span>
+                <span class="create-topic-text">Create New Topic</span>
+            </div>
+        </a>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Recent Posts Section -->
