@@ -337,8 +337,13 @@
 <!-- Posts Section -->
 <div class="posts-section">
     <div class="posts-header">
-        <h2 class="active" data-view="recent">Recent Posts</h2>
-        <h2 data-view="weekly">Top Posts This Week</h2>
+        <div class="titles">
+            <h2 class="active" data-view="recent">Recent Posts</h2>
+            <h2 data-view="weekly">Top Posts This Week</h2>
+        </div>
+        <a href="{% url 'forum:create_post' university_college=university_college %}" class="btn btn-outline-primary create-post-btn">
+            Create Post
+        </a>
     </div>
     
     <!-- Recent Posts -->
@@ -445,10 +450,16 @@
     
     .posts-header {
         display: flex;
-        gap: 2rem;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: 1rem;
         border-bottom: 1px solid #333;
         padding-bottom: 0.5rem;
+    }
+    
+    .posts-header .titles {
+        display: flex;
+        gap: 2rem;
     }
     
     .posts-header h2 {
@@ -467,6 +478,20 @@
     .posts-header h2.active {
         color: #dba309;
         background-color: rgba(219, 163, 9, 0.1);
+    }
+
+    .create-post-btn {
+        border-color: #dba309;
+        color: #dba309;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .create-post-btn:hover {
+        background-color: #dba309;
+        color: #1a1a1a;
+        border-color: #dba309;
     }
     
     .recent-posts {
