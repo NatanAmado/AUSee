@@ -78,6 +78,7 @@ class Post(models.Model):
     is_anonymous = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     author_university_college = models.CharField(max_length=4, blank=True, null=True)
+    poll = models.OneToOneField('Poll', on_delete=models.CASCADE, null=True, blank=True, related_name='post_poll')
     
     def __str__(self):
         return self.title
@@ -168,3 +169,24 @@ class Vote(models.Model):
     class Meta:
         # Ensure a user can only vote once per post
         unique_together = ('user', 'post')
+
+class Poll(models.Model):
+    post = models.OneToOneField(Post, on_delete=models.CASCADE, related_name='poll_relation')
+    question = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(null=True, blank=True)  # Optional end date for the poll
+
+    def __str__(self):
+        return self.question
+
+class PollOption(models.Model):
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='options')
+    text = models.CharField(max_length=200)
+    votes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='poll_votes', blank=True)
+
+    def __str__(self):
+        return self.text
+
+    @property
+    def vote_count(self):
+        return self.votes.count()

@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.db.models import F, Q
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
-from .models import Topic, Post, Comment, Vote, TopicReport, PostReport
-from .forms import TopicForm, PostForm, CommentForm, TopicDescriptionForm, TopicReportForm, PostReportForm
+from .models import Topic, Post, Comment, Vote, TopicReport, PostReport, Poll, PollOption
+from .forms import TopicForm, PostForm, CommentForm, TopicDescriptionForm, TopicReportForm, PostReportForm, PollForm, PollOptionFormSet
 from django import forms
 from CourseReviews1.views import university_college_check
 from datetime import datetime, timedelta
@@ -226,50 +226,40 @@ def report_topic(request, university_college, topic_id):
     return render(request, 'forum/report_topic.html', context)
 
 @login_required
-def create_post(request, university_college, topic_id=None):
-    """Create a new post"""
-    initial = {}
-    topic = None
-    if topic_id:
-        topic = get_object_or_404(
-            Topic.objects.filter(
-                Q(university_college=university_college) | Q(is_global=True)
-            ),
-            id=topic_id
-        )
-        initial['topic'] = topic
-    
+def create_post(request, university_college):
     if request.method == 'POST':
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
+        post_form = PostForm(request.POST)
+        poll_form = PollForm(request.POST)
+        poll_option_formset = PollOptionFormSet(request.POST)
+        
+        if post_form.is_valid():
+            post = post_form.save(commit=False)
             post.author = request.user
-            # Ensure the topic belongs to the correct university college or is global
-            topic = form.cleaned_data.get('topic')
-            if topic.university_college != university_college and not topic.is_global:
-                messages.error(request, 'Invalid topic selection.')
-                return redirect('forum:home', university_college=university_college)
-            
-            # For global topics, save the author's university college
-            if topic.is_global:
-                post.author_university_college = request.user.university_college
-                
+            post.author_university_college = university_college
             post.save()
-            messages.success(request, 'Post created successfully!')
+            
+            # Handle poll creation if poll form is valid
+            if poll_form.is_valid() and poll_option_formset.is_valid():
+                poll = poll_form.save(commit=False)
+                poll.post = post
+                poll.save()
+                
+                # Save poll options
+                poll_option_formset.instance = poll
+                poll_option_formset.save()
+            
             return redirect('forum:post_detail', university_college=university_college, post_id=post.id)
     else:
-        form = PostForm(initial=initial)
-        # Filter topics to include both university-specific and global topics
-        form.fields['topic'].queryset = Topic.objects.filter(
-            Q(university_college=university_college) | Q(is_global=True)
-        )
+        post_form = PostForm()
+        poll_form = PollForm()
+        poll_option_formset = PollOptionFormSet()
     
-    context = {
-        'form': form,
-        'title': 'Create New Post',
+    return render(request, 'forum/create_post.html', {
+        'post_form': post_form,
+        'poll_form': poll_form,
+        'poll_option_formset': poll_option_formset,
         'university_college': university_college
-    }
-    return render(request, 'forum/post_form.html', context)
+    })
 
 @login_required
 def edit_post(request, university_college, post_id):
@@ -606,3 +596,42 @@ def create_post_in_topic(request, university_college, topic_id):
         'university_college': university_college
     }
     return render(request, 'forum/post_form.html', context)
+
+@login_required
+def vote_poll(request, university_college, post_id):
+    if request.method == 'POST':
+        post = get_object_or_404(Post, id=post_id)
+        option_id = request.POST.get('option_id')
+        
+        if not post.poll_relation:
+            return JsonResponse({'error': 'No poll found'}, status=400)
+        
+        option = get_object_or_404(PollOption, id=option_id, poll=post.poll_relation)
+        
+        # Check if user has already voted
+        if request.user in option.votes.all():
+            return JsonResponse({'error': 'You have already voted'}, status=400)
+        
+        # Add vote
+        option.votes.add(request.user)
+        
+        # Get updated results
+        results = []
+        total_votes = sum(opt.vote_count for opt in post.poll_relation.options.all())
+        
+        for opt in post.poll_relation.options.all():
+            percentage = (opt.vote_count / total_votes * 100) if total_votes > 0 else 0
+            results.append({
+                'id': opt.id,
+                'text': opt.text,
+                'votes': opt.vote_count,
+                'percentage': round(percentage, 1)
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'results': results,
+            'total_votes': total_votes
+        })
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=400)

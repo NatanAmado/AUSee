@@ -1,0 +1,226 @@
+{% extends "base_home.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Add Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+    /* Make labels display as blocks so inputs appear below them */
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Make inputs take full width */
+    input[type="text"], 
+    textarea,
+    select,
+    input[type="datetime-local"] {
+        width: 100%;
+        background-color: #212529;
+        color: white;
+        border: 1px solid #495057;
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        transition: all 0.2s ease;
+    }
+    
+    input[type="text"]:focus, 
+    textarea:focus,
+    select:focus,
+    input[type="datetime-local"]:focus {
+        border-color: #dba309;
+        box-shadow: 0 0 0 0.2rem rgba(219, 163, 9, 0.25);
+        outline: none;
+    }
+    
+    textarea {
+        min-height: 150px;
+    }
+
+    /* Poll section styles */
+    .poll-option {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .poll-option .remove-option {
+        color: #dc3545;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        transition: all 0.2s ease;
+    }
+    
+    .poll-option .remove-option:hover {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    /* Date picker styling */
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+        padding: 0.25rem;
+    }
+
+    input[type="datetime-local"]::-webkit-datetime-edit {
+        padding: 0.25rem;
+    }
+
+    /* Icon button styling */
+    .icon-btn {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+        background-color: rgba(219, 163, 9, 0.1);
+    }
+
+    .icon-btn i {
+        font-size: 1.2rem;
+    }
+</style>
+
+<div class="card bg-dark text-light">
+    <div class="card-header">
+        <h4 class="mb-0">Create New Post</h4>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Post Form -->
+            {% for field in post_form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <div class="form-text text-muted">{{ field.help_text }}</div>
+                {% endif %}
+                {% if field.errors %}
+                <div class="alert alert-danger mt-2">
+                    {{ field.errors }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <!-- Add Poll Button -->
+            <button type="button" class="btn btn-outline-warning mb-3 icon-btn" id="toggle-poll" title="Add Poll">
+                <i class="fas fa-chart-bar"></i>
+            </button>
+
+            <!-- Poll Form (Hidden by default) -->
+            <div id="poll-section" style="display: none;">
+                <div class="card bg-dark text-light mb-3">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="{{ poll_form.question.id_for_label }}" class="form-label">Poll Question</label>
+                            {{ poll_form.question }}
+                        </div>
+                        
+                        <h6 class="mt-4">Poll Options</h6>
+                        {{ poll_option_formset.management_form }}
+                        <div id="poll-options">
+                            {% for form in poll_option_formset %}
+                            <div class="mb-3 poll-option">
+                                {{ form.text }}
+                                <button type="button" class="remove-option" title="Remove option">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-outline-warning btn-sm" id="add-option">
+                            <i class="fas fa-plus"></i> Add Option
+                        </button>
+
+                        <div class="mb-3 mt-4">
+                            <label for="{{ poll_form.end_date.id_for_label }}" class="form-label">End Date (Optional)</label>
+                            {{ poll_form.end_date }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-warning">Create Post</button>
+            <a href="{% url 'forum:home' university_college=university_college %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const togglePollBtn = document.getElementById('toggle-poll');
+    const pollSection = document.getElementById('poll-section');
+    const addOptionBtn = document.getElementById('add-option');
+    const pollOptions = document.getElementById('poll-options');
+    const totalForms = document.getElementById('id_polloption_set-TOTAL_FORMS');
+    
+    // Add remove functionality to initial options
+    document.querySelectorAll('.remove-option').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (pollOptions.children.length > 2) {
+                this.closest('.poll-option').remove();
+                updateTotalForms();
+            }
+        });
+    });
+    
+    togglePollBtn.addEventListener('click', function() {
+        if (pollSection.style.display === 'none') {
+            pollSection.style.display = 'block';
+            togglePollBtn.innerHTML = '<i class="fas fa-times"></i>';
+            togglePollBtn.title = 'Remove Poll';
+        } else {
+            pollSection.style.display = 'none';
+            togglePollBtn.innerHTML = '<i class="fas fa-chart-bar"></i>';
+            togglePollBtn.title = 'Add Poll';
+        }
+    });
+    
+    addOptionBtn.addEventListener('click', function() {
+        const optionCount = pollOptions.children.length;
+        const newOption = pollOptions.children[0].cloneNode(true);
+        
+        // Update the form index
+        newOption.innerHTML = newOption.innerHTML.replace(/-\d+-/g, `-${optionCount}-`);
+        
+        // Clear the input value
+        newOption.querySelector('input').value = '';
+        
+        // Add remove button
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-option';
+        removeBtn.title = 'Remove option';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.onclick = function() {
+            if (pollOptions.children.length > 2) {
+                newOption.remove();
+                updateTotalForms();
+            }
+        };
+        newOption.appendChild(removeBtn);
+        
+        pollOptions.appendChild(newOption);
+        updateTotalForms();
+    });
+    
+    function updateTotalForms() {
+        totalForms.value = pollOptions.children.length;
+    }
+});
+</script>
+{% endblock %} 

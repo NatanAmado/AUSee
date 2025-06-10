@@ -33,6 +33,38 @@
             margin-bottom: 10px;
         }
     }
+    
+    .poll-section .card {
+        background-color: #1a1a1a;
+        border: 1px solid #333;
+    }
+    
+    .poll-section .card-title {
+        color: #dba309;
+        margin-bottom: 1rem;
+    }
+    
+    .poll-option-result {
+        color: #ccc;
+    }
+    
+    .progress {
+        background-color: #2a2a2a;
+        height: 8px;
+    }
+    
+    .progress-bar {
+        background-color: #dba309;
+    }
+    
+    .form-check-input:checked {
+        background-color: #dba309;
+        border-color: #dba309;
+    }
+    
+    .form-check-label {
+        color: #ccc;
+    }
 </style>
 
 <!-- Post -->
@@ -82,6 +114,62 @@
         {% endif %}
         <div class="post-content mb-4">
             {{ post.content|linebreaks }}
+            
+            {% if post.poll_relation %}
+            <div class="poll-section mt-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.poll_relation.question }}</h5>
+                        {% if post.poll_relation.end_date %}
+                        <p class="text-muted small">Poll ends: {{ post.poll_relation.end_date|date:"F j, Y, g:i a" }}</p>
+                        {% endif %}
+                        
+                        <div class="poll-options">
+                            {% if user.is_authenticated %}
+                                {% if has_voted %}
+                                    <!-- Show results -->
+                                    <div class="poll-results">
+                                        {% for option in post.poll_relation.options.all %}
+                                        <div class="poll-option-result mb-3">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <span>{{ option.text }}</span>
+                                                <span>{{ option.vote_count }} votes ({{ option.vote_count|percentage:total_votes }}%)</span>
+                                            </div>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-primary" role="progressbar" 
+                                                     style="width: {{ option.vote_count|percentage:total_votes }}%"
+                                                     aria-valuenow="{{ option.vote_count|percentage:total_votes }}" 
+                                                     aria-valuemin="0" aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                        <p class="text-muted small mt-3">Total votes: {{ total_votes }}</p>
+                                    </div>
+                                {% else %}
+                                    <!-- Show voting options -->
+                                    <form id="poll-form" class="poll-vote-form">
+                                        {% csrf_token %}
+                                        {% for option in post.poll_relation.options.all %}
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="option" 
+                                                   id="option-{{ option.id }}" value="{{ option.id }}" required>
+                                            <label class="form-check-label" for="option-{{ option.id }}">
+                                                {{ option.text }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                        <button type="submit" class="btn btn-primary mt-3">Vote</button>
+                                    </form>
+                                {% endif %}
+                            {% else %}
+                                <p class="text-muted">Please <a href="{% url 'login' %}">log in</a> to vote in this poll.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
         
         <div class="d-flex justify-content-between align-items-center">
@@ -190,6 +278,58 @@
             postElement.style.backgroundImage = 'repeating-linear-gradient(45deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.1) 10px, rgba(25, 28, 31, 0.1) 10px, rgba(25, 28, 31, 0.1) 20px)';
         }
         {% endif %}
+        
+        const pollForm = document.getElementById('poll-form');
+        if (pollForm) {
+            pollForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const selectedOption = document.querySelector('input[name="option"]:checked');
+                if (!selectedOption) return;
+                
+                fetch(`/forum/{{ university_college }}/post/{{ post.id }}/vote/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: `option_id=${selectedOption.value}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Replace the voting form with results
+                        const resultsHtml = `
+                            <div class="poll-results">
+                                ${data.results.map(result => `
+                                    <div class="poll-option-result mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span>${result.text}</span>
+                                            <span>${result.votes} votes (${result.percentage}%)</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-primary" role="progressbar" 
+                                                 style="width: ${result.percentage}%"
+                                                 aria-valuenow="${result.percentage}" 
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                <p class="text-muted small mt-3">Total votes: ${data.total_votes}</p>
+                            </div>
+                        `;
+                        document.querySelector('.poll-options').innerHTML = resultsHtml;
+                    } else {
+                        alert(data.error || 'An error occurred while voting');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while voting');
+                });
+            });
+        }
     });
 </script>
 {% endblock %} 
