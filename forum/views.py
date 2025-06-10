@@ -10,6 +10,7 @@ from .models import Topic, Post, Comment, Vote, TopicReport, PostReport
 from .forms import TopicForm, PostForm, CommentForm, TopicDescriptionForm, TopicReportForm, PostReportForm
 from django import forms
 from CourseReviews1.views import university_college_check
+from datetime import datetime, timedelta
 
 @login_required
 def forum_home(request, university_college):
@@ -20,21 +21,34 @@ def forum_home(request, university_college):
     # Query topics for this university college OR global topics
     topics = Topic.objects.filter(Q(university_college=university_college) | Q(is_global=True))
     
-    # Only show non-archived topics to regular users
+    # Get the start of the current week (Monday)
+    today = datetime.now()
+    monday = today - timedelta(days=today.weekday())
+    monday = monday.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # Base queryset for posts
+    posts_query = Post.objects.filter(
+        Q(topic__university_college=university_college) | Q(topic__is_global=True)
+    )
+    
+    # Only show non-archived posts to regular users
     if not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
-        topics = topics.filter(is_archived=False)
-        recent_posts = Post.objects.filter(
-            Q(topic__university_college=university_college) | Q(topic__is_global=True), 
-            is_archived=False
-        ).order_by('-created_at')[:5]
-    else:
-        recent_posts = Post.objects.filter(
-            Q(topic__university_college=university_college) | Q(topic__is_global=True)
-        ).order_by('-created_at')[:5]
+        posts_query = posts_query.filter(is_archived=False)
+    
+    # Get chronological posts
+    recent_posts = posts_query.order_by('-created_at')[:10]
+    
+    # Get top posts from this week
+    weekly_top_posts = posts_query.filter(
+        created_at__gte=monday
+    ).annotate(
+        net_votes=F('upvotes') - F('downvotes')
+    ).order_by('-net_votes', '-created_at')[:10]
     
     context = {
         'topics': topics,
         'recent_posts': recent_posts,
+        'weekly_top_posts': weekly_top_posts,
         'is_staff_or_superuser': request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff),
         'university_college': university_college
     }

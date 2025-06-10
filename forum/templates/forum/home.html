@@ -334,54 +334,199 @@
     {% endif %}
 </div>
 
-<!-- Recent Posts Section -->
-<div class="recent-posts">
-    <h2>Recent Posts</h2>
-    {% for post in recent_posts %}
-    <div class="post-item">
-        <h4>
-            <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}">
-                {{ post.title }}
-            </a>
-        </h4>
-        <p>{{ post.content|truncatewords:30 }}</p>
-        <div class="post-meta">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <small>Posted by {{ post.author.username }} in 
-                        <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=post.topic.id %}">
-                            {{ post.topic.name }}
+<!-- Posts Section -->
+<div class="posts-section">
+    <div class="posts-header">
+        <h2 class="active" data-view="recent">Recent Posts</h2>
+        <h2 data-view="weekly">Top Posts This Week</h2>
+    </div>
+    
+    <!-- Recent Posts -->
+    <div class="recent-posts" id="recent-posts">
+        {% for post in recent_posts %}
+        <div class="post-item">
+            <h4>
+                <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}">
+                    {{ post.title }}
+                </a>
+            </h4>
+            <p>{{ post.content|truncatewords:30 }}</p>
+            <div class="post-meta">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small>Posted by {{ post.author.username }} in 
+                            <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=post.topic.id %}">
+                                {{ post.topic.name }}
+                            </a>
+                            • {{ post.created_at|timesince }} ago
+                        </small>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        {% if user.is_authenticated and not post.is_archived %}
+                        <div class="d-flex align-items-center">
+                            <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
+                                👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
+                            </button>
+                            <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
+                                👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
+                            </button>
+                        </div>
+                        {% else %}
+                        <div class="d-flex align-items-center text-muted">
+                            <span class="me-2">👍 {{ post.upvotes }}</span>
+                            <span>👎 {{ post.downvotes }}</span>
+                        </div>
+                        {% endif %}
+                        <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}#comments" class="text-muted">
+                            💬 {{ post.comments.count }} comments
                         </a>
-                        • {{ post.created_at|timesince }} ago
-                    </small>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    {% if user.is_authenticated and not post.is_archived %}
-                    <div class="d-flex align-items-center">
-                        <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
-                            👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
-                        </button>
-                        <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
-                            👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
-                        </button>
                     </div>
-                    {% else %}
-                    <div class="d-flex align-items-center text-muted">
-                        <span class="me-2">👍 {{ post.upvotes }}</span>
-                        <span>👎 {{ post.downvotes }}</span>
-                    </div>
-                    {% endif %}
-                    <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}#comments" class="text-muted">
-                        💬 {{ post.comments.count }} comments
-                    </a>
                 </div>
             </div>
         </div>
+        {% empty %}
+        <p class="text-center">No recent posts available.</p>
+        {% endfor %}
     </div>
-    {% empty %}
-    <p class="text-center">No recent posts available.</p>
-    {% endfor %}
+
+    <!-- Weekly Top Posts -->
+    <div class="recent-posts" id="weekly-posts" style="display: none;">
+        {% for post in weekly_top_posts %}
+        <div class="post-item">
+            <h4>
+                <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}">
+                    {{ post.title }}
+                </a>
+            </h4>
+            <p>{{ post.content|truncatewords:30 }}</p>
+            <div class="post-meta">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small>Posted by {{ post.author.username }} in 
+                            <a href="{% url 'forum:topic_detail' university_college=university_college topic_id=post.topic.id %}">
+                                {{ post.topic.name }}
+                            </a>
+                            • {{ post.created_at|timesince }} ago
+                        </small>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        {% if user.is_authenticated and not post.is_archived %}
+                        <div class="d-flex align-items-center">
+                            <button onclick="vote({{ post.id }}, 'upvote')" id="upvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-success me-2 vote-btn">
+                                👍 <span id="upvote-count-{{ post.id }}" class="vote-count">{{ post.upvotes }}</span>
+                            </button>
+                            <button onclick="vote({{ post.id }}, 'downvote')" id="downvote-btn-{{ post.id }}" class="btn btn-sm btn-outline-danger vote-btn">
+                                👎 <span id="downvote-count-{{ post.id }}" class="vote-count">{{ post.downvotes }}</span>
+                            </button>
+                        </div>
+                        {% else %}
+                        <div class="d-flex align-items-center text-muted">
+                            <span class="me-2">👍 {{ post.upvotes }}</span>
+                            <span>👎 {{ post.downvotes }}</span>
+                        </div>
+                        {% endif %}
+                        <a href="{% url 'forum:post_detail' university_college=university_college post_id=post.id %}#comments" class="text-muted">
+                            💬 {{ post.comments.count }} comments
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">No posts this week.</p>
+        {% endfor %}
+    </div>
 </div>
+
+<style>
+    .posts-section {
+        margin-top: 2rem;
+    }
+    
+    .posts-header {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #333;
+        padding-bottom: 0.5rem;
+    }
+    
+    .posts-header h2 {
+        color: #777;
+        cursor: pointer;
+        margin: 0;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .posts-header h2:hover {
+        color: #dba309;
+    }
+    
+    .posts-header h2.active {
+        color: #dba309;
+        background-color: rgba(219, 163, 9, 0.1);
+    }
+    
+    .recent-posts {
+        background-color: #1a1a1a;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .post-item {
+        border-bottom: 1px solid #333;
+        padding: 15px 0;
+        margin-bottom: 15px;
+    }
+    
+    .post-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .post-item h4 {
+        color: #dba309;
+        margin-bottom: 10px;
+    }
+    
+    .post-item p {
+        color: #ccc;
+        margin-bottom: 10px;
+    }
+    
+    .post-meta {
+        color: #777;
+        font-size: 0.9rem;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const headers = document.querySelectorAll('.posts-header h2');
+    const recentPosts = document.getElementById('recent-posts');
+    const weeklyPosts = document.getElementById('weekly-posts');
+    
+    headers.forEach(header => {
+        header.addEventListener('click', function() {
+            // Update active state
+            headers.forEach(h => h.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Show/hide appropriate content
+            if (this.dataset.view === 'recent') {
+                recentPosts.style.display = 'block';
+                weeklyPosts.style.display = 'none';
+            } else {
+                recentPosts.style.display = 'none';
+                weeklyPosts.style.display = 'block';
+            }
+        });
+    });
+});
+</script>
 
 <!-- Add JavaScript for voting functionality -->
 <script>
