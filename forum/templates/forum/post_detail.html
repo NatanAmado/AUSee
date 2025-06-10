@@ -14,6 +14,38 @@
         font-size: 0.75rem;
     }
     
+    /* Poll option styles */
+    .poll-option {
+        padding: 0.75rem 1rem;
+        border: 1px solid #333;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: #1a1a1a;
+    }
+    
+    .poll-option:hover {
+        background-color: #2a2a2a;
+        border-color: #dba309;
+        transform: translateX(5px);
+    }
+    
+    .poll-option.selected {
+        background-color: #dba309;
+        border-color: #dba309;
+        color: #000;
+    }
+    
+    .poll-option.selected:hover {
+        background-color: #c49208;
+    }
+    
+    .poll-option-text {
+        margin: 0;
+        font-size: 1rem;
+    }
+    
     /* Responsive styles for post detail */
     @media (max-width: 768px) {
         .card-header {
@@ -138,13 +170,13 @@
                 {% endfor %}
             {% endwith %}
             
-            {% if post.poll_relation %}
+            {% if post.poll %}
             <div class="poll-section mt-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">{{ post.poll_relation.question }}</h5>
-                        {% if post.poll_relation.end_date %}
-                        <p class="text-muted small">Poll ends: {{ post.poll_relation.end_date|date:"F j, Y, g:i a" }}</p>
+                        <h5 class="card-title">{{ post.poll.question }}</h5>
+                        {% if post.poll.end_date %}
+                        <p class="text-muted small">Poll ends: {{ post.poll.end_date|date:"F j, Y, g:i a" }}</p>
                         {% endif %}
                         
                         <div class="poll-options">
@@ -152,7 +184,7 @@
                                 {% if has_voted %}
                                     <!-- Show results -->
                                     <div class="poll-results">
-                                        {% for option in post.poll_relation.options.all %}
+                                        {% for option in post.poll.options.all %}
                                         <div class="poll-option-result mb-3">
                                             <div class="d-flex justify-content-between mb-1">
                                                 <span>{{ option.text }}</span>
@@ -173,16 +205,11 @@
                                     <!-- Show voting options -->
                                     <form id="poll-form" class="poll-vote-form">
                                         {% csrf_token %}
-                                        {% for option in post.poll_relation.options.all %}
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="radio" name="option" 
-                                                   id="option-{{ option.id }}" value="{{ option.id }}" required>
-                                            <label class="form-check-label" for="option-{{ option.id }}">
-                                                {{ option.text }}
-                                            </label>
+                                        {% for option in post.poll.options.all %}
+                                        <div class="poll-option" data-option-id="{{ option.id }}">
+                                            <p class="poll-option-text">{{ option.text }}</p>
                                         </div>
                                         {% endfor %}
-                                        <button type="submit" class="btn btn-primary mt-3">Vote</button>
                                     </form>
                                 {% endif %}
                             {% else %}
@@ -302,21 +329,24 @@
         }
         {% endif %}
         
-        const pollForm = document.getElementById('poll-form');
-        if (pollForm) {
-            pollForm.addEventListener('submit', function(e) {
-                e.preventDefault();
+        // Handle poll voting
+        const pollOptions = document.querySelectorAll('.poll-option');
+        pollOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const optionId = this.dataset.optionId;
                 
-                const selectedOption = document.querySelector('input[name="option"]:checked');
-                if (!selectedOption) return;
+                // Add selected class to clicked option
+                pollOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
                 
-                fetch(`/forum/{{ university_college }}/post/{{ post.id }}/vote/`, {
+                // Send vote
+                fetch(`{% url 'forum:vote_poll' university_college=university_college post_id=post.id %}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                     },
-                    body: `option_id=${selectedOption.value}`
+                    body: `option=${optionId}`
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -345,14 +375,16 @@
                         document.querySelector('.poll-options').innerHTML = resultsHtml;
                     } else {
                         alert(data.error || 'An error occurred while voting');
+                        this.classList.remove('selected');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     alert('An error occurred while voting');
+                    this.classList.remove('selected');
                 });
             });
-        }
+        });
     });
 </script>
 {% endblock %} 

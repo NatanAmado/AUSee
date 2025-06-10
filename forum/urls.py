@@ -19,6 +19,6 @@ urlpatterns = [
     path('posts/<int:post_id>/comment/', views.add_comment, name='add_comment'),
     path('posts/<int:post_id>/vote/', views.vote_post, name='vote_post'),
     path('search/', views.search_forum, name='search'),
-    path('post/<int:post_id>/report/', views.report_post, name='report_post'),
-    path('post/<int:post_id>/vote/', views.vote_poll, name='vote_poll'),
+    path('posts/<int:post_id>/report/', views.report_post, name='report_post'),
+    path('posts/<int:post_id>/vote-poll/', views.vote_poll, name='vote_poll'),
 ] 

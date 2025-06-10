@@ -282,54 +282,73 @@
             </div>
             {% endfor %}
 
-            <!-- Action Buttons -->
-            <div class="d-flex gap-2 mb-3">
-                <button type="button" class="btn btn-outline-warning icon-btn" id="toggle-poll" title="Add Poll">
-                    <i class="fas fa-chart-bar"></i>
-                </button>
-                <button type="button" class="btn btn-outline-warning icon-btn" id="toggle-gif" title="Add GIF/Meme">
-                    <i class="fas fa-image"></i>
-                </button>
+            <div class="mb-3">
+                <label for="{{ post_form.content.id_for_label }}">Content:</label>
+                {{ post_form.content }}
+            </div>
+            
+            <div class="mb-3">
+                {{ post_form.is_anonymous }}
+                <label for="{{ post_form.is_anonymous.id_for_label }}">Post anonymously</label>
             </div>
 
-            <!-- GIF Preview -->
-            <img id="gif-preview" class="gif-preview mb-3" alt="Selected GIF">
-
-            <!-- Poll Form (Hidden by default) -->
-            <div id="poll-section" style="display: none;">
-                <div class="card bg-dark text-light mb-3">
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="poll_question" class="form-label">Poll Question</label>
-                            <input type="text" name="poll_question" id="poll_question" class="form-control" maxlength="200">
+            <!-- Poll Section -->
+            <div class="card bg-dark text-light mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Add a Poll (Optional)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="{{ poll_form.question.id_for_label }}">Poll Question:</label>
+                        {{ poll_form.question }}
+                        {% if poll_form.question.errors %}
+                        <div class="alert alert-danger mt-2">
+                            {{ poll_form.question.errors }}
                         </div>
-                        
-                        <h6 class="mt-4">Poll Options</h6>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ poll_form.end_date.id_for_label }}">End Date (Optional):</label>
+                        {{ poll_form.end_date }}
+                        {% if poll_form.end_date.errors %}
+                        <div class="alert alert-danger mt-2">
+                            {{ poll_form.end_date.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="poll-options">
+                        <h6>Poll Options:</h6>
                         {{ poll_option_formset.management_form }}
-                        <div id="poll-options">
-                            {% for form in poll_option_formset %}
-                            <div class="mb-3 poll-option">
+                        {% for form in poll_option_formset %}
+                            <div class="poll-option mb-2">
                                 {{ form.text }}
-                                <button type="button" class="remove-option" title="Remove option">
+                                {% if forloop.counter0 >= 2 %}
+                                <button type="button" class="remove-option" onclick="this.parentElement.remove()">
                                     <i class="fas fa-times"></i>
                                 </button>
+                                {% endif %}
+                                {% if form.text.errors %}
+                                <div class="alert alert-danger mt-2">
+                                    {{ form.text.errors }}
+                                </div>
+                                {% endif %}
                             </div>
-                            {% endfor %}
-                        </div>
-                        <button type="button" class="btn btn-outline-warning btn-sm" id="add-option">
+                        {% endfor %}
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addPollOption()">
                             <i class="fas fa-plus"></i> Add Option
                         </button>
-
-                        <div class="mb-3 mt-4">
-                            <label for="{{ poll_form.end_date.id_for_label }}" class="form-label">End Date (Optional)</label>
-                            {{ poll_form.end_date }}
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-warning">Create Post</button>
-            <a href="{% url 'forum:home' university_college=university_college %}" class="btn btn-secondary">Cancel</a>
+            <div class="d-flex justify-content-between align-items-center">
+                <button type="submit" class="btn btn-primary">Create Post</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="openGifModal()">
+                    <i class="fas fa-gift"></i> Add GIF
+                </button>
+            </div>
         </form>
     </div>
 </div>
@@ -362,82 +381,66 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const togglePollBtn = document.getElementById('toggle-poll');
-    const pollSection = document.getElementById('poll-section');
-    const addOptionBtn = document.getElementById('add-option');
-    const pollOptions = document.getElementById('poll-options');
-    const totalForms = document.getElementById('id_polloption_set-TOTAL_FORMS');
-    const questionInput = document.getElementById('poll_question');
+    const pollSection = document.querySelector('.card.bg-dark.text-light.mb-4');
+    const pollOptions = document.querySelector('.poll-options');
+    const totalForms = document.getElementById('id_options-TOTAL_FORMS');
+    const questionInput = document.getElementById('id_question');
     const postForm = document.getElementById('post-form');
     
     // Add remove functionality to initial options
     document.querySelectorAll('.remove-option').forEach(btn => {
         btn.addEventListener('click', function() {
-            if (pollOptions.children.length > 2) {
+            if (document.querySelectorAll('.poll-option').length > 2) {
                 this.closest('.poll-option').remove();
                 updateTotalForms();
             }
         });
     });
     
-    togglePollBtn.addEventListener('click', function() {
-        if (pollSection.style.display === 'none') {
-            pollSection.style.display = 'block';
-            togglePollBtn.innerHTML = '<i class="fas fa-times"></i>';
-            togglePollBtn.title = 'Remove Poll';
-            questionInput.focus();
-        } else {
-            pollSection.style.display = 'none';
-            togglePollBtn.innerHTML = '<i class="fas fa-chart-bar"></i>';
-            togglePollBtn.title = 'Add Poll';
-            questionInput.value = '';
-        }
-    });
-    
-    addOptionBtn.addEventListener('click', function() {
-        const optionCount = pollOptions.children.length;
-        const newOption = pollOptions.children[0].cloneNode(true);
+    function addPollOption() {
+        const optionCount = parseInt(totalForms.value);
+        
+        // Clone the first option
+        const newOption = document.querySelector('.poll-option').cloneNode(true);
         
         // Update the form index
-        newOption.innerHTML = newOption.innerHTML.replace(/-\d+-/g, `-${optionCount}-`);
+        const inputs = newOption.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.name = input.name.replace(/-\d+-/, `-${optionCount}-`);
+            input.id = input.id.replace(/-\d+-/, `-${optionCount}-`);
+            input.value = '';
+        });
         
-        // Clear the input value
-        newOption.querySelector('input').value = '';
+        // Add remove button if not already present
+        if (!newOption.querySelector('.remove-option')) {
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-option';
+            removeBtn.title = 'Remove option';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.onclick = function() {
+                if (document.querySelectorAll('.poll-option').length > 2) {
+                    newOption.remove();
+                    updateTotalForms();
+                }
+            };
+            newOption.appendChild(removeBtn);
+        }
         
-        // Add remove button
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'remove-option';
-        removeBtn.title = 'Remove option';
-        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-        removeBtn.onclick = function() {
-            if (pollOptions.children.length > 2) {
-                newOption.remove();
-                updateTotalForms();
-            }
-        };
-        newOption.appendChild(removeBtn);
-        
-        pollOptions.appendChild(newOption);
+        pollOptions.insertBefore(newOption, pollOptions.lastElementChild);
         updateTotalForms();
-    });
+    }
     
     function updateTotalForms() {
-        totalForms.value = pollOptions.children.length;
+        const optionCount = document.querySelectorAll('.poll-option').length;
+        totalForms.value = optionCount;
     }
-
+    
     // Form validation
     postForm.addEventListener('submit', function(e) {
-        if (pollSection.style.display === 'block') {
-            if (!questionInput.value.trim()) {
-                e.preventDefault();
-                alert('Please enter a poll question');
-                questionInput.focus();
-                return false;
-            }
-            
+        if (questionInput && questionInput.value.trim()) {
             // Check if at least two options have text
-            const options = pollOptions.querySelectorAll('input[type="text"]');
+            const options = document.querySelectorAll('.poll-option input[type="text"]');
             const filledOptions = Array.from(options).filter(opt => opt.value.trim());
             if (filledOptions.length < 2) {
                 e.preventDefault();

@@ -78,7 +78,7 @@ class Post(models.Model):
     is_anonymous = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     author_university_college = models.CharField(max_length=4, blank=True, null=True)
-    poll = models.OneToOneField('Poll', on_delete=models.CASCADE, null=True, blank=True, related_name='post_poll')
+    poll = models.OneToOneField('Poll', on_delete=models.CASCADE, null=True, blank=True, related_name='post')
     
     def __str__(self):
         return self.title
@@ -171,13 +171,20 @@ class Vote(models.Model):
         unique_together = ('user', 'post')
 
 class Poll(models.Model):
-    post = models.OneToOneField(Post, on_delete=models.CASCADE, related_name='poll_relation')
     question = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(null=True, blank=True)  # Optional end date for the poll
 
     def __str__(self):
         return self.question
+
+    def has_user_voted(self, user):
+        """Check if a user has voted in this poll"""
+        return any(option.votes.filter(id=user.id).exists() for option in self.options.all())
+
+    def get_total_votes(self):
+        """Get the total number of votes across all options"""
+        return sum(option.vote_count for option in self.options.all())
 
 class PollOption(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='options')

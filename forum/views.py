@@ -233,6 +233,11 @@ def create_post(request, university_college):
         poll_form = PollForm(request.POST)
         poll_option_formset = PollOptionFormSet(request.POST)
         
+        print("\n=== POST DATA ===")
+        print("Question:", request.POST.get('question'))
+        print("Options:", [request.POST.get(f'options-{i}-text') for i in range(10) if request.POST.get(f'options-{i}-text')])
+        print("================\n")
+        
         if post_form.is_valid():
             post = post_form.save(commit=False)
             post.author = request.user
@@ -248,17 +253,37 @@ def create_post(request, university_college):
                     post.content = content.replace('[GIF][/GIF]', f'[GIF]{image_data}[/GIF]')
 
             post.save()
+            print(f"Post saved with ID: {post.id}")
             
             # Only handle poll creation if poll data is present
-            if request.POST.get('poll_question'):  # Check if poll is being used
+            if request.POST.get('question'):  # Check if poll was attempted
+                print("\n=== POLL FORM VALIDATION ===")
+                print("Poll form is valid:", poll_form.is_valid())
+                if not poll_form.is_valid():
+                    print("Poll form errors:", poll_form.errors)
+                
+                print("Poll option formset is valid:", poll_option_formset.is_valid())
+                if not poll_option_formset.is_valid():
+                    print("Poll option formset errors:", poll_option_formset.errors)
+                print("===========================\n")
+                
                 if poll_form.is_valid() and poll_option_formset.is_valid():
+                    # Create the poll first
                     poll = poll_form.save(commit=False)
-                    poll.post = post
                     poll.save()
+                    print(f"Poll saved with ID: {poll.id}")
                     
                     # Save poll options
                     poll_option_formset.instance = poll
                     poll_option_formset.save()
+                    print("Poll options saved")
+                    
+                    # Associate the poll with the post
+                    post.poll = poll
+                    post.save()
+                    print("Poll associated with post")
+                else:
+                    messages.error(request, "There was an error creating the poll. Please try again.")
             
             return redirect('forum:post_detail', university_college=university_college, post_id=post.id)
     else:
@@ -342,6 +367,16 @@ def post_detail(request, university_college, post_id):
     if request.user.is_authenticated:
         user_reported = PostReport.objects.filter(post=post, user=request.user).exists()
     
+    # Poll-related context
+    has_voted = False
+    total_votes = 0
+    try:
+        if post.poll and request.user.is_authenticated:
+            has_voted = post.poll.has_user_voted(request.user)
+            total_votes = post.poll.get_total_votes()
+    except Post.poll.RelatedObjectDoesNotExist:
+        pass
+    
     context = {
         'post': post,
         'comments': comments,
@@ -349,7 +384,9 @@ def post_detail(request, university_college, post_id):
         'user_vote': user_vote,
         'user_reported': user_reported,
         'is_staff_or_superuser': request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff),
-        'university_college': university_college
+        'university_college': university_college,
+        'has_voted': has_voted,
+        'total_votes': total_votes
     }
     return render(request, 'forum/post_detail.html', context)
 
@@ -614,12 +651,12 @@ def create_post_in_topic(request, university_college, topic_id):
 def vote_poll(request, university_college, post_id):
     if request.method == 'POST':
         post = get_object_or_404(Post, id=post_id)
-        option_id = request.POST.get('option_id')
+        option_id = request.POST.get('option')
         
-        if not post.poll_relation:
+        if not post.poll:
             return JsonResponse({'error': 'No poll found'}, status=400)
         
-        option = get_object_or_404(PollOption, id=option_id, poll=post.poll_relation)
+        option = get_object_or_404(PollOption, id=option_id, poll=post.poll)
         
         # Check if user has already voted
         if request.user in option.votes.all():
@@ -630,9 +667,9 @@ def vote_poll(request, university_college, post_id):
         
         # Get updated results
         results = []
-        total_votes = sum(opt.vote_count for opt in post.poll_relation.options.all())
+        total_votes = sum(opt.vote_count for opt in post.poll.options.all())
         
-        for opt in post.poll_relation.options.all():
+        for opt in post.poll.options.all():
             percentage = (opt.vote_count / total_votes * 100) if total_votes > 0 else 0
             results.append({
                 'id': opt.id,
