@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.db.models import F, Q
 from django.core.paginator import Paginator
 from django.views.decorators.http import require_POST
-from .models import Topic, Post, Comment, Vote, TopicReport, PostReport, Poll, PollOption
+from .models import Topic, Post, Comment, Vote, TopicReport, PostReport, Poll, PollOption, PollVote
 from .forms import TopicForm, PostForm, CommentForm, TopicDescriptionForm, TopicReportForm, PostReportForm, PollForm, PollOptionFormSet
 from django import forms
 from CourseReviews1.views import university_college_check
@@ -30,7 +30,7 @@ def forum_home(request, university_college):
     # Base queryset for posts
     posts_query = Post.objects.filter(
         Q(topic__university_college=university_college) | Q(topic__is_global=True)
-    )
+    ).select_related('poll')  # Use the original related name
     
     # Only show non-archived posts to regular users
     if not (request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff)):
@@ -45,6 +45,12 @@ def forum_home(request, university_college):
     ).annotate(
         net_votes=F('upvotes') - F('downvotes')
     ).order_by('-net_votes', '-created_at')[:10]
+    
+    # Prefetch polls and check if user has voted
+    for posts in [recent_posts, weekly_top_posts]:
+        for post in posts:
+            if post.poll:
+                post.poll.has_user_voted = post.poll.has_user_voted(request.user)
     
     context = {
         'topics': topics,
@@ -230,8 +236,16 @@ def report_topic(request, university_college, topic_id):
 def create_post(request, university_college):
     if request.method == 'POST':
         post_form = PostForm(request.POST)
-        poll_form = PollForm(request.POST)
-        poll_option_formset = PollOptionFormSet(request.POST)
+        
+        # Check if poll section was visible by checking if any poll data was submitted
+        poll_section_visible = any(key.startswith('options-') for key in request.POST.keys()) or request.POST.get('question')
+        
+        # Only initialize poll forms if poll section was visible
+        poll_form = None
+        poll_option_formset = None
+        if poll_section_visible:
+            poll_form = PollForm(request.POST)
+            poll_option_formset = PollOptionFormSet(request.POST)
         
         print("\n=== POST DATA ===")
         print("Question:", request.POST.get('question'))
@@ -255,43 +269,59 @@ def create_post(request, university_college):
             post.save()
             print(f"Post saved with ID: {post.id}")
             
-            # Only handle poll creation if poll data is present
-            if request.POST.get('question'):  # Check if poll was attempted
+            # Only handle poll creation if poll section was visible
+            if poll_section_visible and poll_form and poll_option_formset:
                 print("\n=== POLL FORM VALIDATION ===")
                 print("Poll form is valid:", poll_form.is_valid())
                 if not poll_form.is_valid():
                     print("Poll form errors:", poll_form.errors)
+                    for field, errors in poll_form.errors.items():
+                        for error in errors:
+                            messages.error(request, f"Poll {field}: {error}")
                 
                 print("Poll option formset is valid:", poll_option_formset.is_valid())
                 if not poll_option_formset.is_valid():
                     print("Poll option formset errors:", poll_option_formset.errors)
+                    for form in poll_option_formset:
+                        for field, errors in form.errors.items():
+                            for error in errors:
+                                messages.error(request, f"Poll option {field}: {error}")
                 print("===========================\n")
                 
                 if poll_form.is_valid() and poll_option_formset.is_valid():
-                    # Create the poll first
-                    poll = poll_form.save(commit=False)
-                    poll.save()
-                    print(f"Poll saved with ID: {poll.id}")
-                    
-                    # Save poll options
-                    poll_option_formset.instance = poll
-                    poll_option_formset.save()
-                    print("Poll options saved")
-                    
-                    # Associate the poll with the post
-                    post.poll = poll
-                    post.save()
-                    print("Poll associated with post")
+                    try:
+                        # Create the poll first
+                        poll = poll_form.save(commit=False)
+                        poll.save()
+                        print(f"Poll saved with ID: {poll.id}")
+                        
+                        # Save poll options
+                        poll_option_formset.instance = poll
+                        poll_option_formset.save()
+                        print("Poll options saved")
+                        
+                        # Associate the poll with the post
+                        post.poll = poll
+                        post.save()
+                        print("Poll associated with post")
+                        messages.success(request, "Post and poll created successfully!")
+                    except Exception as e:
+                        print(f"Error creating poll: {str(e)}")
+                        messages.error(request, f"Error creating poll: {str(e)}")
                 else:
-                    messages.error(request, "There was an error creating the poll. Please try again.")
+                    messages.error(request, "Please check the poll form for errors.")
+            else:
+                messages.success(request, "Post created successfully!")
             
             return redirect('forum:post_detail', university_college=university_college, post_id=post.id)
+        else:
+            messages.error(request, "There was an error creating the post. Please check the form and try again.")
     else:
         post_form = PostForm()
         poll_form = PollForm()
         poll_option_formset = PollOptionFormSet()
     
-    return render(request, 'forum/create_post.html', {
+    return render(request, 'forum/post_form.html', {
         'post_form': post_form,
         'poll_form': poll_form,
         'poll_option_formset': poll_option_formset,
@@ -373,7 +403,7 @@ def post_detail(request, university_college, post_id):
     try:
         if post.poll and request.user.is_authenticated:
             has_voted = post.poll.has_user_voted(request.user)
-            total_votes = post.poll.get_total_votes()
+            total_votes = post.poll.total_votes
     except Post.poll.RelatedObjectDoesNotExist:
         pass
     
@@ -658,12 +688,15 @@ def vote_poll(request, university_college, post_id):
         
         option = get_object_or_404(PollOption, id=option_id, poll=post.poll)
         
-        # Check if user has already voted
-        if request.user in option.votes.all():
+        # Check if user has already voted using PollVote
+        if PollVote.objects.filter(poll_option=option, user=request.user).exists():
             return JsonResponse({'error': 'You have already voted'}, status=400)
         
-        # Add vote
-        option.votes.add(request.user)
+        # Add vote using PollVote and increment vote_count
+        PollVote.objects.create(poll_option=option, user=request.user)
+        option.vote_count = F('vote_count') + 1
+        option.save()
+        option.refresh_from_db()  # Refresh to get the updated vote_count
         
         # Get updated results
         results = []

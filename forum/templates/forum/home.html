@@ -278,6 +278,75 @@
         margin: 1rem 0;
         object-fit: contain;
     }
+
+    /* Poll styles */
+    .poll-section {
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: #2a2a2a;
+        border-radius: 0.5rem;
+        border: 1px solid #333;
+    }
+    
+    .poll-question {
+        color: #dba309;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .poll-option {
+        padding: 0.75rem 1rem;
+        border: 1px solid #333;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: #1a1a1a;
+    }
+    
+    .poll-option:hover {
+        background-color: #2a2a2a;
+        border-color: #dba309;
+        transform: translateX(5px);
+    }
+    
+    .poll-option.selected {
+        background-color: #dba309;
+        border-color: #dba309;
+        color: #000;
+    }
+    
+    .poll-option.selected:hover {
+        background-color: #c49208;
+    }
+    
+    .poll-option-text {
+        margin: 0;
+        font-size: 1rem;
+    }
+    
+    .poll-results {
+        margin-top: 1rem;
+    }
+    
+    .poll-option-result {
+        margin-bottom: 1rem;
+    }
+    
+    .poll-option-result .progress {
+        background-color: #2a2a2a;
+        height: 8px;
+        margin-top: 0.5rem;
+    }
+    
+    .poll-option-result .progress-bar {
+        background-color: #dba309;
+    }
+    
+    .poll-option-result .d-flex {
+        color: #ccc;
+        font-size: 0.9rem;
+    }
 </style>
 
 <!-- Hero Section -->
@@ -401,6 +470,48 @@
                     {% endif %}
                 {% endfor %}
             {% endwith %}
+            
+            {% if post.poll %}
+            <div class="poll-section">
+                <div class="poll-question">{{ post.poll.question }}</div>
+                {% if user.is_authenticated %}
+                    {% if post.poll.has_user_voted %}
+                        <!-- Show results -->
+                        <div class="poll-results">
+                            {% for option in post.poll.options.all %}
+                            <div class="poll-option-result">
+                                <div class="d-flex justify-content-between">
+                                    <span>{{ option.text }}</span>
+                                    <span>{{ option.vote_count }} votes ( {{ option.vote_count|percentage:post.poll.total_votes }} %)</span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ option.vote_count|percentage:post.poll.total_votes }}%"
+                                         aria-valuenow="{{ option.vote_count|percentage:post.poll.total_votes }}" 
+                                         aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <!-- Show voting options -->
+                        <div class="poll-options">
+                            {% for option in post.poll.options.all %}
+                            <div class="poll-option" data-option-id="{{ option.id }}" data-post-id="{{ post.id }}">
+                                {{ option.text }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-info">
+                        Please <a href="{% url 'login' %}?next={{ request.path }}">log in</a> to vote in this poll.
+                    </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
             <div class="d-flex justify-content-between align-items-center mt-2">
                 <div class="d-flex align-items-center gap-3">
                     {% if user.is_authenticated and not post.is_archived %}
@@ -438,7 +549,22 @@
                     {{ post.title }}
                 </a>
             </h4>
-            <p>{{ post.content|truncatewords:30 }}</p>
+            {% with content_parts=post.content|split:"[GIF]" %}
+                {% for part in content_parts %}
+                    {% if forloop.counter0|divisibleby:2 %}
+                        <p class="post-content">{{ part|linebreaks|truncatewords:50 }}</p>
+                    {% else %}
+                        {% with gif_url=part|split:"[/GIF]"|first %}
+                            <img src="{{ gif_url }}" alt="GIF" class="post-gif">
+                            {% with remaining_text=part|split:"[/GIF]"|last %}
+                                {% if remaining_text %}
+                                    <p class="post-content">{{ remaining_text|linebreaks|truncatewords:50 }}</p>
+                                {% endif %}
+                            {% endwith %}
+                        {% endwith %}
+                    {% endif %}
+                {% endfor %}
+            {% endwith %}
             <div class="post-meta">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -583,6 +709,66 @@ document.addEventListener('DOMContentLoaded', function() {
                 recentPosts.style.display = 'none';
                 weeklyPosts.style.display = 'block';
             }
+        });
+    });
+
+    // Handle poll voting
+    const pollOptions = document.querySelectorAll('.poll-option');
+    pollOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const optionId = this.dataset.optionId;
+            const postId = this.dataset.postId;
+            
+            // Add selected class to clicked option
+            const optionsInPoll = this.parentElement.querySelectorAll('.poll-option');
+            optionsInPoll.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Send vote
+            fetch(`/{{ university_college }}/forum/posts/${postId}/vote-poll/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: `option=${optionId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Replace the voting form with results
+                    const pollSection = this.closest('.poll-section');
+                    const resultsHtml = `
+                        <div class="poll-results">
+                            ${data.results.map(result => `
+                                <div class="poll-option-result">
+                                    <div class="d-flex justify-content-between">
+                                        <span>${result.text}</span>
+                                        <span>${result.votes} votes (${result.percentage}%)</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: ${result.percentage}%"
+                                             aria-valuenow="${result.percentage}" 
+                                             aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                            <p class="text-muted small mt-3">Total votes: ${data.total_votes}</p>
+                        </div>
+                    `;
+                    pollSection.innerHTML = resultsHtml;
+                } else {
+                    alert(data.error || 'An error occurred while voting');
+                    this.classList.remove('selected');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while voting');
+                this.classList.remove('selected');
+            });
         });
     });
 });

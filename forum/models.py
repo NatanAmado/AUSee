@@ -5,15 +5,25 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 import math
 from datetime import timedelta
 from users.models import UNIVERSITY_COLLEGE_CHOICES
+from django.db.models import F, Q
+from django.urls import reverse
+from django.utils.text import slugify
+import re
 
 class Topic(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='created_topics')
     is_archived = models.BooleanField(default=False)
     university_college = models.CharField(max_length=4, choices=UNIVERSITY_COLLEGE_CHOICES, default='auc')
     is_global = models.BooleanField(default=False, help_text="If True, this topic is visible to all university colleges")
+    slug = models.SlugField(unique=True, null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.name
@@ -67,10 +77,10 @@ class TopicReport(models.Model):
         return f"Report on {self.topic.name} by {self.user.username}"
 
 class Post(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='posts')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='forum_posts', null=True, blank=True)
     title = models.CharField(max_length=200)
     content = models.TextField()
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='posts')
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='posts')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     upvotes = models.IntegerField(default=0)
@@ -78,7 +88,7 @@ class Post(models.Model):
     is_anonymous = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
     author_university_college = models.CharField(max_length=4, blank=True, null=True)
-    poll = models.OneToOneField('Poll', on_delete=models.CASCADE, null=True, blank=True, related_name='post')
+    poll = models.OneToOneField('Poll', on_delete=models.SET_NULL, null=True, blank=True, related_name='post_relation')
     
     def __str__(self):
         return self.title
@@ -171,29 +181,40 @@ class Vote(models.Model):
         unique_together = ('user', 'post')
 
 class Poll(models.Model):
+    post = models.OneToOneField(Post, on_delete=models.CASCADE, related_name='poll_relation', null=True, blank=True)
     question = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
-    end_date = models.DateTimeField(null=True, blank=True)  # Optional end date for the poll
-
-    def __str__(self):
-        return self.question
-
+    end_date = models.DateTimeField(null=True, blank=True)
+    
+    @property
+    def total_votes(self):
+        """Calculate total votes across all options"""
+        return sum(option.vote_count for option in self.options.all())
+    
     def has_user_voted(self, user):
         """Check if a user has voted in this poll"""
-        return any(option.votes.filter(id=user.id).exists() for option in self.options.all())
-
-    def get_total_votes(self):
-        """Get the total number of votes across all options"""
-        return sum(option.vote_count for option in self.options.all())
+        if not user.is_authenticated:
+            return False
+        return PollVote.objects.filter(poll_option__poll=self, user=user).exists()
+    
+    def __str__(self):
+        return self.question
 
 class PollOption(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='options')
     text = models.CharField(max_length=200)
-    votes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='poll_votes', blank=True)
-
+    vote_count = models.IntegerField(default=0)
+    
     def __str__(self):
         return self.text
 
-    @property
-    def vote_count(self):
-        return self.votes.count()
+class PollVote(models.Model):
+    poll_option = models.ForeignKey(PollOption, on_delete=models.CASCADE, related_name='option_votes')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_poll_votes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('poll_option', 'user')
+    
+    def __str__(self):
+        return f"{self.user.username} voted for {self.poll_option.text}"

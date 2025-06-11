@@ -336,7 +336,7 @@
                                 {% endif %}
                             </div>
                         {% endfor %}
-                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addPollOption()">
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="add-option">
                             <i class="fas fa-plus"></i> Add Option
                         </button>
                     </div>
@@ -381,27 +381,18 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const pollSection = document.querySelector('.card.bg-dark.text-light.mb-4');
+    const postForm = document.getElementById('post-form');
+    const questionInput = document.getElementById('id_question');
     const pollOptions = document.querySelector('.poll-options');
     const totalForms = document.getElementById('id_options-TOTAL_FORMS');
-    const questionInput = document.getElementById('id_question');
-    const postForm = document.getElementById('post-form');
-    
-    // Add remove functionality to initial options
-    document.querySelectorAll('.remove-option').forEach(btn => {
-        btn.addEventListener('click', function() {
-            if (document.querySelectorAll('.poll-option').length > 2) {
-                this.closest('.poll-option').remove();
-                updateTotalForms();
-            }
-        });
-    });
+    const addOptionBtn = document.getElementById('add-option');
     
     function addPollOption() {
         const optionCount = parseInt(totalForms.value);
         
         // Clone the first option
-        const newOption = document.querySelector('.poll-option').cloneNode(true);
+        const firstOption = document.querySelector('.poll-option');
+        const newOption = firstOption.cloneNode(true);
         
         // Update the form index
         const inputs = newOption.querySelectorAll('input');
@@ -427,7 +418,9 @@ document.addEventListener('DOMContentLoaded', function() {
             newOption.appendChild(removeBtn);
         }
         
-        pollOptions.insertBefore(newOption, pollOptions.lastElementChild);
+        // Insert before the Add Option button
+        const addOptionBtn = document.getElementById('add-option');
+        pollOptions.insertBefore(newOption, addOptionBtn);
         updateTotalForms();
     }
     
@@ -436,20 +429,27 @@ document.addEventListener('DOMContentLoaded', function() {
         totalForms.value = optionCount;
     }
     
+    // Add click handler to the Add Option button
+    if (addOptionBtn) {
+        addOptionBtn.addEventListener('click', addPollOption);
+    }
+    
     // Form validation
-    postForm.addEventListener('submit', function(e) {
-        if (questionInput && questionInput.value.trim()) {
-            // Check if at least two options have text
-            const options = document.querySelectorAll('.poll-option input[type="text"]');
-            const filledOptions = Array.from(options).filter(opt => opt.value.trim());
-            if (filledOptions.length < 2) {
-                e.preventDefault();
-                alert('Please provide at least two poll options');
-                return false;
+    if (postForm) {
+        postForm.addEventListener('submit', function(e) {
+            if (questionInput && questionInput.value.trim()) {
+                // Check if at least two options have text
+                const options = document.querySelectorAll('.poll-option input[type="text"]');
+                const filledOptions = Array.from(options).filter(opt => opt.value.trim());
+                if (filledOptions.length < 2) {
+                    e.preventDefault();
+                    alert('Please provide at least two poll options');
+                    return false;
+                }
             }
-        }
-        return true;
-    });
+            return true;
+        });
+    }
 
     // GIF Modal functionality
     const gifModal = document.getElementById('gif-modal');
