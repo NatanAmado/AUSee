@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 db.sqlite3
 CourseReviews1/static/fonts/.DS_Store
+*.sql
+*.json
