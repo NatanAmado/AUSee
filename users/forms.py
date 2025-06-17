@@ -25,7 +25,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        valid_domains = ['@student.auc.nl', '@student.uva.nl', '@student.vu.nl']
+        valid_domains = ['@student.auc.nl', '@student.uva.nl', '@student.vu.nl','@umail.leidenuniv.nl', '@vuw.leidenuniv.nl']
         if not any(email.endswith(domain) for domain in valid_domains):
             raise ValidationError("Email must be a student email from AUC, UVA, or VU")
         return email

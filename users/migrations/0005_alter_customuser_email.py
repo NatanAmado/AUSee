@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customuser',
             name='email',
-            field=models.EmailField(default="Your email should end with '@student.auc.nl'", max_length=254),
+            field=models.EmailField(default="Your email should be a student email'", max_length=254),
         ),
     ]
